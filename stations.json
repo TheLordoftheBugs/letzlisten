@@ -1,6 +1,6 @@
 {
-  "version": "1.12",
-  "last_updated": "2025-02-11 11:05PM",
+  "version": "1.13",
+  "last_updated": "2025-02-11 11:25PM",
   "stations": [
     {
       "id": "antena_mais",
@@ -77,7 +77,7 @@
       "name": "Luxembourg Global Radio",
       "streamURL": "https://stream.luxglobalradio.lu/live.mp3",
       "logoImageName": "LuxGlobalLogo",
-      "websiteURL": "https://www.luxglobalradio.lu"
+      "websiteURL": "https://www.facebook.com/globalradio.lu/"
     },
     {
       "id": "music_radio1",
