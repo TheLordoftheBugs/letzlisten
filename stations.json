@@ -1,0 +1,265 @@
+{
+  "version": "1.0",
+  "last_updated": "2025-02-11",
+  "stations": [
+    {
+      "id": "antena_mais",
+      "name": "Antena Mais",
+      "streamURL": "https://sp0.redeaudio.com/8084/stream/1/",
+      "logoImageName": "AntenaLogo",
+      "websiteURL": "https://www.facebook.com/antenamais/"
+    },
+    {
+      "id": "country_radio",
+      "name": "Country Radio",
+      "streamURL": "http://streaming.aoip.international:8000/cr-gilsdorf",
+      "logoImageName": "CountryLogo",
+      "websiteURL": "https://www.facebook.com/CountryRadioGilsdorf/"
+    },
+    {
+      "id": "crazy_poisons",
+      "name": "Crazy Poisons Radio",
+      "streamURL": "http://server4.streamserver24.com:26607/stream/1/",
+      "logoImageName": "CrazyPoisonsLogo",
+      "websiteURL": "https://www.crazypoisons.lu"
+    },
+    {
+      "id": "crooner",
+      "name": "Crooner Radio",
+      "streamURL": "https://direct.croonerradio.fr/croonerradio-midfi.mp3",
+      "logoImageName": "CroonerLogo",
+      "websiteURL": "https://www.croonerradio.com"
+    },
+    {
+      "id": "eldoradio",
+      "name": "Eldoradio",
+      "streamURL": "http://sc-eldolive.newmedia.lu/;stream.nvs",
+      "logoImageName": "EldoradioLogo",
+      "websiteURL": "https://www.eldo.lu"
+    },
+    {
+      "id": "fce_continuo",
+      "name": "FCE Continuo",
+      "streamURL": "https://listen.radioking.com/radio/494172/stream/555211",
+      "logoImageName": "FCELogo",
+      "websiteURL": "https://fce-lu.com/fce-continuo"
+    },
+    {
+      "id": "free_radio_lux",
+      "name": "Free Radio Luxembourg",
+      "streamURL": "https://www.radioking.com/play/rfm-luxembourg/137599",
+      "logoImageName": "FRLLogo",
+      "websiteURL": "https://www.frl.lu/"
+    },
+    {
+      "id": "generation_dance",
+      "name": "Generation Dance",
+      "streamURL": "https://stream.generationdance.lu/live.mp3",
+      "logoImageName": "GenDanceLogo",
+      "websiteURL": "https://www.generationdance.lu"
+    },
+    {
+      "id": "lessentiel",
+      "name": "L'essentiel Radio",
+      "streamURL": "https://streaming.lessentielradio.lu/lessentielradio.mp3",
+      "logoImageName": "LessentielLogo",
+      "websiteURL": "https://www.lessentiel.lu"
+    },
+    {
+      "id": "lorfm",
+      "name": "LOR'FM",
+      "streamURL": "https://stream.lorfm.com/live.mp3",
+      "logoImageName": "LORFMLogo",
+      "websiteURL": "https://www.lorfm.com"
+    },
+    {
+      "id": "lux_global",
+      "name": "Luxembourg Global Radio",
+      "streamURL": "https://stream.luxglobalradio.lu/live.mp3",
+      "logoImageName": "LuxGlobalLogo",
+      "websiteURL": "https://www.luxglobalradio.lu"
+    },
+    {
+      "id": "music_radio1",
+      "name": "Music Radio 1",
+      "streamURL": "https://stream.musicradio1.lu/live.mp3",
+      "logoImageName": "MusicRadio1Logo",
+      "websiteURL": "https://www.musicradio1.lu"
+    },
+    {
+      "id": "nostalgie_lux",
+      "name": "Nostalgie Luxembourg",
+      "streamURL": "https://stream.nostalgie.lu/live.mp3",
+      "logoImageName": "NostalgieLogo",
+      "websiteURL": "https://www.nostalgie.lu"
+    },
+    {
+      "id": "opus_1007",
+      "name": "Opus 100,7",
+      "streamURL": "https://stream.100komma7.lu/opus/live/mp3/128/stream.mp3",
+      "logoImageName": "OpusLogo",
+      "websiteURL": "https://www.100komma7.lu"
+    },
+    {
+      "id": "peiteng_on_air",
+      "name": "Peiteng On Air",
+      "streamURL": "https://stream.peitengonair.lu/live.mp3",
+      "logoImageName": "PeitengLogo",
+      "websiteURL": "https://www.peitengonair.lu"
+    },
+    {
+      "id": "radio_1007",
+      "name": "Radio 100,7",
+      "streamURL": "https://stream.100komma7.lu/100komma7/live/mp3/128/stream.mp3",
+      "logoImageName": "Radio1007Logo",
+      "websiteURL": "https://www.100komma7.lu"
+    },
+    {
+      "id": "radio_208",
+      "name": "Radio 2-0-8",
+      "streamURL": "https://stream.radio208.lu/live.mp3",
+      "logoImageName": "Radio208Logo",
+      "websiteURL": "https://www.radio208.lu"
+    },
+    {
+      "id": "radio_aktiv",
+      "name": "Radio Aktiv",
+      "streamURL": "https://stream.radioaktiv.lu/live.mp3",
+      "logoImageName": "AktivLogo",
+      "websiteURL": "https://www.radioaktiv.lu"
+    },
+    {
+      "id": "radio_amizade",
+      "name": "Radio Amizade",
+      "streamURL": "https://stream.radioamizade.lu/live.mp3",
+      "logoImageName": "AmizadeLogo",
+      "websiteURL": "https://www.radioamizade.lu"
+    },
+    {
+      "id": "radio_ara",
+      "name": "Radio ARA",
+      "streamURL": "https://stream.ara.lu/ara.mp3",
+      "logoImageName": "ARALogo",
+      "websiteURL": "https://www.ara.lu"
+    },
+    {
+      "id": "rbv",
+      "name": "Radio Belle Vallée",
+      "streamURL": "https://stream.rbv.lu/live.mp3",
+      "logoImageName": "RBVLogo",
+      "websiteURL": "https://www.rbv.lu"
+    },
+    {
+      "id": "radio_cents",
+      "name": "Radio Cents",
+      "streamURL": "https://stream.radiocents.lu/live.mp3",
+      "logoImageName": "CentsLogo",
+      "websiteURL": "https://www.radiocents.lu"
+    },
+    {
+      "id": "radio_diddeleng",
+      "name": "Radio Diddeleng",
+      "streamURL": "https://stream.radiodiddeleng.lu/live.mp3",
+      "logoImageName": "DiddelengLogo",
+      "websiteURL": "https://www.facebook.com/Dudelangefm.radiolocale"
+    },
+    {
+      "id": "rgl",
+      "name": "Radio Gutt Laun",
+      "streamURL": "http://rgl.selfip.net:8000/mp3",
+      "logoImageName": "RGLLogo",
+      "websiteURL": "https://www.rgl.lu"
+    },
+    {
+      "id": "radio_jeans",
+      "name": "Radio Jeansgeneration",
+      "streamURL": "https://stream.jeansgeneration.lu/live.mp3",
+      "logoImageName": "JeansLogo",
+      "websiteURL": "https://www.jeansgeneration.lu"
+    },
+    {
+      "id": "radio_larochette",
+      "name": "Radio Larochette",
+      "streamURL": "https://stream.radiolarochette.com/live.mp3",
+      "logoImageName": "LarochetteLogo",
+      "websiteURL": "https://www.radiolarochette.com"
+    },
+    {
+      "id": "radio_latina",
+      "name": "Radio Latina",
+      "streamURL": "https://stream.radiolatina.lu/live.mp3",
+      "logoImageName": "LatinaLogo",
+      "websiteURL": "https://www.radiolatina.lu"
+    },
+    {
+      "id": "radio_lrb",
+      "name": "Radio LRB",
+      "streamURL": "https://stream.radiolrb.lu/live.mp3",
+      "logoImageName": "LRBLogo",
+      "websiteURL": "https://www.radiolrb.lu"
+    },
+    {
+      "id": "radio_lusitana",
+      "name": "Radio Lusitana",
+      "streamURL": "https://stream.lusitanafm.lu/live.mp3",
+      "logoImageName": "LusitanaLogo",
+      "websiteURL": "https://www.lusitanafm.lu"
+    },
+    {
+      "id": "radio_lux_523",
+      "name": "Radio Luxembourg 523",
+      "streamURL": "https://stream.radiolux523.lu/live.mp3",
+      "logoImageName": "Lux523Logo",
+      "websiteURL": "https://www.radiolux523.lu"
+    },
+    {
+      "id": "radio_mess",
+      "name": "Radio Mess",
+      "streamURL": "https://stream.radiomess.lu/live.mp3",
+      "logoImageName": "RadioMessLogo",
+      "websiteURL": "https://www.radiomess.lu"
+    },
+    {
+      "id": "radio_puls",
+      "name": "Radio Puls Luxembourg",
+      "streamURL": "https://stream.radiopuls.lu/live.mp3",
+      "logoImageName": "PulsLogo",
+      "websiteURL": "https://www.radiopuls.lu"
+    },
+    {
+      "id": "radio_rom",
+      "name": "Radio ROM",
+      "streamURL": "https://stream.radiorom.lu/live.mp3",
+      "logoImageName": "ROMLogo",
+      "websiteURL": "https://www.radiorom.lu"
+    },
+    {
+      "id": "rtl_de",
+      "name": "RTL Deutschlands Hit Radio",
+      "streamURL": "https://stream.rtlradio.de/radio/mp3-128/",
+      "logoImageName": "RTLDELogo",
+      "websiteURL": "https://www.rtl.de"
+    },
+    {
+      "id": "rtl_letz",
+      "name": "RTL Radio Lëtzebuerg",
+      "streamURL": "http://radio.rtl.lu/mp3.pls",
+      "logoImageName": "RTLLogo",
+      "websiteURL": "https://www.rtl.lu"
+    },
+    {
+      "id": "today_radio",
+      "name": "RTL Today Radio",
+      "streamURL": "https://stream.rtltoday.lu/live.mp3",
+      "logoImageName": "RTLTodayLogo",
+      "websiteURL": "https://www.rtltoday.lu"
+    },
+    {
+      "id": "studio_lux",
+      "name": "Studio Lux FM",
+      "streamURL": "https://stream.studioluxfm.lu/live.mp3",
+      "logoImageName": "StudioLuxLogo",
+      "websiteURL": "https://www.studioluxfm.lu"
+    }
+  ]
+}
