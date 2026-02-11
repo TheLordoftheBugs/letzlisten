@@ -1,10 +1,10 @@
 {
-  "version": "1.10",
-  "last_updated": "2025-02-11 10:46PM",
+  "version": "1.11",
+  "last_updated": "2025-02-11 11:05PM",
   "stations": [
     {
       "id": "antena_mais",
-      "name": "Antena Mais 45",
+      "name": "Antena Mais",
       "streamURL": "https://sp0.redeaudio.com/8084/stream/1/",
       "logoImageName": "AntenaLogo",
       "websiteURL": "https://www.facebook.com/antenamais/"
@@ -40,7 +40,7 @@
     {
       "id": "fce_continuo",
       "name": "FCE Continuo",
-      "streamURL": "https://listen.radioking.com/radio/494172/stream/555211",
+      "streamURL": "https://listen.radioking.com/radio/551009/stream/610262",
       "logoImageName": "FCELogo",
       "websiteURL": "https://fce-lu.com/fce-continuo"
     },
@@ -54,16 +54,16 @@
     {
       "id": "generation_dance",
       "name": "Generation Dance",
-      "streamURL": "https://stream.generationdance.lu/live.mp3",
+      "streamURL": "https://generation.dance/mobile.pls",
       "logoImageName": "GenDanceLogo",
-      "websiteURL": "https://www.generationdance.lu"
+      "websiteURL": "https://generation.dance/"
     },
     {
       "id": "lessentiel",
       "name": "L'essentiel Radio",
       "streamURL": "https://streaming.lessentielradio.lu/lessentielradio.mp3",
       "logoImageName": "LessentielLogo",
-      "websiteURL": "https://www.lessentiel.lu"
+      "websiteURL": "https://www.facebook.com/lessentielradio"
     },
     {
       "id": "lorfm",
