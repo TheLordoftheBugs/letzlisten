@@ -1,6 +1,6 @@
 {
-  "version": "1.15",
-  "last_updated": "2025-02-12 11:45PM",
+  "version": "1.16,
+  "last_updated": "2025-02-12 11:48PM",
   "stations": [
     {
       "id": "antena_mais",
@@ -23,7 +23,7 @@
       "name": "Crazy Poisons Radio",
       "streamURL": "http://server4.streamserver24.com:26607/stream/1/",
       "logoImageName": "CrazyPoisonsLogo",
-      "websiteURL": "https://www.crazypoisons.lu",
+      "websiteURL": "https://crazypoisonsradio.biz/",
       "isEnabled": true 
     },
     {
