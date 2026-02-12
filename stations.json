@@ -1,6 +1,6 @@
 {
-  "version": "1.14",
-  "last_updated": "2025-02-12 09:58PM",
+  "version": "1.15",
+  "last_updated": "2025-02-12 11:45PM",
   "stations": [
     {
       "id": "antena_mais",
@@ -8,7 +8,7 @@
       "streamURL": "https://sp0.redeaudio.com/8084/stream/1/",
       "logoImageName": "AntenaLogo",
       "websiteURL": "https://www.facebook.com/antenamais/",
-      "isEnabled": true 
+      "isEnabled": false 
     },
     {
       "id": "country_radio",
@@ -16,7 +16,7 @@
       "streamURL": "http://streaming.aoip.international:8000/cr-gilsdorf",
       "logoImageName": "CountryLogo",
       "websiteURL": "https://www.facebook.com/CountryRadioGilsdorf/",
-      "isEnabled": true 
+      "isEnabled": false 
     },
     {
       "id": "crazy_poisons",
@@ -32,7 +32,7 @@
       "streamURL": "https://direct.croonerradio.fr/croonerradio-midfi.mp3",
       "logoImageName": "CroonerLogo",
       "websiteURL": "https://www.croonerradio.com",
-      "isEnabled": true 
+      "isEnabled": false  
     },
     {
       "id": "eldoradio",
@@ -40,7 +40,7 @@
       "streamURL": "http://sc-eldolive.newmedia.lu/;stream.nvs",
       "logoImageName": "EldoradioLogo",
       "websiteURL": "https://www.eldo.lu",
-      "isEnabled": true 
+      "isEnabled": false  
     },
     {
       "id": "fce_continuo",
@@ -48,7 +48,7 @@
       "streamURL": "https://listen.radioking.com/radio/551009/stream/610262",
       "logoImageName": "FCELogo",
       "websiteURL": "https://fce-lu.com/fce-continuo",
-      "isEnabled": true 
+      "isEnabled": false 
     },
     {
       "id": "free_radio_lux",
@@ -56,7 +56,7 @@
       "streamURL": "https://www.radioking.com/play/rfm-luxembourg/137599",
       "logoImageName": "FRLLogo",
       "websiteURL": "https://www.frl.lu/",
-      "isEnabled": true 
+      "isEnabled": false 
     },
     {
       "id": "generation_dance",
@@ -64,7 +64,7 @@
       "streamURL": "https://generation.dance/mobile.pls",
       "logoImageName": "GenDanceLogo",
       "websiteURL": "https://generation.dance/",
-      "isEnabled": true 
+      "isEnabled": false 
     },
     {
       "id": "lessentiel",
@@ -72,7 +72,7 @@
       "streamURL": "http://lessentielradio.ice.infomaniak.ch/lessentielradio-128.mp3",
       "logoImageName": "LessentielLogo",
       "websiteURL": "https://www.facebook.com/lessentielradio",
-      "isEnabled": true 
+      "isEnabled": false 
     },
     {
       "id": "lorfm",
