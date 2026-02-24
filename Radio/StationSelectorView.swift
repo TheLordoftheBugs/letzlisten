@@ -9,6 +9,7 @@ import SwiftUI
 
 struct StationSelectorView: View {
     @EnvironmentObject var audioPlayer: RadioPlayer
+    @EnvironmentObject var languageManager: LanguageManager
     @Environment(\.dismiss) var dismiss
     
     // Sorted stations: only enabled stations, sorted alphabetically
@@ -34,7 +35,7 @@ struct StationSelectorView: View {
                 
                 VStack(spacing: 0) {
                     // Header
-                    Text("Choose Your Radio")
+                    Text(languageManager.chooseYourRadio)
                         .font(.system(size: 24, weight: .bold))
                         .foregroundColor(.white)
                         .padding(.top, 20)
@@ -61,7 +62,7 @@ struct StationSelectorView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Back") {
+                    Button(languageManager.back) {
                         dismiss()
                     }
                     .foregroundColor(.blue)
@@ -143,4 +144,5 @@ struct StationButton: View {
 #Preview {
     StationSelectorView()
         .environmentObject(RadioPlayer())
+        .environmentObject(LanguageManager.shared)
 }

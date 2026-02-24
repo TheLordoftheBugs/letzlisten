@@ -9,6 +9,7 @@ import SwiftUI
 
 struct FavoritesView: View {
     @EnvironmentObject var favoritesManager: FavoritesManager
+    @EnvironmentObject var languageManager: LanguageManager
     @Environment(\.dismiss) var dismiss
     
     var body: some View {
@@ -32,12 +33,12 @@ struct FavoritesView: View {
                             .font(.system(size: 60))
                             .foregroundColor(.white.opacity(0.4))
                         
-                        Text("No Favorites Yet")
+                        Text(languageManager.noFavoritesYet)
                             .font(.title2)
                             .fontWeight(.semibold)
                             .foregroundColor(.white)
-                        
-                        Text("Tap the heart icon while listening to save your favorite songs")
+
+                        Text(languageManager.noFavoritesHint)
                             .font(.body)
                             .foregroundColor(.white.opacity(0.7))
                             .multilineTextAlignment(.center)
@@ -57,11 +58,11 @@ struct FavoritesView: View {
                     .scrollContentBackground(.hidden)
                 }
             }
-            .navigationTitle("Favorites")
+            .navigationTitle(languageManager.favorites)
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Done") {
+                    Button(languageManager.done) {
                         dismiss()
                     }
                     .foregroundColor(.blue)
@@ -72,7 +73,7 @@ struct FavoritesView: View {
                         Button(role: .destructive) {
                             favoritesManager.clearAll()
                         } label: {
-                            Text("Clear All")
+                            Text(languageManager.clearAll)
                                 .foregroundColor(.red)
                         }
                     }
@@ -141,4 +142,5 @@ struct FavoriteRowView: View {
 #Preview {
     FavoritesView()
         .environmentObject(FavoritesManager())
+        .environmentObject(LanguageManager.shared)
 }

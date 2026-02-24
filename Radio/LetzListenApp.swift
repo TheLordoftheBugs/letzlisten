@@ -14,12 +14,14 @@ struct LetzListenApp: App {
     
     @StateObject private var audioPlayer = RadioPlayer()
     @StateObject private var favoritesManager = FavoritesManager()
-    
+    @StateObject private var languageManager = LanguageManager.shared
+
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(audioPlayer)
                 .environmentObject(favoritesManager)
+                .environmentObject(languageManager)
                 .onAppear {
                     RadioStationLoader.shared.loadStations()
                 }
