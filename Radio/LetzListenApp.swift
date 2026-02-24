@@ -20,6 +20,9 @@ struct LetzListenApp: App {
             ContentView()
                 .environmentObject(audioPlayer)
                 .environmentObject(favoritesManager)
+                .onAppear {
+                    RadioStationLoader.shared.loadStations()
+                }
         }
     }
 }
