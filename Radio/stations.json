@@ -1,0 +1,14 @@
+{
+  "version": "1.0",
+  "last_updated": "2025-01-01 01:01AM",
+  "stations": [
+    {
+      "id": "rgl",
+      "name": "Radio Gutt Laun",
+      "streamURL": "http://rgl.selfip.net:8000/mp3",
+      "logoImageName": "RGLLogo",
+      "websiteURL": "https://www.rgl.lu",
+      "isEnabled": true
+    }
+  ]
+}

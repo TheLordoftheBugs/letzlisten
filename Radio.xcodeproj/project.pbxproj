@@ -10,9 +10,22 @@
 		071CE9422F29537C00E7B7C4 /* Radio.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Radio.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		07F6B4A22F3BCB9600C53FB3 /* Exceptions for "Radio" folder in "Radio" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 071CE9412F29537C00E7B7C4 /* Radio */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		071CE9442F29537C00E7B7C4 /* Radio */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				07F6B4A22F3BCB9600C53FB3 /* Exceptions for "Radio" folder in "Radio" target */,
+			);
 			path = Radio;
 			sourceTree = "<group>";
 		};
@@ -256,6 +269,8 @@
 				DEVELOPMENT_TEAM = SD55VYM534;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Radio/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Lëtz Listen";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -266,7 +281,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = RGL.Radio;
+				PRODUCT_BUNDLE_IDENTIFIER = com.florentinarno.LetzListen;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -288,6 +303,8 @@
 				DEVELOPMENT_TEAM = SD55VYM534;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Radio/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Lëtz Listen";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -298,7 +315,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = RGL.Radio;
+				PRODUCT_BUNDLE_IDENTIFIER = com.florentinarno.LetzListen;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
