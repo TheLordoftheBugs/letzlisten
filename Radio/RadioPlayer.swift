@@ -27,24 +27,31 @@ class RadioPlayer: NSObject, ObservableObject {
     override init() {
         // Load last played station or fallback to default
         let lastStationID = UserDefaults.standard.string(forKey: lastStationKey)
-        
+        let stations = RadioStation.stations
+
+        // Restore last station only if it's still enabled
         if let stationID = lastStationID,
-           let lastStation = RadioStation.stations.first(where: { $0.id == stationID }) {
+           let lastStation = stations.first(where: { $0.id == stationID && $0.enabled }) {
             self.currentStation = lastStation
         } else {
-            // Fallback to first station (rgl by default)
-            self.currentStation = RadioStation.stations.first(where: { $0.id == "rgl" }) ?? RadioStation.stations[0]
+            // Fallback to RGL if available and enabled, otherwise first enabled station
+            self.currentStation = stations.first(where: { $0.id == "rgl" && $0.enabled })
+                ?? stations.first(where: { $0.enabled })
+                ?? stations.first!
         }
-        
+
         super.init()
-        
+
+        // Always persist so the station is saved even on first launch
+        UserDefaults.standard.set(currentStation.id, forKey: lastStationKey)
+
         // Log after super.init
         if lastStationID != nil {
             print("🔄 Restored last station: \(currentStation.name)")
         } else {
             print("🎵 RadioPlayer initialized with default station: \(currentStation.name)")
         }
-        
+
         setupPlayer()
         setupRemoteControls()
         setupNotifications()
