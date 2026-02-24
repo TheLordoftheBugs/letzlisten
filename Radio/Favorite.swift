@@ -24,10 +24,14 @@ struct Favorite: Identifiable, Codable {
         self.stationName = stationName
     }
     
-    var formattedDate: String {
+    private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
-        return formatter.string(from: timestamp)
+        return formatter
+    }()
+
+    var formattedDate: String {
+        Favorite.dateFormatter.string(from: timestamp)
     }
 }

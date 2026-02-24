@@ -19,6 +19,7 @@ class RadioPlayer: NSObject, ObservableObject {
     
     private var player: AVPlayer?
     private var timeObserver: Any?
+    private var cachedStationLogo: UIImage?
     
     // UserDefaults key for last station
     private let lastStationKey = "LastPlayedStationID"
@@ -97,7 +98,15 @@ class RadioPlayer: NSObject, ObservableObject {
         
         // Reset track info when switching stations
         currentTrack = TrackInfo(title: "Title", artist: "Artist")
-        currentArtwork = nil  // Reset artwork to show station logo
+        currentArtwork = nil
+        cachedStationLogo = nil
+
+        // Preload station logo for lock screen (non-blocking)
+        FaviconFetcher.shared.loadLogo(for: station) { [weak self] image in
+            self?.cachedStationLogo = image
+            self?.updateNowPlayingInfo()
+        }
+
         updateNowPlayingInfo()
     }
     
@@ -151,11 +160,12 @@ class RadioPlayer: NSObject, ObservableObject {
             }
         }
         
-        // Also check for ICY metadata (common in radio streams)
-        if newTitle == nil || newArtist == nil {
-            parseICYMetadata(from: metadata)
-        } else {
+        // If we got at least one value from standard keys, use them.
+        // Otherwise fall back to ICY metadata parsing.
+        if newTitle != nil || newArtist != nil {
             updateTrackInfo(title: newTitle, artist: newArtist)
+        } else {
+            parseICYMetadata(from: metadata)
         }
     }
     
@@ -236,11 +246,11 @@ class RadioPlayer: NSObject, ObservableObject {
             return nil
         }
         
-        // Filter out station announcements (contains "fm", "on air", "live", etc.)
+        // Filter out station announcements
         if lower.contains("on air") ||
-           lower.contains("fm") && lower.contains("96.6") ||
-           lower.contains("fm") && lower.contains("100.7") ||
-           lower.contains("fm") && lower.contains("105") ||
+           (lower.contains("fm") && lower.contains("96.6")) ||
+           (lower.contains("fm") && lower.contains("100.7")) ||
+           (lower.contains("fm") && lower.contains("105")) ||
            (lower.contains("rgl") && lower.contains("fm")) ||
            (lower.contains("eldoradio") && lower.contains("fm")) ||
            (lower.contains("radio") && lower.contains("fm")) {
@@ -330,24 +340,13 @@ class RadioPlayer: NSObject, ObservableObject {
             let size = albumArt.size
             return MPMediaItemArtwork(boundsSize: size) { _ in albumArt }
         }
-        
-        // Try to load station logo via FaviconFetcher
-        var stationLogo: UIImage?
-        let semaphore = DispatchSemaphore(value: 0)
-        
-        FaviconFetcher.shared.loadLogo(for: currentStation) { image in
-            stationLogo = image
-            semaphore.signal()
-        }
-        
-        // Wait briefly for logo (timeout after 0.5 seconds to avoid blocking)
-        _ = semaphore.wait(timeout: .now() + 0.5)
-        
-        if let logo = stationLogo {
+
+        // Use cached station logo (preloaded in loadStation)
+        if let logo = cachedStationLogo {
             let size = logo.size
             return MPMediaItemArtwork(boundsSize: size) { _ in logo }
         }
-        
+
         // Fallback: Create simple artwork with Luxembourg flag colors
         let size = CGSize(width: 600, height: 600)
         let renderer = UIGraphicsImageRenderer(size: size)

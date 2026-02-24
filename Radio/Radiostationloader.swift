@@ -29,88 +29,23 @@ class RadioStationLoader: ObservableObject {
     
     private init() {
         print("🚀 Initializing RadioStationLoader...")
-        
-        // ALWAYS try GitHub first - no cache, no bundle unless GitHub fails
-        if loadFromRemoteSync() {
-            print("🎯 Ready with \(stations.count) stations (v\(currentVersion)) from GitHub ✅")
-        } else {
-            // Only use local if GitHub completely failed
-            print("⚠️ GitHub unavailable, using local fallback...")
-            loadFromBundle()
-            print("🎯 Ready with \(stations.count) stations (v\(currentVersion)) from bundle")
-        }
+
+        // Load from bundle immediately (fast, non-blocking)
+        loadFromBundle()
+        print("🎯 Ready with \(stations.count) stations (v\(currentVersion)) from bundle")
     }
-    
+
     // MARK: - Main Loading Function
-    
+
     func loadStations() {
-        // Manual refresh if needed
-        loadFromRemote { _ in }
-    }
-    
-    // MARK: - Synchronous Remote Loading (for init only)
-    
-    @discardableResult
-    private func loadFromRemoteSync() -> Bool {
-        // Add timestamp to bypass GitHub cache
-        let timestamp = Int(Date().timeIntervalSince1970)
-        let urlWithCacheBuster = "\(remoteURL)?t=\(timestamp)"
-        
-        guard let url = URL(string: urlWithCacheBuster) else {
-            print("❌ Invalid remote URL")
-            return false
+        // Load remote stations asynchronously
+        loadFromRemote { [weak self] success in
+            if success {
+                print("🎯 Updated with \(self?.stations.count ?? 0) remote stations")
+            } else {
+                print("⚠️ Remote unavailable, keeping bundle stations")
+            }
         }
-        
-        print("🌐 Loading from GitHub: \(remoteURL)")
-        
-        var request = URLRequest(url: url)
-        request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
-        request.timeoutInterval = 10
-        
-        // Synchronous request
-        var data: Data?
-        var response: URLResponse?
-        var error: Error?
-        
-        let semaphore = DispatchSemaphore(value: 0)
-        
-        URLSession.shared.dataTask(with: request) { d, r, e in
-            data = d
-            response = r
-            error = e
-            semaphore.signal()
-        }.resume()
-        
-        semaphore.wait()
-        
-        // Check for errors
-        guard let data = data, error == nil else {
-            print("❌ GitHub load failed: \(error?.localizedDescription ?? "Unknown")")
-            return false
-        }
-        
-        // Parse JSON
-        guard let config = parseJSON(data) else {
-            print("❌ Failed to parse JSON from GitHub")
-            return false
-        }
-        
-        // Filter only enabled stations
-        let enabledStations = config.stations.filter { $0.enabled }
-        
-        if enabledStations.isEmpty {
-            print("⚠️ No enabled stations in GitHub JSON")
-            return false
-        }
-        
-        // Update stations with only enabled ones
-        self.stations = enabledStations.sorted { $0.name < $1.name }
-        self.currentVersion = config.version
-        self.lastUpdateDate = Date()
-        
-        print("✅ GitHub v\(config.version): \(stations.count) enabled stations loaded")
-        
-        return true
     }
     
     // MARK: - Remote Loading

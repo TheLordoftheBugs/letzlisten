@@ -10,9 +10,6 @@ import SwiftUI
 struct StationSelectorView: View {
     @EnvironmentObject var audioPlayer: RadioPlayer
     @Environment(\.dismiss) var dismiss
-    @ObservedObject var stationLoader = RadioStationLoader.shared
-    @State private var showDisabledAlert = false
-    @State private var disabledStationName = ""
     
     // Sorted stations: only enabled stations, sorted alphabetically
     private var sortedStations: [RadioStation] {
@@ -51,14 +48,8 @@ struct StationSelectorView: View {
                                     station: station,
                                     isSelected: station.id == audioPlayer.currentStation.id
                                 ) {
-                                    if station.enabled {
-                                        audioPlayer.switchStation(station)
-                                        dismiss()
-                                    } else {
-                                        // Show alert for disabled station
-                                        disabledStationName = station.name
-                                        showDisabledAlert = true
-                                    }
+                                    audioPlayer.switchStation(station)
+                                    dismiss()
                                 }
                             }
                         }
@@ -81,11 +72,6 @@ struct StationSelectorView: View {
         }
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
-        .alert("Station Unavailable", isPresented: $showDisabledAlert) {
-            Button("OK", role: .cancel) { }
-        } message: {
-            Text("\(disabledStationName) is currently unavailable. Please check back later.")
-        }
     }
 }
 
