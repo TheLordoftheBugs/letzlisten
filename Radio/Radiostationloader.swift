@@ -15,6 +15,8 @@ class RadioStationLoader: ObservableObject {
     @Published var isLoading = false
     @Published var lastUpdateDate: Date?
     @Published var currentVersion: String = "0.0"
+    /// Set to the fetch date when remote stations have been loaded successfully.
+    @Published var remoteLoadedAt: Date? = nil
     
     // URL du fichier JSON distant (GitHub)
     private let remoteURL = "https://raw.githubusercontent.com/arnoflorentin/letzlisten/main/stations.json"
@@ -103,7 +105,8 @@ class RadioStationLoader: ObservableObject {
                 self?.stations = config.stations.sorted { $0.name < $1.name }
                 self?.currentVersion = remoteVersion
                 self?.lastUpdateDate = Date()
-                
+                self?.remoteLoadedAt = Date()
+
                 // Save to cache for offline use
                 self?.saveToCache(data)
                 

@@ -46,35 +46,34 @@ class RadioPlayer: NSObject, ObservableObject {
         // Always persist so the station is saved even on first launch
         UserDefaults.standard.set(currentStation.id, forKey: lastStationKey)
 
-        // Log after super.init
-        if lastStationID != nil {
-            print("🔄 Restored last station: \(currentStation.name)")
-        } else {
-            print("🎵 RadioPlayer initialized with default station: \(currentStation.name)")
-        }
+        // Quiet log — remote will confirm below
+        print("🎵 Using station: \(currentStation.name)")
 
         setupPlayer()
         setupRemoteControls()
         setupNotifications()
 
-        // Safety net: restore the saved station as soon as it appears in the station list.
-        // Fires the first time stations contains the saved ID — whether from bundle, cache,
-        // or remote fetch. No-op if init() already restored the right station.
-        if let savedID = lastStationID {
-            RadioStationLoader.shared.$stations
-                .first { $0.contains(where: { $0.id == savedID && $0.enabled }) }
-                .receive(on: DispatchQueue.main)
-                .sink { [weak self] stations in
-                    guard let self = self,
-                          let station = stations.first(where: { $0.id == savedID && $0.enabled }),
-                          station.id != self.currentStation.id else { return }
-                    print("🔄 Combine-restored last station: \(station.name)")
+        // Once remote stations are loaded, restore the saved station from the authoritative
+        // remote list. This also re-syncs the station object if the URL/name changed.
+        RadioStationLoader.shared.$remoteLoadedAt
+            .compactMap { $0 }
+            .first()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self = self,
+                      let savedID = UserDefaults.standard.string(forKey: self.lastStationKey),
+                      let station = RadioStationLoader.shared.stations
+                          .first(where: { $0.id == savedID && $0.enabled }) else { return }
+                print("🔄 Restored last station: \(station.name)")
+                if station.id != self.currentStation.id || station.streamURL != self.currentStation.streamURL {
                     self.currentStation = station
                     self.loadStation(station)
-                    UserDefaults.standard.set(station.id, forKey: self.lastStationKey)
+                } else {
+                    self.currentStation = station  // refresh object with latest remote data
                 }
-                .store(in: &cancellables)
-        }
+                UserDefaults.standard.set(station.id, forKey: self.lastStationKey)
+            }
+            .store(in: &cancellables)
     }
     
     private func setupPlayer() {
