@@ -30,9 +30,14 @@ class RadioStationLoader: ObservableObject {
     private init() {
         print("🚀 Initializing RadioStationLoader...")
 
-        // Load from bundle immediately (fast, non-blocking)
+        // Load from bundle as base fallback (may be outdated)
         loadFromBundle()
-        print("🎯 Ready with \(stations.count) stations (v\(currentVersion)) from bundle")
+
+        // Override with local cache if available (saved from previous remote fetch)
+        // This ensures we have up-to-date stations on launch before network completes
+        loadFromCache()
+
+        print("🎯 Ready with \(stations.count) stations (v\(currentVersion))")
     }
 
     // MARK: - Main Loading Function
