@@ -92,19 +92,20 @@ struct ContentView: View {
         }
         // Share button - Top RIGHT
         .overlay(alignment: .topTrailing) {
+            let canShare = audioPlayer.isPlaying && !audioPlayer.currentTrack.isUnknown
             Button(action: {
                 showingShareSheet = true
             }) {
                 Image(systemName: "square.and.arrow.up")
                     .font(.system(size: 20, weight: .semibold))
-                    .foregroundColor(.white.opacity(audioPlayer.isPlaying ? 0.9 : 0.4))
+                    .foregroundColor(.white.opacity(canShare ? 0.9 : 0.4))
                     .padding(12)
                     .background(
                         Circle()
-                            .fill(Color.white.opacity(audioPlayer.isPlaying ? 0.15 : 0.05))
+                            .fill(Color.white.opacity(canShare ? 0.15 : 0.05))
                     )
             }
-            .disabled(!audioPlayer.isPlaying)
+            .disabled(!canShare)
             .padding(.top, 16)
             .padding(.trailing, 20)
         }
@@ -166,31 +167,60 @@ struct PortraitLayout: View {
             
             // Station artwork and info
             VStack(spacing: 24) {
-                // Artwork
-                ArtworkView(
-                    artwork: audioPlayer.currentArtwork,
-                    stationLogo: stationLogo,
-                    size: 180
-                )
-                
-                // Station name
-                Text(audioPlayer.currentStation.name)
-                    .font(.system(size: 32, weight: .bold))
-                    .foregroundColor(.white)
-                
-                // Track info
-                TrackInfoView(track: audioPlayer.currentTrack)
-                
-                // Favorite button
-                FavoriteButton(
-                    audioPlayer: audioPlayer,
-                    favoritesManager: favoritesManager
-                )
+                // Artwork (tappable = link to station website)
+                Group {
+                    if let urlString = audioPlayer.currentStation.websiteURL,
+                       let url = URL(string: urlString) {
+                        Link(destination: url) {
+                            ArtworkView(
+                                artwork: audioPlayer.currentArtwork,
+                                stationLogo: stationLogo,
+                                size: 180
+                            )
+                        }
+                    } else {
+                        ArtworkView(
+                            artwork: audioPlayer.currentArtwork,
+                            stationLogo: stationLogo,
+                            size: 180
+                        )
+                    }
+                }
+
+                // Station name (tappable = link to station website)
+                Group {
+                    if let urlString = audioPlayer.currentStation.websiteURL,
+                       let url = URL(string: urlString) {
+                        Link(destination: url) {
+                            Text(audioPlayer.currentStation.name)
+                                .font(.system(size: 32, weight: .bold))
+                                .foregroundColor(.white)
+                                .multilineTextAlignment(.center)
+                                .frame(maxWidth: .infinity)
+                        }
+                    } else {
+                        Text(audioPlayer.currentStation.name)
+                            .font(.system(size: 32, weight: .bold))
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.center)
+                            .frame(maxWidth: .infinity)
+                    }
+                }
+
+                // Track info + favorite button (only when metadata is known)
+                if !audioPlayer.currentTrack.isUnknown {
+                    TrackInfoView(track: audioPlayer.currentTrack)
+
+                    FavoriteButton(
+                        audioPlayer: audioPlayer,
+                        favoritesManager: favoritesManager
+                    )
+                }
             }
             .padding(.horizontal, 40)
-            
+
             Spacer()
-            
+
             // Bottom control bar
             BottomControlBar(showStationSelector: $showStationSelector)
                 .environmentObject(audioPlayer)
@@ -211,30 +241,59 @@ struct LandscapeLayout: View {
             Spacer()
             
             HStack(spacing: 40) {
-                // Left: Artwork
-                ArtworkView(
-                    artwork: audioPlayer.currentArtwork,
-                    stationLogo: stationLogo,
-                    size: 160
-                )
+                // Left: Artwork (tappable = link to station website)
+                Group {
+                    if let urlString = audioPlayer.currentStation.websiteURL,
+                       let url = URL(string: urlString) {
+                        Link(destination: url) {
+                            ArtworkView(
+                                artwork: audioPlayer.currentArtwork,
+                                stationLogo: stationLogo,
+                                size: 160
+                            )
+                        }
+                    } else {
+                        ArtworkView(
+                            artwork: audioPlayer.currentArtwork,
+                            stationLogo: stationLogo,
+                            size: 160
+                        )
+                    }
+                }
                 .padding(.leading, 40)
-                
+
                 // Right: Info and controls
                 VStack(spacing: 20) {
-                    // Station name
-                    Text(audioPlayer.currentStation.name)
-                        .font(.system(size: 28, weight: .bold))
-                        .foregroundColor(.white)
-                    
-                    // Track info
-                    TrackInfoView(track: audioPlayer.currentTrack)
-                    
-                    // Favorite button
-                    FavoriteButton(
-                        audioPlayer: audioPlayer,
-                        favoritesManager: favoritesManager
-                    )
-                    
+                    // Station name (tappable = link to station website)
+                    Group {
+                        if let urlString = audioPlayer.currentStation.websiteURL,
+                           let url = URL(string: urlString) {
+                            Link(destination: url) {
+                                Text(audioPlayer.currentStation.name)
+                                    .font(.system(size: 28, weight: .bold))
+                                    .foregroundColor(.white)
+                                    .multilineTextAlignment(.center)
+                                    .frame(maxWidth: .infinity)
+                            }
+                        } else {
+                            Text(audioPlayer.currentStation.name)
+                                .font(.system(size: 28, weight: .bold))
+                                .foregroundColor(.white)
+                                .multilineTextAlignment(.center)
+                                .frame(maxWidth: .infinity)
+                        }
+                    }
+
+                    // Track info + favorite button (only when metadata is known)
+                    if !audioPlayer.currentTrack.isUnknown {
+                        TrackInfoView(track: audioPlayer.currentTrack)
+
+                        FavoriteButton(
+                            audioPlayer: audioPlayer,
+                            favoritesManager: favoritesManager
+                        )
+                    }
+
                     Spacer().frame(height: 20)
                     
                     // Play controls inline
