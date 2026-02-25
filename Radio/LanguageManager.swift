@@ -126,15 +126,25 @@ class LanguageManager: ObservableObject {
         }
     }
 
-    func shareMessage(artist: String, title: String, station: String, url: String?) -> String {
+    func shareMessage(artist: String, title: String, station: String, url: String?, stationId: String = "") -> String {
         let base: String
-        switch currentLanguage {
-        case .luxembourgish:
-            base = "Moien, ech lauschteren elo op \(artist) - \(title) op \(station)."
-        case .french:
-            base = "Salut, j'écoute \(artist) - \(title) sur \(station)."
-        case .german:
+        switch stationId {
+        case "rgl":
+            // Salutation luxembourgeoise + message en français
+            base = "Moien, j'écoute \(artist) - \(title) sur \(station)."
+        case "country_radio":
+            base = "Hey, I'm listening to \(artist) - \(title) on \(station)."
+        case "crazy_poisons":
             base = "Hallo, ich höre gerade \(artist) - \(title) auf \(station)."
+        default:
+            switch currentLanguage {
+            case .luxembourgish:
+                base = "Moien, ech lauschteren elo op \(artist) - \(title) op \(station)."
+            case .french:
+                base = "Salut, j'écoute \(artist) - \(title) sur \(station)."
+            case .german:
+                base = "Hallo, ich höre gerade \(artist) - \(title) auf \(station)."
+            }
         }
         if let url = url { return "\(base)\n\(url)" }
         return base
