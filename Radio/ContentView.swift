@@ -186,12 +186,25 @@ struct PortraitLayout: View {
                     }
                 }
 
-                // Station name
-                Text(audioPlayer.currentStation.name)
-                    .font(.system(size: 32, weight: .bold))
-                    .foregroundColor(.white)
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: .infinity)
+                // Station name (tappable = link to station website)
+                Group {
+                    if let urlString = audioPlayer.currentStation.websiteURL,
+                       let url = URL(string: urlString) {
+                        Link(destination: url) {
+                            Text(audioPlayer.currentStation.name)
+                                .font(.system(size: 32, weight: .bold))
+                                .foregroundColor(.white)
+                                .multilineTextAlignment(.center)
+                                .frame(maxWidth: .infinity)
+                        }
+                    } else {
+                        Text(audioPlayer.currentStation.name)
+                            .font(.system(size: 32, weight: .bold))
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.center)
+                            .frame(maxWidth: .infinity)
+                    }
+                }
 
                 // Track info + favorite button (only when metadata is known)
                 if !audioPlayer.currentTrack.isUnknown {
@@ -250,12 +263,25 @@ struct LandscapeLayout: View {
 
                 // Right: Info and controls
                 VStack(spacing: 20) {
-                    // Station name
-                    Text(audioPlayer.currentStation.name)
-                        .font(.system(size: 28, weight: .bold))
-                        .foregroundColor(.white)
-                        .multilineTextAlignment(.center)
-                        .frame(maxWidth: .infinity)
+                    // Station name (tappable = link to station website)
+                    Group {
+                        if let urlString = audioPlayer.currentStation.websiteURL,
+                           let url = URL(string: urlString) {
+                            Link(destination: url) {
+                                Text(audioPlayer.currentStation.name)
+                                    .font(.system(size: 28, weight: .bold))
+                                    .foregroundColor(.white)
+                                    .multilineTextAlignment(.center)
+                                    .frame(maxWidth: .infinity)
+                            }
+                        } else {
+                            Text(audioPlayer.currentStation.name)
+                                .font(.system(size: 28, weight: .bold))
+                                .foregroundColor(.white)
+                                .multilineTextAlignment(.center)
+                                .frame(maxWidth: .infinity)
+                        }
+                    }
 
                     // Track info + favorite button (only when metadata is known)
                     if !audioPlayer.currentTrack.isUnknown {
