@@ -19,6 +19,8 @@ class RadioPlayer: NSObject, ObservableObject {
     
     private var player: AVPlayer?
     private var timeObserver: Any?
+    private var cachedStationLogo: UIImage?
+    private var cancellables = Set<AnyCancellable>()
     
     // UserDefaults key for last station
     private let lastStationKey = "LastPlayedStationID"
@@ -26,27 +28,64 @@ class RadioPlayer: NSObject, ObservableObject {
     override init() {
         // Load last played station or fallback to default
         let lastStationID = UserDefaults.standard.string(forKey: lastStationKey)
-        
+        let stations = RadioStation.stations
+
+        // Restore last station only if it's still enabled
         if let stationID = lastStationID,
-           let lastStation = RadioStation.stations.first(where: { $0.id == stationID }) {
+           let lastStation = stations.first(where: { $0.id == stationID && $0.enabled }) {
             self.currentStation = lastStation
         } else {
-            // Fallback to first station (rgl by default)
-            self.currentStation = RadioStation.stations.first(where: { $0.id == "rgl" }) ?? RadioStation.stations[0]
+            // Fallback to RGL if available and enabled, otherwise first enabled station
+            self.currentStation = stations.first(where: { $0.id == "rgl" && $0.enabled })
+                ?? stations.first(where: { $0.enabled })
+                ?? stations.first!
         }
-        
+
         super.init()
-        
-        // Log after super.init
-        if lastStationID != nil {
-            print("🔄 Restored last station: \(currentStation.name)")
-        } else {
-            print("🎵 RadioPlayer initialized with default station: \(currentStation.name)")
-        }
-        
+
+        // Always persist so the station is saved even on first launch
+        UserDefaults.standard.set(currentStation.id, forKey: lastStationKey)
+
+        // Quiet log — remote will confirm below
+        print("🎵 Using station: \(currentStation.name)")
+
         setupPlayer()
         setupRemoteControls()
         setupNotifications()
+
+        // Once remote stations are loaded, restore the saved station from the authoritative
+        // remote list. This also re-syncs the station object if the URL/name changed.
+        RadioStationLoader.shared.$remoteLoadedAt
+            .compactMap { $0 }
+            .first()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                let remoteStations = RadioStationLoader.shared.stations
+                let savedID = UserDefaults.standard.string(forKey: self.lastStationKey)
+
+                if let savedID, let station = remoteStations.first(where: { $0.id == savedID && $0.enabled }) {
+                    // Station still valid in remote — re-sync with latest data
+                    print("🔄 Restored last station: \(station.name)")
+                    if station.id != self.currentStation.id || station.streamURL != self.currentStation.streamURL {
+                        self.currentStation = station
+                        self.loadStation(station)
+                    } else {
+                        self.currentStation = station
+                    }
+                    UserDefaults.standard.set(station.id, forKey: self.lastStationKey)
+                } else {
+                    // Saved station removed or disabled in remote — fall back to default
+                    print("⚠️ Station '\(savedID ?? "unknown")' no longer available, switching to default")
+                    let fallback = remoteStations.first(where: { $0.id == "rgl" && $0.enabled })
+                        ?? remoteStations.first(where: { $0.enabled })
+                    guard let fallback else { return }
+                    self.currentStation = fallback
+                    self.loadStation(fallback)
+                    UserDefaults.standard.set(fallback.id, forKey: self.lastStationKey)
+                }
+            }
+            .store(in: &cancellables)
     }
     
     private func setupPlayer() {
@@ -97,7 +136,15 @@ class RadioPlayer: NSObject, ObservableObject {
         
         // Reset track info when switching stations
         currentTrack = TrackInfo(title: "Title", artist: "Artist")
-        currentArtwork = nil  // Reset artwork to show station logo
+        currentArtwork = nil
+        cachedStationLogo = nil
+
+        // Preload station logo for lock screen (non-blocking)
+        FaviconFetcher.shared.loadLogo(for: station) { [weak self] image in
+            self?.cachedStationLogo = image
+            self?.updateNowPlayingInfo()
+        }
+
         updateNowPlayingInfo()
     }
     
@@ -151,11 +198,23 @@ class RadioPlayer: NSObject, ObservableObject {
             }
         }
         
-        // Also check for ICY metadata (common in radio streams)
-        if newTitle == nil || newArtist == nil {
-            parseICYMetadata(from: metadata)
+        if let artist = newArtist {
+            // Stream provides an explicit separate artist field — use directly.
+            updateTrackInfo(title: newTitle, artist: artist)
+        } else if let rawTitle = newTitle {
+            // Title only: many ICY streams pack "Artist - Title" into the title key.
+            // Split on " - " (with spaces) to avoid false splits on hyphenated words.
+            let parts = rawTitle.components(separatedBy: " - ")
+            if parts.count >= 2 {
+                let artist = parts[0].trimmingCharacters(in: .whitespaces)
+                let title  = parts[1...].joined(separator: " - ").trimmingCharacters(in: .whitespaces)
+                updateTrackInfo(title: title, artist: artist)
+            } else {
+                updateTrackInfo(title: rawTitle, artist: nil)
+            }
         } else {
-            updateTrackInfo(title: newTitle, artist: newArtist)
+            // No standard keys — fall back to raw ICY metadata parsing.
+            parseICYMetadata(from: metadata)
         }
     }
     
@@ -236,11 +295,11 @@ class RadioPlayer: NSObject, ObservableObject {
             return nil
         }
         
-        // Filter out station announcements (contains "fm", "on air", "live", etc.)
+        // Filter out station announcements
         if lower.contains("on air") ||
-           lower.contains("fm") && lower.contains("96.6") ||
-           lower.contains("fm") && lower.contains("100.7") ||
-           lower.contains("fm") && lower.contains("105") ||
+           (lower.contains("fm") && lower.contains("96.6")) ||
+           (lower.contains("fm") && lower.contains("100.7")) ||
+           (lower.contains("fm") && lower.contains("105")) ||
            (lower.contains("rgl") && lower.contains("fm")) ||
            (lower.contains("eldoradio") && lower.contains("fm")) ||
            (lower.contains("radio") && lower.contains("fm")) {
@@ -330,24 +389,13 @@ class RadioPlayer: NSObject, ObservableObject {
             let size = albumArt.size
             return MPMediaItemArtwork(boundsSize: size) { _ in albumArt }
         }
-        
-        // Try to load station logo via FaviconFetcher
-        var stationLogo: UIImage?
-        let semaphore = DispatchSemaphore(value: 0)
-        
-        FaviconFetcher.shared.loadLogo(for: currentStation) { image in
-            stationLogo = image
-            semaphore.signal()
-        }
-        
-        // Wait briefly for logo (timeout after 0.5 seconds to avoid blocking)
-        _ = semaphore.wait(timeout: .now() + 0.5)
-        
-        if let logo = stationLogo {
+
+        // Use cached station logo (preloaded in loadStation)
+        if let logo = cachedStationLogo {
             let size = logo.size
             return MPMediaItemArtwork(boundsSize: size) { _ in logo }
         }
-        
+
         // Fallback: Create simple artwork with Luxembourg flag colors
         let size = CGSize(width: 600, height: 600)
         let renderer = UIGraphicsImageRenderer(size: size)

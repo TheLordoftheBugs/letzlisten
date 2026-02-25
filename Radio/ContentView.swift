@@ -10,10 +10,12 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject var audioPlayer: RadioPlayer
     @EnvironmentObject var favoritesManager: FavoritesManager
+    @EnvironmentObject var languageManager: LanguageManager
     @ObservedObject var stationLoader = RadioStationLoader.shared
     @State private var showFavorites = false
     @State private var showingShareSheet = false
     @State private var showStationSelector = false
+    @State private var showLanguagePicker = false
     @State private var stationLogo: UIImage?
     
     // Detect orientation
@@ -72,6 +74,22 @@ struct ContentView: View {
             .padding(.top, 16)
             .padding(.leading, 20)
         }
+        // Language picker button - Top CENTER
+        .overlay(alignment: .top) {
+            Button(action: {
+                showLanguagePicker = true
+            }) {
+                Text(languageManager.currentLanguage.flag)
+                    .font(.system(size: 20))
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(
+                        Capsule()
+                            .fill(Color.white.opacity(0.15))
+                    )
+            }
+            .padding(.top, 20)
+        }
         // Share button - Top RIGHT
         .overlay(alignment: .topTrailing) {
             Button(action: {
@@ -93,6 +111,7 @@ struct ContentView: View {
         .sheet(isPresented: $showFavorites) {
             FavoritesView()
                 .environmentObject(favoritesManager)
+                .environmentObject(languageManager)
         }
         .sheet(isPresented: $showingShareSheet) {
             ShareSheet(items: generateShareItems())
@@ -100,6 +119,11 @@ struct ContentView: View {
         .sheet(isPresented: $showStationSelector) {
             StationSelectorView()
                 .environmentObject(audioPlayer)
+                .environmentObject(languageManager)
+        }
+        .sheet(isPresented: $showLanguagePicker) {
+            LanguagePickerView()
+                .environmentObject(languageManager)
         }
         .onAppear {
             loadStationLogo()
@@ -119,15 +143,13 @@ struct ContentView: View {
         let title = audioPlayer.currentTrack.title
         let artist = audioPlayer.currentTrack.artist
         let station = audioPlayer.currentStation.name
-        
-        // Include URL directly in the message for consistent display
-        if let urlString = audioPlayer.currentStation.websiteURL {
-            let message = "Moien, I'm listening to \(artist) - \(title) now on \(station).\n\(urlString)"
-            return [message]
-        } else {
-            let message = "Moien, I'm listening to \(artist) - \(title) now on \(station)."
-            return [message]
-        }
+        let message = languageManager.shareMessage(
+            artist: artist,
+            title: title,
+            station: station,
+            url: audioPlayer.currentStation.websiteURL
+        )
+        return [message]
     }
 }
 
@@ -299,16 +321,17 @@ struct ArtworkView: View {
 
 struct TrackInfoView: View {
     let track: TrackInfo
-    
+    @EnvironmentObject var languageManager: LanguageManager
+
     var body: some View {
         VStack(spacing: 8) {
-            Text(track.title)
+            Text(track.title == "Title" ? languageManager.defaultTitle : track.title)
                 .font(.system(size: 20, weight: .semibold))
                 .foregroundColor(.white)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
-            
-            Text(track.artist)
+
+            Text(track.artist == "Artist" ? languageManager.defaultArtist : track.artist)
                 .font(.system(size: 16, weight: .regular))
                 .foregroundColor(.white.opacity(0.8))
                 .lineLimit(1)
@@ -425,8 +448,79 @@ struct ShareSheet: UIViewControllerRepresentable {
     }
 }
 
+// MARK: - Language Picker
+
+struct LanguagePickerView: View {
+    @EnvironmentObject var languageManager: LanguageManager
+    @Environment(\.dismiss) var dismiss
+
+    var body: some View {
+        NavigationView {
+            ZStack {
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color(red: 0.1, green: 0.1, blue: 0.2),
+                        Color(red: 0.05, green: 0.05, blue: 0.15)
+                    ]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
+
+                VStack(spacing: 16) {
+                    ForEach(LanguageManager.Language.allCases, id: \.rawValue) { language in
+                        Button(action: {
+                            languageManager.currentLanguage = language
+                            dismiss()
+                        }) {
+                            HStack(spacing: 16) {
+                                Text(language.flag)
+                                    .font(.system(size: 32))
+                                Text(language.displayName)
+                                    .font(.system(size: 18, weight: .medium))
+                                    .foregroundColor(.white)
+                                Spacer()
+                                if language == languageManager.currentLanguage {
+                                    Image(systemName: "checkmark")
+                                        .foregroundColor(.blue)
+                                        .font(.system(size: 16, weight: .semibold))
+                                }
+                            }
+                            .padding(.vertical, 14)
+                            .padding(.horizontal, 20)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(language == languageManager.currentLanguage
+                                          ? Color.blue.opacity(0.2)
+                                          : Color.white.opacity(0.05))
+                            )
+                        }
+                    }
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 20)
+            }
+            .navigationTitle(languageManager.selectLanguage)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(languageManager.done) {
+                        dismiss()
+                    }
+                    .foregroundColor(.blue)
+                }
+            }
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbarBackground(Color(red: 0.08, green: 0.08, blue: 0.12), for: .navigationBar)
+        }
+        .presentationDetents([.medium])
+        .presentationDragIndicator(.visible)
+    }
+}
+
 #Preview {
     ContentView()
         .environmentObject(RadioPlayer())
         .environmentObject(FavoritesManager())
+        .environmentObject(LanguageManager.shared)
 }

@@ -45,8 +45,10 @@ class FaviconFetcher {
         
         downloadFavicon(from: websiteURL, stationId: station.id) { [weak self] image in
             if let image = image {
-                // Save to cache for future use
-                self?.saveToCache(image: image, stationId: station.id)
+                // Save to cache on background thread to avoid blocking UI
+                DispatchQueue.global(qos: .background).async {
+                    self?.saveToCache(image: image, stationId: station.id)
+                }
                 completion(image)
             } else {
                 // Favicon download failed - use placeholder

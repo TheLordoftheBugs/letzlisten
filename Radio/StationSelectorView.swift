@@ -9,10 +9,8 @@ import SwiftUI
 
 struct StationSelectorView: View {
     @EnvironmentObject var audioPlayer: RadioPlayer
+    @EnvironmentObject var languageManager: LanguageManager
     @Environment(\.dismiss) var dismiss
-    @ObservedObject var stationLoader = RadioStationLoader.shared
-    @State private var showDisabledAlert = false
-    @State private var disabledStationName = ""
     
     // Sorted stations: only enabled stations, sorted alphabetically
     private var sortedStations: [RadioStation] {
@@ -37,7 +35,7 @@ struct StationSelectorView: View {
                 
                 VStack(spacing: 0) {
                     // Header
-                    Text("Choose Your Radio")
+                    Text(languageManager.chooseYourRadio)
                         .font(.system(size: 24, weight: .bold))
                         .foregroundColor(.white)
                         .padding(.top, 20)
@@ -51,14 +49,8 @@ struct StationSelectorView: View {
                                     station: station,
                                     isSelected: station.id == audioPlayer.currentStation.id
                                 ) {
-                                    if station.enabled {
-                                        audioPlayer.switchStation(station)
-                                        dismiss()
-                                    } else {
-                                        // Show alert for disabled station
-                                        disabledStationName = station.name
-                                        showDisabledAlert = true
-                                    }
+                                    audioPlayer.switchStation(station)
+                                    dismiss()
                                 }
                             }
                         }
@@ -70,7 +62,7 @@ struct StationSelectorView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Back") {
+                    Button(languageManager.back) {
                         dismiss()
                     }
                     .foregroundColor(.blue)
@@ -81,11 +73,6 @@ struct StationSelectorView: View {
         }
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
-        .alert("Station Unavailable", isPresented: $showDisabledAlert) {
-            Button("OK", role: .cancel) { }
-        } message: {
-            Text("\(disabledStationName) is currently unavailable. Please check back later.")
-        }
     }
 }
 
@@ -157,4 +144,5 @@ struct StationButton: View {
 #Preview {
     StationSelectorView()
         .environmentObject(RadioPlayer())
+        .environmentObject(LanguageManager.shared)
 }
