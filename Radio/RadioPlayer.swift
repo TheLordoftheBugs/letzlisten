@@ -486,4 +486,6 @@ class RadioPlayer: NSObject, ObservableObject {
 struct TrackInfo {
     var title: String
     var artist: String
+
+    var isUnknown: Bool { title == "Title" && artist == "Artist" }
 }

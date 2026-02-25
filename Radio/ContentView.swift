@@ -173,24 +173,40 @@ struct PortraitLayout: View {
                     size: 180
                 )
                 
-                // Station name
-                Text(audioPlayer.currentStation.name)
-                    .font(.system(size: 32, weight: .bold))
-                    .foregroundColor(.white)
-                
-                // Track info
-                TrackInfoView(track: audioPlayer.currentTrack)
-                
-                // Favorite button
-                FavoriteButton(
-                    audioPlayer: audioPlayer,
-                    favoritesManager: favoritesManager
-                )
+                // Station name + website link
+                VStack(spacing: 4) {
+                    Text(audioPlayer.currentStation.name)
+                        .font(.system(size: 32, weight: .bold))
+                        .foregroundColor(.white)
+
+                    if let urlString = audioPlayer.currentStation.websiteURL,
+                       let url = URL(string: urlString) {
+                        Link(destination: url) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "globe")
+                                    .font(.system(size: 12))
+                                Text(url.host ?? urlString)
+                                    .font(.system(size: 13))
+                            }
+                            .foregroundColor(.white.opacity(0.55))
+                        }
+                    }
+                }
+
+                // Track info + favorite button (only when metadata is known)
+                if !audioPlayer.currentTrack.isUnknown {
+                    TrackInfoView(track: audioPlayer.currentTrack)
+
+                    FavoriteButton(
+                        audioPlayer: audioPlayer,
+                        favoritesManager: favoritesManager
+                    )
+                }
             }
             .padding(.horizontal, 40)
-            
+
             Spacer()
-            
+
             // Bottom control bar
             BottomControlBar(showStationSelector: $showStationSelector)
                 .environmentObject(audioPlayer)
@@ -221,20 +237,36 @@ struct LandscapeLayout: View {
                 
                 // Right: Info and controls
                 VStack(spacing: 20) {
-                    // Station name
-                    Text(audioPlayer.currentStation.name)
-                        .font(.system(size: 28, weight: .bold))
-                        .foregroundColor(.white)
-                    
-                    // Track info
-                    TrackInfoView(track: audioPlayer.currentTrack)
-                    
-                    // Favorite button
-                    FavoriteButton(
-                        audioPlayer: audioPlayer,
-                        favoritesManager: favoritesManager
-                    )
-                    
+                    // Station name + website link
+                    VStack(spacing: 4) {
+                        Text(audioPlayer.currentStation.name)
+                            .font(.system(size: 28, weight: .bold))
+                            .foregroundColor(.white)
+
+                        if let urlString = audioPlayer.currentStation.websiteURL,
+                           let url = URL(string: urlString) {
+                            Link(destination: url) {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "globe")
+                                        .font(.system(size: 12))
+                                    Text(url.host ?? urlString)
+                                        .font(.system(size: 13))
+                                }
+                                .foregroundColor(.white.opacity(0.55))
+                            }
+                        }
+                    }
+
+                    // Track info + favorite button (only when metadata is known)
+                    if !audioPlayer.currentTrack.isUnknown {
+                        TrackInfoView(track: audioPlayer.currentTrack)
+
+                        FavoriteButton(
+                            audioPlayer: audioPlayer,
+                            favoritesManager: favoritesManager
+                        )
+                    }
+
                     Spacer().frame(height: 20)
                     
                     // Play controls inline
