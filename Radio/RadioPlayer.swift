@@ -198,11 +198,22 @@ class RadioPlayer: NSObject, ObservableObject {
             }
         }
         
-        // If we got at least one value from standard keys, use them.
-        // Otherwise fall back to ICY metadata parsing.
-        if newTitle != nil || newArtist != nil {
-            updateTrackInfo(title: newTitle, artist: newArtist)
+        if let artist = newArtist {
+            // Stream provides an explicit separate artist field — use directly.
+            updateTrackInfo(title: newTitle, artist: artist)
+        } else if let rawTitle = newTitle {
+            // Title only: many ICY streams pack "Artist - Title" into the title key.
+            // Split on " - " (with spaces) to avoid false splits on hyphenated words.
+            let parts = rawTitle.components(separatedBy: " - ")
+            if parts.count >= 2 {
+                let artist = parts[0].trimmingCharacters(in: .whitespaces)
+                let title  = parts[1...].joined(separator: " - ").trimmingCharacters(in: .whitespaces)
+                updateTrackInfo(title: title, artist: artist)
+            } else {
+                updateTrackInfo(title: rawTitle, artist: nil)
+            }
         } else {
+            // No standard keys — fall back to raw ICY metadata parsing.
             parseICYMetadata(from: metadata)
         }
     }
