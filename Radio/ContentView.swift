@@ -92,19 +92,20 @@ struct ContentView: View {
         }
         // Share button - Top RIGHT
         .overlay(alignment: .topTrailing) {
+            let canShare = audioPlayer.isPlaying && !audioPlayer.currentTrack.isUnknown
             Button(action: {
                 showingShareSheet = true
             }) {
                 Image(systemName: "square.and.arrow.up")
                     .font(.system(size: 20, weight: .semibold))
-                    .foregroundColor(.white.opacity(audioPlayer.isPlaying ? 0.9 : 0.4))
+                    .foregroundColor(.white.opacity(canShare ? 0.9 : 0.4))
                     .padding(12)
                     .background(
                         Circle()
-                            .fill(Color.white.opacity(audioPlayer.isPlaying ? 0.15 : 0.05))
+                            .fill(Color.white.opacity(canShare ? 0.15 : 0.05))
                     )
             }
-            .disabled(!audioPlayer.isPlaying)
+            .disabled(!canShare)
             .padding(.top, 16)
             .padding(.trailing, 20)
         }
