@@ -166,32 +166,32 @@ struct PortraitLayout: View {
             
             // Station artwork and info
             VStack(spacing: 24) {
-                // Artwork
-                ArtworkView(
-                    artwork: audioPlayer.currentArtwork,
-                    stationLogo: stationLogo,
-                    size: 180
-                )
-                
-                // Station name + website link
-                VStack(spacing: 4) {
-                    Text(audioPlayer.currentStation.name)
-                        .font(.system(size: 32, weight: .bold))
-                        .foregroundColor(.white)
-
+                // Artwork (tappable = link to station website)
+                Group {
                     if let urlString = audioPlayer.currentStation.websiteURL,
                        let url = URL(string: urlString) {
                         Link(destination: url) {
-                            HStack(spacing: 4) {
-                                Image(systemName: "globe")
-                                    .font(.system(size: 12))
-                                Text(url.host ?? urlString)
-                                    .font(.system(size: 13))
-                            }
-                            .foregroundColor(.white.opacity(0.55))
+                            ArtworkView(
+                                artwork: audioPlayer.currentArtwork,
+                                stationLogo: stationLogo,
+                                size: 180
+                            )
                         }
+                    } else {
+                        ArtworkView(
+                            artwork: audioPlayer.currentArtwork,
+                            stationLogo: stationLogo,
+                            size: 180
+                        )
                     }
                 }
+
+                // Station name
+                Text(audioPlayer.currentStation.name)
+                    .font(.system(size: 32, weight: .bold))
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
 
                 // Track info + favorite button (only when metadata is known)
                 if !audioPlayer.currentTrack.isUnknown {
@@ -227,35 +227,35 @@ struct LandscapeLayout: View {
             Spacer()
             
             HStack(spacing: 40) {
-                // Left: Artwork
-                ArtworkView(
-                    artwork: audioPlayer.currentArtwork,
-                    stationLogo: stationLogo,
-                    size: 160
-                )
+                // Left: Artwork (tappable = link to station website)
+                Group {
+                    if let urlString = audioPlayer.currentStation.websiteURL,
+                       let url = URL(string: urlString) {
+                        Link(destination: url) {
+                            ArtworkView(
+                                artwork: audioPlayer.currentArtwork,
+                                stationLogo: stationLogo,
+                                size: 160
+                            )
+                        }
+                    } else {
+                        ArtworkView(
+                            artwork: audioPlayer.currentArtwork,
+                            stationLogo: stationLogo,
+                            size: 160
+                        )
+                    }
+                }
                 .padding(.leading, 40)
-                
+
                 // Right: Info and controls
                 VStack(spacing: 20) {
-                    // Station name + website link
-                    VStack(spacing: 4) {
-                        Text(audioPlayer.currentStation.name)
-                            .font(.system(size: 28, weight: .bold))
-                            .foregroundColor(.white)
-
-                        if let urlString = audioPlayer.currentStation.websiteURL,
-                           let url = URL(string: urlString) {
-                            Link(destination: url) {
-                                HStack(spacing: 4) {
-                                    Image(systemName: "globe")
-                                        .font(.system(size: 12))
-                                    Text(url.host ?? urlString)
-                                        .font(.system(size: 13))
-                                }
-                                .foregroundColor(.white.opacity(0.55))
-                            }
-                        }
-                    }
+                    // Station name
+                    Text(audioPlayer.currentStation.name)
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity)
 
                     // Track info + favorite button (only when metadata is known)
                     if !audioPlayer.currentTrack.isUnknown {
