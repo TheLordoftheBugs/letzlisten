@@ -20,6 +20,7 @@ class RadioPlayer: NSObject, ObservableObject {
     private var player: AVPlayer?
     private var timeObserver: Any?
     private var cachedStationLogo: UIImage?
+    private var cancellables = Set<AnyCancellable>()
     
     // UserDefaults key for last station
     private let lastStationKey = "LastPlayedStationID"
@@ -55,6 +56,25 @@ class RadioPlayer: NSObject, ObservableObject {
         setupPlayer()
         setupRemoteControls()
         setupNotifications()
+
+        // Safety net: if stations were empty during init (timing race with @StateObject),
+        // re-evaluate and restore the correct station as soon as stations are available.
+        // If init() already found the right station, the guard below exits immediately.
+        let savedID = lastStationID
+        RadioStationLoader.shared.$stations
+            .first { !$0.isEmpty }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] stations in
+                guard let self = self,
+                      let stationID = savedID,
+                      let station = stations.first(where: { $0.id == stationID && $0.enabled }),
+                      station.id != self.currentStation.id else { return }
+                print("🔄 Combine-restored last station: \(station.name)")
+                self.currentStation = station
+                self.loadStation(station)
+                UserDefaults.standard.set(station.id, forKey: self.lastStationKey)
+            }
+            .store(in: &cancellables)
     }
     
     private func setupPlayer() {
