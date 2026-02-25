@@ -57,24 +57,24 @@ class RadioPlayer: NSObject, ObservableObject {
         setupRemoteControls()
         setupNotifications()
 
-        // Safety net: if stations were empty during init (timing race with @StateObject),
-        // re-evaluate and restore the correct station as soon as stations are available.
-        // If init() already found the right station, the guard below exits immediately.
-        let savedID = lastStationID
-        RadioStationLoader.shared.$stations
-            .first { !$0.isEmpty }
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] stations in
-                guard let self = self,
-                      let stationID = savedID,
-                      let station = stations.first(where: { $0.id == stationID && $0.enabled }),
-                      station.id != self.currentStation.id else { return }
-                print("🔄 Combine-restored last station: \(station.name)")
-                self.currentStation = station
-                self.loadStation(station)
-                UserDefaults.standard.set(station.id, forKey: self.lastStationKey)
-            }
-            .store(in: &cancellables)
+        // Safety net: restore the saved station as soon as it appears in the station list.
+        // Fires the first time stations contains the saved ID — whether from bundle, cache,
+        // or remote fetch. No-op if init() already restored the right station.
+        if let savedID = lastStationID {
+            RadioStationLoader.shared.$stations
+                .first { $0.contains(where: { $0.id == savedID && $0.enabled }) }
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] stations in
+                    guard let self = self,
+                          let station = stations.first(where: { $0.id == savedID && $0.enabled }),
+                          station.id != self.currentStation.id else { return }
+                    print("🔄 Combine-restored last station: \(station.name)")
+                    self.currentStation = station
+                    self.loadStation(station)
+                    UserDefaults.standard.set(station.id, forKey: self.lastStationKey)
+                }
+                .store(in: &cancellables)
+        }
     }
     
     private func setupPlayer() {
