@@ -45,12 +45,9 @@ class RadioStationLoader: ObservableObject {
     // MARK: - Main Loading Function
 
     func loadStations() {
-        // Load remote stations asynchronously
-        loadFromRemote { [weak self] success in
-            if success {
-                print("🎯 Updated with \(self?.stations.count ?? 0) remote stations")
-            } else {
-                print("⚠️ Remote unavailable, keeping bundle stations")
+        loadFromRemote { success in
+            if !success {
+                print("⚠️ Remote unavailable, keeping current stations")
             }
         }
     }
@@ -96,27 +93,28 @@ class RadioStationLoader: ObservableObject {
                 
                 let remoteVersion = config.version
                 let currentVersion = self?.currentVersion ?? "0.0"
-                
-                print("📊 Version comparison: Current=\(currentVersion), Remote=\(remoteVersion)")
-                
-                // ALWAYS update from remote (even if same version, content might differ)
-                print("🔄 Loading remote version \(remoteVersion)...")
-                
+
+                guard remoteVersion != currentVersion else {
+                    // Same version — no need to replace stations in memory.
+                    // Seed the cache if it doesn't exist yet (e.g. first install).
+                    let cacheExists = FileManager.default.fileExists(
+                        atPath: self?.cacheFileURL.path ?? "")
+                    if !cacheExists { self?.saveToCache(data) }
+                    print("✅ Remote v\(remoteVersion) matches current, nothing to update")
+                    self?.remoteLoadedAt = Date()
+                    completion(true)
+                    return
+                }
+
+                // New version — update stations
+                print("🔄 Updating to v\(remoteVersion) (was v\(currentVersion))...")
                 self?.stations = config.stations.sorted { $0.name < $1.name }
                 self?.currentVersion = remoteVersion
                 self?.lastUpdateDate = Date()
                 self?.remoteLoadedAt = Date()
-
-                // Save to cache for offline use
                 self?.saveToCache(data)
-                
-                if remoteVersion != currentVersion {
-                    print("✅ Updated to v\(remoteVersion): \(config.stations.count) stations (previously had v\(currentVersion))")
-                } else {
-                    print("✅ Loaded v\(remoteVersion): \(config.stations.count) stations")
-                }
+                print("✅ Updated to v\(remoteVersion): \(config.stations.count) stations")
                 print("📅 Last updated: \(config.lastUpdated)")
-                
                 completion(true)
             }
         }.resume()
@@ -125,12 +123,16 @@ class RadioStationLoader: ObservableObject {
     // MARK: - Cache Loading
     
     private func loadFromCache() {
+        let cachedVersion = UserDefaults.standard.string(forKey: versionKey) ?? "0.0"
+        guard cachedVersion != currentVersion else {
+            print("⚡️ Cache v\(cachedVersion) matches bundle, skipping")
+            return
+        }
         guard let data = try? Data(contentsOf: cacheFileURL),
               let config = parseJSON(data) else {
             print("⚠️ No cache available")
             return
         }
-        
         stations = config.stations.sorted { $0.name < $1.name }
         currentVersion = config.version
         print("✅ Loaded \(stations.count) stations from cache (v\(currentVersion))")
