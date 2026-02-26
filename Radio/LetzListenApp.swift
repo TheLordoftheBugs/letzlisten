@@ -1,6 +1,6 @@
 //
 //  LetzListenApp.swift
-//  Lëtz Listen
+//  Letzebuerg FM
 //
 //  Main app entry point
 //
