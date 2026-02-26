@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  Letz Listen
+//  Letz FM
 //
 //  Main UI with landscape support
 //
