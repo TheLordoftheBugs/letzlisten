@@ -124,8 +124,14 @@ class RadioPlayer: NSObject, ObservableObject {
         }
         
         // Create new player with station URL
+        // Send Icy-MetaData: 1 so Shoutcast/Icecast servers include ICY stream metadata.
+        // This also prevents some servers from returning a bare "ICY 200 OK" response
+        // (which iOS rejects) by signalling that the client speaks the ICY protocol.
         guard let url = URL(string: station.streamURL) else { return }
-        let playerItem = AVPlayerItem(url: url)
+        let asset = AVURLAsset(url: url, options: [
+            AVURLAssetHTTPHeaderFieldsKey: ["Icy-MetaData": "1"]
+        ])
+        let playerItem = AVPlayerItem(asset: asset)
         player = AVPlayer(playerItem: playerItem)
         
         // Observe new player status
