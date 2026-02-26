@@ -148,8 +148,7 @@ struct ContentView: View {
             artist: artist,
             title: title,
             station: station,
-            url: audioPlayer.currentStation.websiteURL,
-            stationId: audioPlayer.currentStation.id
+            url: audioPlayer.currentStation.websiteURL
         )
         return [message]
     }
