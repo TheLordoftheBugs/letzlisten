@@ -3,7 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDisplayName</key>
-	<string>Letzebuerg FM</string>
+	<string>FlorArno LU Radio</string>
+	<key>CFBundleName</key>
+	<string>FlorArno LU Radio</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
