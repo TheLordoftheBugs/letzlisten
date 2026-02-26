@@ -21,7 +21,7 @@ class AudioSessionManager {
             try audioSession.setCategory(
                 .playback,
                 mode: .default,
-                options: [.allowAirPlay, .allowBluetooth, .allowBluetoothA2DP]
+                options: [.allowAirPlay, .allowBluetoothA2DP]
             )
             
             // Activate the audio session
