@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  Lëtz Listen
+//  Letz Listen
 //
 //  Main UI with landscape support
 //

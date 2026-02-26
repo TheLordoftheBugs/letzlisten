@@ -1,6 +1,6 @@
 //
 //  LetzListenApp.swift
-//  Lëtz Listen
+//  Letz Listen
 //
 //  Main app entry point
 //

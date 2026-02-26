@@ -1,6 +1,6 @@
 //
 //  LanguageManager.swift
-//  Lëtz Listen
+//  Letz Listen
 //
 //  Manages app language: Lëtzebuergesch (default), Français, Deutsch, English
 //
