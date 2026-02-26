@@ -21,7 +21,6 @@ build/
 *.cer
 *.mobileprovision
 *.provisionprofile
-ExportOptions.plist
 
 # SPM
 .build/
