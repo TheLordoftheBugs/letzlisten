@@ -129,7 +129,7 @@ class RadioPlayer: NSObject, ObservableObject {
         // (which iOS rejects) by signalling that the client speaks the ICY protocol.
         guard let url = URL(string: station.streamURL) else { return }
         let asset = AVURLAsset(url: url, options: [
-            AVURLAssetHTTPHeaderFieldsKey: ["Icy-MetaData": "1"]
+            "AVURLAssetHTTPHeaderFieldsKey": ["Icy-MetaData": "1"]
         ])
         let playerItem = AVPlayerItem(asset: asset)
         player = AVPlayer(playerItem: playerItem)
