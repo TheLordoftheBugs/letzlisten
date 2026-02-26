@@ -12,10 +12,10 @@ class LanguageManager: ObservableObject {
     static let shared = LanguageManager()
 
     enum Language: String, CaseIterable {
-        case luxembourgish = "lb"
-        case french = "fr"
         case german = "de"
         case english = "en"
+        case french = "fr"
+        case luxembourgish = "lb"
 
         var displayName: String {
             switch self {
