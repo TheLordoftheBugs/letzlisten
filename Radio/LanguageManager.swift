@@ -1,6 +1,6 @@
 //
 //  LanguageManager.swift
-//  Letz FM
+//  Letzebuerg FM
 //
 //  Manages app language: Lëtzebuergesch (default), Français, Deutsch, English
 //
