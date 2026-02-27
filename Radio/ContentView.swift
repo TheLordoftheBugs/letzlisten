@@ -22,8 +22,12 @@ struct ContentView: View {
     @Environment(\.verticalSizeClass) var verticalSizeClass
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
+    var isIPad: Bool {
+        UIDevice.current.userInterfaceIdiom == .pad
+    }
+
     var isLandscape: Bool {
-        verticalSizeClass == .compact || horizontalSizeClass == .regular
+        verticalSizeClass == .compact
     }
     
     var body: some View {
@@ -39,8 +43,15 @@ struct ContentView: View {
             )
             .ignoresSafeArea()
             
-            if isLandscape {
-                // Landscape layout
+            if isIPad {
+                // iPad layout: sidebar + player
+                iPadLayout(
+                    audioPlayer: audioPlayer,
+                    favoritesManager: favoritesManager,
+                    stationLogo: stationLogo
+                )
+            } else if isLandscape {
+                // iPhone landscape layout
                 LandscapeLayout(
                     audioPlayer: audioPlayer,
                     favoritesManager: favoritesManager,
@@ -48,7 +59,7 @@ struct ContentView: View {
                     showStationSelector: $showStationSelector
                 )
             } else {
-                // Portrait layout (current)
+                // iPhone portrait layout
                 PortraitLayout(
                     audioPlayer: audioPlayer,
                     favoritesManager: favoritesManager,
@@ -574,6 +585,211 @@ struct LanguagePickerView: View {
         }
         .presentationDetents([.medium])
         .presentationDragIndicator(.visible)
+    }
+}
+
+// MARK: - iPad Layout
+
+struct iPadLayout: View {
+    @ObservedObject var audioPlayer: RadioPlayer
+    @ObservedObject var favoritesManager: FavoritesManager
+    let stationLogo: UIImage?
+
+    var body: some View {
+        HStack(spacing: 0) {
+            iPadStationSidebar(audioPlayer: audioPlayer)
+                .frame(width: 280)
+
+            Rectangle()
+                .fill(Color.white.opacity(0.1))
+                .frame(width: 1)
+
+            iPadPlayerPanel(
+                audioPlayer: audioPlayer,
+                favoritesManager: favoritesManager,
+                stationLogo: stationLogo
+            )
+        }
+    }
+}
+
+struct iPadStationSidebar: View {
+    @ObservedObject var audioPlayer: RadioPlayer
+    @EnvironmentObject var languageManager: LanguageManager
+
+    private var sortedStations: [RadioStation] {
+        RadioStation.stations
+            .filter { $0.enabled }
+            .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Text(languageManager.chooseYourRadio)
+                .font(.system(size: 18, weight: .bold))
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 20)
+
+            Rectangle()
+                .fill(Color.white.opacity(0.1))
+                .frame(height: 1)
+
+            ScrollView {
+                LazyVStack(spacing: 8) {
+                    ForEach(sortedStations) { station in
+                        iPadStationRow(
+                            station: station,
+                            isSelected: station.id == audioPlayer.currentStation.id
+                        ) {
+                            audioPlayer.switchStation(station)
+                        }
+                    }
+                }
+                .padding(.vertical, 12)
+                .padding(.horizontal, 8)
+            }
+        }
+        .background(Color(red: 0.08, green: 0.08, blue: 0.12).opacity(0.95))
+    }
+}
+
+struct iPadStationRow: View {
+    let station: RadioStation
+    let isSelected: Bool
+    let onTap: () -> Void
+    @State private var logo: UIImage?
+
+    var body: some View {
+        Button(action: onTap) {
+            HStack(spacing: 12) {
+                Group {
+                    if let logo = logo {
+                        Image(uiImage: logo)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                    } else {
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.white.opacity(0.1))
+                            .overlay(
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .white.opacity(0.5)))
+                                    .scaleEffect(0.7)
+                            )
+                    }
+                }
+                .frame(width: 44, height: 44)
+                .cornerRadius(8)
+
+                Text(station.name)
+                    .font(.system(size: 16, weight: isSelected ? .semibold : .regular))
+                    .foregroundColor(.white)
+                    .lineLimit(1)
+
+                Spacer()
+
+                if isSelected {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.blue)
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(isSelected ? Color.blue.opacity(0.2) : Color.clear)
+            )
+        }
+        .onAppear {
+            FaviconFetcher.shared.loadLogo(for: station) { image in
+                logo = image
+            }
+        }
+    }
+}
+
+struct iPadPlayerPanel: View {
+    @ObservedObject var audioPlayer: RadioPlayer
+    @ObservedObject var favoritesManager: FavoritesManager
+    let stationLogo: UIImage?
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Spacer()
+
+            VStack(spacing: 32) {
+                // Artwork
+                Group {
+                    if let urlString = audioPlayer.currentStation.websiteURL,
+                       let url = URL(string: urlString) {
+                        Link(destination: url) {
+                            ArtworkView(
+                                artwork: audioPlayer.currentArtwork,
+                                stationLogo: stationLogo,
+                                size: 280
+                            )
+                        }
+                    } else {
+                        ArtworkView(
+                            artwork: audioPlayer.currentArtwork,
+                            stationLogo: stationLogo,
+                            size: 280
+                        )
+                    }
+                }
+
+                // Station name
+                Group {
+                    if let urlString = audioPlayer.currentStation.websiteURL,
+                       let url = URL(string: urlString) {
+                        Link(destination: url) {
+                            Text(audioPlayer.currentStation.name)
+                                .font(.system(size: 40, weight: .bold))
+                                .foregroundColor(.white)
+                                .multilineTextAlignment(.center)
+                        }
+                    } else {
+                        Text(audioPlayer.currentStation.name)
+                            .font(.system(size: 40, weight: .bold))
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.center)
+                    }
+                }
+
+                // Track info + favourite button
+                if !audioPlayer.currentTrack.isUnknown {
+                    TrackInfoView(track: audioPlayer.currentTrack)
+                    FavoriteButton(audioPlayer: audioPlayer, favoritesManager: favoritesManager)
+                }
+
+                // Playback controls
+                HStack(spacing: 40) {
+                    AirPlayButton()
+                        .frame(width: 64, height: 64)
+
+                    Button(action: {
+                        audioPlayer.togglePlayback()
+                    }) {
+                        ZStack {
+                            Circle()
+                                .fill(audioPlayer.isPlaying ? Color.red : Color.blue)
+                                .frame(width: 80, height: 80)
+                                .shadow(color: (audioPlayer.isPlaying ? Color.red : Color.blue).opacity(0.4), radius: 10, x: 0, y: 5)
+
+                            Image(systemName: audioPlayer.isPlaying ? "stop.fill" : "play.fill")
+                                .font(.system(size: 34))
+                                .foregroundColor(.white)
+                        }
+                    }
+                    .disabled(audioPlayer.isLoading)
+                }
+            }
+            .padding(.horizontal, 60)
+
+            Spacer()
+        }
     }
 }
 
