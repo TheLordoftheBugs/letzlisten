@@ -1,6 +1,6 @@
 # Letz Listen
 
-A native radio app for Luxembourg, available on **iOS** and **Android**.
+A native radio app for Luxembourg, available on **iOS** and **Android** _(Android version currently under testing)_.
 
 ## Repository structure
 
@@ -55,7 +55,7 @@ open ios/Radio.xcodeproj
 
 ---
 
-## Android
+## Android _(under testing)_
 
 ### Features
 
