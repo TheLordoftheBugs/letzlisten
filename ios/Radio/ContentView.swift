@@ -128,7 +128,7 @@ struct ContentView: View {
             }
             .disabled(!canShare)
             .padding(.top, 16)
-            .padding(.trailing, 20)
+            .padding(.trailing, isIPad && showStationPanel ? 340 : 20)
         }
         .sheet(isPresented: $showFavorites) {
             FavoritesView()
@@ -672,7 +672,7 @@ struct iPadFavoritesPanel: View {
             }
             .padding(.horizontal, 16)
             .padding(.top, 16)
-            .padding(.bottom, 20)
+            .padding(.bottom, 32)
 
             Rectangle()
                 .fill(Color.white.opacity(0.1))
