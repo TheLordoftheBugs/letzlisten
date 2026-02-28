@@ -658,12 +658,6 @@ struct iPadFavoritesPanel: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text(languageManager.favorites)
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(.white)
-
-                Spacer()
-
                 if !favoritesManager.favorites.isEmpty {
                     Button(role: .destructive) {
                         favoritesManager.clearAll()
@@ -673,6 +667,12 @@ struct iPadFavoritesPanel: View {
                             .foregroundColor(.red)
                     }
                 }
+
+                Spacer()
+
+                Text(languageManager.favorites)
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundColor(.white)
             }
             .padding(.horizontal, 16)
             .padding(.top, 64)
