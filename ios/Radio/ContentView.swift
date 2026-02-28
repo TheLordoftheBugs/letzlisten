@@ -675,7 +675,7 @@ struct iPadFavoritesPanel: View {
                     .foregroundColor(.white)
             }
             .padding(.horizontal, 16)
-            .padding(.top, 64)
+            .padding(.top, 16)
             .padding(.bottom, 20)
 
             Rectangle()
