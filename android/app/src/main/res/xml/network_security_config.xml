@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Allows HTTP streams (some Luxembourg radio stations still use HTTP) -->
-<network-security-config>
-    <base-config cleartextTrafficPermitted="true" />
-</network-security-config>
