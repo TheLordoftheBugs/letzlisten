@@ -675,7 +675,8 @@ struct iPadFavoritesPanel: View {
                 }
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 20)
+            .padding(.top, 64)
+            .padding(.bottom, 20)
 
             Rectangle()
                 .fill(Color.white.opacity(0.1))
@@ -734,7 +735,8 @@ struct iPadStationSidebar: View {
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 16)
-                .padding(.vertical, 20)
+                .padding(.top, 64)
+                .padding(.bottom, 20)
 
             Rectangle()
                 .fill(Color.white.opacity(0.1))
