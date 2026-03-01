@@ -52,7 +52,8 @@ struct ContentView: View {
                     favoritesManager: favoritesManager,
                     stationLogo: stationLogo,
                     showFavoritesPanel: $showFavoritesPanel,
-                    showStationPanel: $showStationPanel
+                    showStationPanel: $showStationPanel,
+                    showingShareSheet: $showingShareSheet
                 )
             } else if isLandscape {
                 // iPhone landscape layout
@@ -60,7 +61,7 @@ struct ContentView: View {
                     audioPlayer: audioPlayer,
                     favoritesManager: favoritesManager,
                     stationLogo: stationLogo,
-                    showStationSelector: $showStationSelector
+                    showingShareSheet: $showingShareSheet
                 )
             } else {
                 // iPhone portrait layout
@@ -68,7 +69,7 @@ struct ContentView: View {
                     audioPlayer: audioPlayer,
                     favoritesManager: favoritesManager,
                     stationLogo: stationLogo,
-                    showStationSelector: $showStationSelector
+                    showingShareSheet: $showingShareSheet
                 )
             }
         }
@@ -111,26 +112,28 @@ struct ContentView: View {
             }
             .padding(.top, 20)
         }
-        // Share button - Top RIGHT
+        // Station selector button - Top RIGHT
         .overlay(alignment: .topTrailing) {
-            let canShare = audioPlayer.isPlaying && !audioPlayer.currentTrack.isUnknown
             Button(action: {
-                showingShareSheet = true
+                if isIPad {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        showStationPanel.toggle()
+                    }
+                } else {
+                    showStationSelector = true
+                }
             }) {
-                Image(systemName: "square.and.arrow.up")
+                Image(systemName: isIPad && showStationPanel ? "antenna.radiowaves.left.and.right.circle.fill" : "antenna.radiowaves.left.and.right")
                     .font(.system(size: 20, weight: .semibold))
-                    .foregroundColor(.white.opacity(canShare ? 0.9 : 0.4))
+                    .foregroundColor(.white.opacity(0.9))
                     .padding(12)
                     .background(
                         Circle()
-                            .fill(Color.white.opacity(canShare ? 0.15 : 0.05))
+                            .fill(Color.white.opacity(isIPad && showStationPanel ? 0.25 : 0.15))
                     )
             }
-            .disabled(!canShare)
             .padding(.top, 16)
             .padding(.trailing, 20)
-            .opacity(isIPad && showStationPanel ? 0 : 1)
-            .animation(.easeInOut(duration: 0.2), value: showStationPanel)
         }
         .sheet(isPresented: $showFavorites) {
             FavoritesView()
@@ -182,7 +185,7 @@ struct PortraitLayout: View {
     @ObservedObject var audioPlayer: RadioPlayer
     @ObservedObject var favoritesManager: FavoritesManager
     let stationLogo: UIImage?
-    @Binding var showStationSelector: Bool
+    @Binding var showingShareSheet: Bool
     
     var body: some View {
         VStack(spacing: 0) {
@@ -245,7 +248,7 @@ struct PortraitLayout: View {
             Spacer()
 
             // Bottom control bar
-            BottomControlBar(showStationSelector: $showStationSelector)
+            BottomControlBar(showingShareSheet: $showingShareSheet)
                 .environmentObject(audioPlayer)
                 .environmentObject(favoritesManager)
         }
@@ -257,7 +260,7 @@ struct LandscapeLayout: View {
     @ObservedObject var audioPlayer: RadioPlayer
     @ObservedObject var favoritesManager: FavoritesManager
     let stationLogo: UIImage?
-    @Binding var showStationSelector: Bool
+    @Binding var showingShareSheet: Bool
     
     var body: some View {
         VStack(spacing: 0) {
@@ -341,19 +344,21 @@ struct LandscapeLayout: View {
                         }
                         .disabled(audioPlayer.isLoading)
                         
-                        // Station selector
+                        // Share button
+                        let canShare = audioPlayer.isPlaying && !audioPlayer.currentTrack.isUnknown
                         Button(action: {
-                            showStationSelector = true
+                            showingShareSheet = true
                         }) {
-                            Image(systemName: "antenna.radiowaves.left.and.right")
+                            Image(systemName: "square.and.arrow.up")
                                 .font(.system(size: 24))
-                                .foregroundColor(.white)
+                                .foregroundColor(.white.opacity(canShare ? 0.9 : 0.4))
                                 .frame(width: 50, height: 50)
                                 .background(
                                     RoundedRectangle(cornerRadius: 12)
-                                        .fill(Color.white.opacity(0.15))
+                                        .fill(Color.white.opacity(canShare ? 0.15 : 0.05))
                                 )
                         }
+                        .disabled(!canShare)
                     }
                 }
                 .padding(.trailing, 40)
@@ -459,7 +464,7 @@ struct FavoriteButton: View {
 struct BottomControlBar: View {
     @EnvironmentObject var audioPlayer: RadioPlayer
     @EnvironmentObject var favoritesManager: FavoritesManager
-    @Binding var showStationSelector: Bool
+    @Binding var showingShareSheet: Bool
     
     var body: some View {
         VStack(spacing: 0) {
@@ -492,19 +497,21 @@ struct BottomControlBar: View {
                 
                 Spacer()
                 
-                // Station Selector Button
+                // Share Button
+                let canShare = audioPlayer.isPlaying && !audioPlayer.currentTrack.isUnknown
                 Button(action: {
-                    showStationSelector = true
+                    showingShareSheet = true
                 }) {
-                    Image(systemName: "antenna.radiowaves.left.and.right")
+                    Image(systemName: "square.and.arrow.up")
                         .font(.system(size: 28))
-                        .foregroundColor(.white)
+                        .foregroundColor(.white.opacity(canShare ? 0.9 : 0.4))
                         .frame(width: 64, height: 64)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.white.opacity(0.15))
+                                .fill(Color.white.opacity(canShare ? 0.15 : 0.05))
                         )
                 }
+                .disabled(!canShare)
             }
             .padding(.horizontal, 24)
             .padding(.vertical, 16)
@@ -608,6 +615,7 @@ struct iPadSplitLayout: View {
     let stationLogo: UIImage?
     @Binding var showFavoritesPanel: Bool
     @Binding var showStationPanel: Bool
+    @Binding var showingShareSheet: Bool
 
     var body: some View {
         HStack(spacing: 0) {
@@ -627,7 +635,7 @@ struct iPadSplitLayout: View {
                 audioPlayer: audioPlayer,
                 favoritesManager: favoritesManager,
                 stationLogo: stationLogo,
-                showStationSelector: $showStationPanel
+                showingShareSheet: $showingShareSheet
             )
             .frame(maxWidth: .infinity)
 
