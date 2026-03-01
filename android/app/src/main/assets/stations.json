@@ -1,6 +1,6 @@
 {
-  "version": "1.4",
-  "last_updated": "2026-02-26 08:00",
+  "version": "1.5",
+  "last_updated": "2026-03-01 18:00",
   "stations": [
     {
       "id": "antena_mais",
@@ -16,7 +16,7 @@
       "streamURL": "http://streaming.aoip.international:8000/cr-gilsdorf",
       "logoImageName": "CountryLogo",
       "websiteURL": "https://www.facebook.com/CountryRadioGilsdorf/",
-      "isEnabled": false
+      "isEnabled": true
     },
     {
       "id": "crazy_poisons",
