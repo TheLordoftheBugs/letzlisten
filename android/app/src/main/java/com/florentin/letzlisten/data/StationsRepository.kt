@@ -1,6 +1,8 @@
 package com.florentin.letzlisten.data
 
 import android.content.Context
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
 private val json = Json { ignoreUnknownKeys = true }
@@ -29,11 +31,13 @@ object StationsRepository {
      * Call this from a coroutine / background thread.
      */
     suspend fun fetchRemote(): List<RadioStation> {
-        return try {
-            val raw = java.net.URL(REMOTE_STATIONS_URL).readText()
-            json.decodeFromString<StationsResponse>(raw).stations
-        } catch (e: Exception) {
-            emptyList()
+        return withContext(Dispatchers.IO) {
+            try {
+                val raw = java.net.URL(REMOTE_STATIONS_URL).readText()
+                json.decodeFromString<StationsResponse>(raw).stations
+            } catch (e: Exception) {
+                emptyList()
+            }
         }
     }
 }

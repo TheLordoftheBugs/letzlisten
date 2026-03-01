@@ -32,6 +32,7 @@ fun MainScreen(viewModel: RadioViewModel) {
     val isPlaying by viewModel.isPlaying.collectAsStateWithLifecycle()
     val hasStartedPlaying by viewModel.hasStartedPlaying.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+    val isStationsLoading by viewModel.isStationsLoading.collectAsStateWithLifecycle()
     val currentTrack by viewModel.currentTrack.collectAsStateWithLifecycle()
     val favorites by viewModel.favorites.collectAsStateWithLifecycle()
     val isFavorited by viewModel.isFavorited.collectAsStateWithLifecycle()
@@ -53,6 +54,7 @@ fun MainScreen(viewModel: RadioViewModel) {
                 StationListPanel(
                     stations = stations,
                     currentStation = currentStation,
+                    isStationsLoading = isStationsLoading,
                     chooseYourRadioLabel = languageManager.chooseYourRadio,
                     onStationSelected = { viewModel.switchStation(it) },
                     modifier = Modifier
@@ -73,8 +75,6 @@ fun MainScreen(viewModel: RadioViewModel) {
                     isLoading = isLoading,
                     isFavorited = isFavorited,
                     languageFlag = currentLanguage.flag,
-                    defaultTitle = languageManager.defaultTitle,
-                    defaultArtist = languageManager.defaultArtist,
                     albumArtUrl = albumArtUrl,
                     artworkSize = 280,
                     onTogglePlayback = { viewModel.togglePlayback() },
@@ -97,8 +97,6 @@ fun MainScreen(viewModel: RadioViewModel) {
                 isLoading = isLoading,
                 isFavorited = isFavorited,
                 languageFlag = currentLanguage.flag,
-                defaultTitle = languageManager.defaultTitle,
-                defaultArtist = languageManager.defaultArtist,
                 albumArtUrl = albumArtUrl,
                 onTogglePlayback = { viewModel.togglePlayback() },
                 onToggleFavorite = { viewModel.toggleFavorite() },
@@ -118,6 +116,7 @@ fun MainScreen(viewModel: RadioViewModel) {
                     StationListPanel(
                         stations = stations,
                         currentStation = currentStation,
+                        isStationsLoading = isStationsLoading,
                         chooseYourRadioLabel = languageManager.chooseYourRadio,
                         onStationSelected = {
                             viewModel.switchStation(it)

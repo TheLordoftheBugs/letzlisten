@@ -28,22 +28,6 @@ class LanguageManager(context: Context) {
         prefs.edit().putString("language", language.code).apply()
     }
 
-    val defaultTitle: String get() = when (_currentLanguage.value) {
-        AppLanguage.LB -> "Titel"
-        AppLanguage.FR -> "Titre"
-        AppLanguage.DE -> "Titel"
-        AppLanguage.EN -> "Title"
-        AppLanguage.PT -> "Título"
-    }
-
-    val defaultArtist: String get() = when (_currentLanguage.value) {
-        AppLanguage.LB -> "Kënschtler"
-        AppLanguage.FR -> "Artiste"
-        AppLanguage.DE -> "Künstler"
-        AppLanguage.EN -> "Artist"
-        AppLanguage.PT -> "Artista"
-    }
-
     val favorites: String get() = when (_currentLanguage.value) {
         AppLanguage.LB -> "Favoritten"
         AppLanguage.FR -> "Favoris"

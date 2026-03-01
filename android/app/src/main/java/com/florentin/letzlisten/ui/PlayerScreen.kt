@@ -50,8 +50,6 @@ fun PlayerScreen(
     isLoading: Boolean,
     isFavorited: Boolean,
     languageFlag: String,
-    defaultTitle: String,
-    defaultArtist: String,
     albumArtUrl: String? = null,
     artworkSize: Int = 220,
     onTogglePlayback: () -> Unit,
@@ -99,12 +97,12 @@ fun PlayerScreen(
                 overflow = TextOverflow.Ellipsis
             )
 
-            // Track info: nothing before first play of this station; placeholder while playing with
-            // no ICY metadata yet; real track data (+ favorite) once known; kept during pause.
-            if (hasStartedPlaying) {
+            // Track info: shown only when real ICY metadata is available.
+            // If the station never broadcasts artist/title, nothing is displayed.
+            if (hasStartedPlaying && !currentTrack.isUnknown) {
                 Spacer(Modifier.height(12.dp))
                 Text(
-                    text = if (currentTrack.isUnknown) defaultTitle else currentTrack.title,
+                    text = currentTrack.title,
                     fontSize = 17.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = TextPrimary,
@@ -113,25 +111,21 @@ fun PlayerScreen(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = if (currentTrack.isUnknown) defaultArtist else currentTrack.artist,
+                    text = currentTrack.artist,
                     fontSize = 14.sp,
                     color = TextSecondary,
                     textAlign = TextAlign.Center,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-
-                // Favorite heart button only when a real track is known
-                if (!currentTrack.isUnknown) {
-                    Spacer(Modifier.height(8.dp))
-                    IconButton(onClick = onToggleFavorite) {
-                        Icon(
-                            imageVector = if (isFavorited) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                            contentDescription = null,
-                            tint = if (isFavorited) AccentRed else Color.White.copy(alpha = 0.7f),
-                            modifier = Modifier.size(28.dp)
-                        )
-                    }
+                Spacer(Modifier.height(8.dp))
+                IconButton(onClick = onToggleFavorite) {
+                    Icon(
+                        imageVector = if (isFavorited) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                        contentDescription = null,
+                        tint = if (isFavorited) AccentRed else Color.White.copy(alpha = 0.7f),
+                        modifier = Modifier.size(28.dp)
+                    )
                 }
             }
         }
