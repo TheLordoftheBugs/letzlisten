@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import com.florentin.letzlisten.data.StationsRepository
@@ -57,6 +58,14 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
             }
             override fun onPlaybackStateChanged(state: Int) {
                 _isLoading.value = state == Player.STATE_BUFFERING
+            }
+            override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
+                val raw = mediaMetadata.title?.toString() ?: return
+                val parts = raw.split(" - ", limit = 2)
+                _currentTrack.value = if (parts.size == 2)
+                    TrackInfo(title = parts[1].trim(), artist = parts[0].trim())
+                else
+                    TrackInfo(title = raw.trim(), artist = "")
             }
         })
     }
