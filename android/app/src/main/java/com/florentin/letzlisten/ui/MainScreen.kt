@@ -30,6 +30,7 @@ fun MainScreen(viewModel: RadioViewModel) {
     val stations by viewModel.stations.collectAsStateWithLifecycle()
     val currentStation by viewModel.currentStation.collectAsStateWithLifecycle()
     val isPlaying by viewModel.isPlaying.collectAsStateWithLifecycle()
+    val hasStartedPlaying by viewModel.hasStartedPlaying.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     val currentTrack by viewModel.currentTrack.collectAsStateWithLifecycle()
     val favorites by viewModel.favorites.collectAsStateWithLifecycle()
@@ -68,6 +69,7 @@ fun MainScreen(viewModel: RadioViewModel) {
                     currentStation = currentStation,
                     currentTrack = currentTrack,
                     isPlaying = isPlaying,
+                    hasStartedPlaying = hasStartedPlaying,
                     isLoading = isLoading,
                     isFavorited = isFavorited,
                     languageFlag = currentLanguage.flag,
@@ -91,6 +93,7 @@ fun MainScreen(viewModel: RadioViewModel) {
                 currentStation = currentStation,
                 currentTrack = currentTrack,
                 isPlaying = isPlaying,
+                hasStartedPlaying = hasStartedPlaying,
                 isLoading = isLoading,
                 isFavorited = isFavorited,
                 languageFlag = currentLanguage.flag,

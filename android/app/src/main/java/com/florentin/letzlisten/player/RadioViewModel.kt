@@ -48,6 +48,10 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
     private val _isPlaying = MutableStateFlow(false)
     val isPlaying: StateFlow<Boolean> = _isPlaying.asStateFlow()
 
+    // True once playback has started at least once for the current station; resets on station change.
+    private val _hasStartedPlaying = MutableStateFlow(false)
+    val hasStartedPlaying: StateFlow<Boolean> = _hasStartedPlaying.asStateFlow()
+
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
@@ -71,6 +75,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         exoPlayer.addListener(object : Player.Listener {
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 _isPlaying.value = isPlaying
+                if (isPlaying) _hasStartedPlaying.value = true
             }
             override fun onPlaybackStateChanged(state: Int) {
                 _isLoading.value = state == Player.STATE_BUFFERING
@@ -148,6 +153,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         _currentStation.value = station
         _currentTrack.value = TrackInfo()
         _albumArtUrl.value = null
+        _hasStartedPlaying.value = false
         exoPlayer.setMediaItem(MediaItem.fromUri(station.streamUrl))
         exoPlayer.prepare()
     }
@@ -156,6 +162,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         _currentStation.value = station
         _currentTrack.value = TrackInfo()
         _albumArtUrl.value = null
+        _hasStartedPlaying.value = false
         _isLoading.value = true
         exoPlayer.setMediaItem(MediaItem.fromUri(station.streamUrl))
         exoPlayer.prepare()

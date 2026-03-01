@@ -46,6 +46,7 @@ fun PlayerScreen(
     currentStation: RadioStation?,
     currentTrack: TrackInfo,
     isPlaying: Boolean,
+    hasStartedPlaying: Boolean,
     isLoading: Boolean,
     isFavorited: Boolean,
     languageFlag: String,
@@ -80,7 +81,7 @@ fun PlayerScreen(
             StationArtwork(
                 station = currentStation,
                 albumArtUrl = albumArtUrl,
-                isPlaying = isPlaying,
+                hasStartedPlaying = hasStartedPlaying,
                 isTrackKnown = !currentTrack.isUnknown,
                 size = artworkSize
             )
@@ -98,9 +99,9 @@ fun PlayerScreen(
                 overflow = TextOverflow.Ellipsis
             )
 
-            // Track info: nothing before first play; placeholder while playing with no ICY metadata;
-            // real track data (+ favorite) once known; kept visible during pause — mirrors iOS.
-            if (isPlaying || !currentTrack.isUnknown) {
+            // Track info: nothing before first play of this station; placeholder while playing with
+            // no ICY metadata yet; real track data (+ favorite) once known; kept during pause.
+            if (hasStartedPlaying) {
                 Spacer(Modifier.height(12.dp))
                 Text(
                     text = if (currentTrack.isUnknown) defaultTitle else currentTrack.title,
@@ -210,7 +211,7 @@ fun PlayerScreen(
                     .navigationBarsPadding()
                     .padding(horizontal = 24.dp, vertical = 16.dp)
             ) {
-                val canShare = isPlaying && !currentTrack.isUnknown
+                val canShare = hasStartedPlaying && !currentTrack.isUnknown
 
                 // Share (64×64, rounded rect — like iOS square.and.arrow.up button)
                 Box(
@@ -272,7 +273,7 @@ fun PlayerScreen(
 private fun StationArtwork(
     station: RadioStation?,
     albumArtUrl: String?,
-    isPlaying: Boolean,
+    hasStartedPlaying: Boolean,
     isTrackKnown: Boolean,
     size: Int
 ) {
@@ -284,7 +285,7 @@ private fun StationArtwork(
     var logoIndex by remember(station?.id) { mutableIntStateOf(0) }
 
     // Album art is only shown while playing with confirmed ICY + iTunes data
-    val showAlbumArt = isPlaying && isTrackKnown && albumArtUrl != null && !albumArtFailed
+    val showAlbumArt = hasStartedPlaying && isTrackKnown && albumArtUrl != null && !albumArtFailed
 
     val currentLogoUrl = logoUrls.getOrNull(logoIndex)
 
