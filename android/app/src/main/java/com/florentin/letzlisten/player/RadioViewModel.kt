@@ -55,10 +55,6 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-    // True while the remote stations.json is being fetched from GitHub (mirrors iOS RadioStationLoader.isLoading).
-    private val _isStationsLoading = MutableStateFlow(false)
-    val isStationsLoading: StateFlow<Boolean> = _isStationsLoading.asStateFlow()
-
     private val _currentTrack = MutableStateFlow(TrackInfo())
     val currentTrack: StateFlow<TrackInfo> = _currentTrack.asStateFlow()
 
@@ -146,9 +142,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
             _stations.value = local.filter { it.isEnabled }.sortedBy { it.name }
             _stations.value.firstOrNull()?.let { selectStation(it) }
 
-            _isStationsLoading.value = true
             val remote = StationsRepository.fetchRemote()
-            _isStationsLoading.value = false
             if (remote.isNotEmpty()) {
                 _stations.value = remote.filter { it.isEnabled }.sortedBy { it.name }
             }
