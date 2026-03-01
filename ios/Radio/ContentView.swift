@@ -477,7 +477,7 @@ struct BottomControlBar: View {
                     .frame(width: 64, height: 64)
                 
                 Spacer()
-                
+
                 // Play/Stop button
                 Button(action: {
                     audioPlayer.togglePlayback()
@@ -487,16 +487,16 @@ struct BottomControlBar: View {
                             .fill(audioPlayer.isPlaying ? Color.red : Color.blue)
                             .frame(width: 64, height: 64)
                             .shadow(color: (audioPlayer.isPlaying ? Color.red : Color.blue).opacity(0.4), radius: 8, x: 0, y: 4)
-                        
+
                         Image(systemName: audioPlayer.isPlaying ? "stop.fill" : "play.fill")
                             .font(.system(size: 28))
                             .foregroundColor(.white)
                     }
                 }
                 .disabled(audioPlayer.isLoading)
-                
+
                 Spacer()
-                
+
                 // Share Button
                 let canShare = audioPlayer.isPlaying && !audioPlayer.currentTrack.isUnknown
                 Button(action: {
