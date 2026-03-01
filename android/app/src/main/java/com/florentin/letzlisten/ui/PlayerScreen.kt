@@ -98,9 +98,9 @@ fun PlayerScreen(
                 overflow = TextOverflow.Ellipsis
             )
 
-            // Track info: nothing before play; placeholder when playing but no metadata yet;
-            // real track + favorite button when metadata is known — mirrors iOS TrackInfoView
-            if (isPlaying) {
+            // Track info: nothing before first play; placeholder while playing with no ICY metadata;
+            // real track data (+ favorite) once known; kept visible during pause — mirrors iOS.
+            if (isPlaying || !currentTrack.isUnknown) {
                 Spacer(Modifier.height(12.dp))
                 Text(
                     text = if (currentTrack.isUnknown) defaultTitle else currentTrack.title,

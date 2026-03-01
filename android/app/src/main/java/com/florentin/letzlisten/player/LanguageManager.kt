@@ -93,13 +93,13 @@ class LanguageManager(context: Context) {
     }
 
     fun shareMessage(artist: String, title: String, station: String, url: String?): String {
-        val suffix = url?.let { "\n$it" } ?: ""
-        return when (_currentLanguage.value) {
-            AppLanguage.LB -> "🎵 $title - $artist\n▶ Op $station$suffix"
-            AppLanguage.FR -> "🎵 $title - $artist\n▶ Sur $station$suffix"
-            AppLanguage.DE -> "🎵 $title - $artist\n▶ Auf $station$suffix"
-            AppLanguage.EN -> "🎵 $title - $artist\n▶ On $station$suffix"
-            AppLanguage.PT -> "🎵 $title - $artist\n▶ Em $station$suffix"
+        val base = when (_currentLanguage.value) {
+            AppLanguage.LB -> "Moien, ech lauschteren elo op $artist - $title op $station."
+            AppLanguage.FR -> "Salut, j'écoute $artist - $title sur $station."
+            AppLanguage.DE -> "Hallo, ich höre gerade $artist - $title auf $station."
+            AppLanguage.EN -> "Hey, I'm listening to $artist - $title on $station."
+            AppLanguage.PT -> "Olá, estou a ouvir $artist - $title em $station."
         }
+        return if (url != null) "$base\n$url" else base
     }
 }
