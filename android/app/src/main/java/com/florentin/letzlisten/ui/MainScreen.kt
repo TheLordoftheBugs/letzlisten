@@ -1,20 +1,20 @@
 package com.florentin.letzlisten.ui
 
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.rememberModalBottomSheetState
+import android.content.Context
+import android.content.Intent
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.florentin.letzlisten.data.RadioStation
 import com.florentin.letzlisten.player.RadioViewModel
+import com.florentin.letzlisten.player.TrackInfo
+import com.florentin.letzlisten.ui.theme.SurfaceDark
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,13 +24,17 @@ fun MainScreen(viewModel: RadioViewModel) {
     val isPlaying by viewModel.isPlaying.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     val currentTrack by viewModel.currentTrack.collectAsStateWithLifecycle()
+    val favorites by viewModel.favorites.collectAsStateWithLifecycle()
+    val isFavorited by viewModel.isFavorited.collectAsStateWithLifecycle()
 
-    // Use adaptive layout: sidebar on tablets, bottom sheet on phones
+    val context = LocalContext.current
+    var showStationPicker by remember { mutableStateOf(false) }
+    var showFavorites by remember { mutableStateOf(false) }
+
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val isTablet = maxWidth >= 600.dp
 
         if (isTablet) {
-            // Tablet: persistent sidebar + player
             Row(modifier = Modifier.fillMaxSize()) {
                 StationListPanel(
                     stations = stations,
@@ -40,42 +44,49 @@ fun MainScreen(viewModel: RadioViewModel) {
                         .width(280.dp)
                         .fillMaxHeight()
                 )
-
-                HorizontalDivider(
-                    color = Color.White.copy(alpha = 0.1f),
+                Box(
                     modifier = Modifier
                         .fillMaxHeight()
                         .width(1.dp)
+                        .background(Color.White.copy(alpha = 0.1f))
                 )
-
                 PlayerScreen(
                     currentStation = currentStation,
                     currentTrack = currentTrack,
                     isPlaying = isPlaying,
                     isLoading = isLoading,
+                    isFavorited = isFavorited,
                     artworkSize = 280,
                     onTogglePlayback = { viewModel.togglePlayback() },
-                    modifier = Modifier.weight(1f)
+                    onToggleFavorite = { viewModel.toggleFavorite() },
+                    onOpenStationPicker = {}, // sidebar is always visible on tablet
+                    onOpenFavorites = { showFavorites = true },
+                    onShare = { shareTrack(context, currentTrack, currentStation) },
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
                 )
             }
         } else {
-            // Phone: full-screen player + bottom sheet station picker
-            var showStationPicker by remember { mutableStateOf(false) }
-            val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
             PlayerScreen(
                 currentStation = currentStation,
                 currentTrack = currentTrack,
                 isPlaying = isPlaying,
                 isLoading = isLoading,
+                isFavorited = isFavorited,
                 onTogglePlayback = { viewModel.togglePlayback() },
+                onToggleFavorite = { viewModel.toggleFavorite() },
+                onOpenStationPicker = { showStationPicker = true },
+                onOpenFavorites = { showFavorites = true },
+                onShare = { shareTrack(context, currentTrack, currentStation) },
                 modifier = Modifier.fillMaxSize()
             )
 
             if (showStationPicker) {
                 ModalBottomSheet(
                     onDismissRequest = { showStationPicker = false },
-                    sheetState = sheetState
+                    sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+                    containerColor = SurfaceDark
                 ) {
                     StationListPanel(
                         stations = stations,
@@ -89,5 +100,33 @@ fun MainScreen(viewModel: RadioViewModel) {
                 }
             }
         }
+
+        if (showFavorites) {
+            ModalBottomSheet(
+                onDismissRequest = { showFavorites = false },
+                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+                containerColor = SurfaceDark
+            ) {
+                FavoritesSheet(
+                    favorites = favorites,
+                    onRemove = { viewModel.removeFavorite(it) },
+                    onClearAll = { viewModel.clearAllFavorites() }
+                )
+            }
+        }
     }
+}
+
+private fun shareTrack(context: Context, track: TrackInfo, station: RadioStation?) {
+    if (track.isUnknown) return
+    val text = buildString {
+        append("🎵 ${track.title} - ${track.artist}")
+        append("\n▶ Sur ${station?.name ?: "LëtzListen"}")
+        station?.websiteUrl?.let { append("\n$it") }
+    }
+    val intent = Intent(Intent.ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(Intent.EXTRA_TEXT, text)
+    }
+    context.startActivity(Intent.createChooser(intent, null))
 }
