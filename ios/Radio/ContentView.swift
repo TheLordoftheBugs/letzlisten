@@ -741,7 +741,7 @@ struct iPadStationSidebar: View {
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 16)
-                .padding(.top, 64)
+                .padding(.top, 16)
                 .padding(.bottom, 20)
 
             Rectangle()
