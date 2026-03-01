@@ -75,7 +75,13 @@ fun PlayerScreen(
                 .windowInsetsPadding(WindowInsets.navigationBars)
                 .padding(bottom = 96.dp)
         ) {
-            StationArtwork(station = currentStation, albumArtUrl = albumArtUrl, size = artworkSize)
+            StationArtwork(
+                station = currentStation,
+                albumArtUrl = albumArtUrl,
+                isPlaying = isPlaying,
+                isTrackKnown = !currentTrack.isUnknown,
+                size = artworkSize
+            )
 
             Spacer(Modifier.height(28.dp))
 
@@ -248,12 +254,32 @@ fun PlayerScreen(
     }
 }
 
+/**
+ * Shows album art only when the radio is playing AND ICY metadata is present AND iTunes
+ * returned an artwork URL — exactly like iOS.  Otherwise the station logo is displayed,
+ * trying multiple URLs in order (like iOS FaviconFetcher):
+ *   Facebook  → Graph API profile picture
+ *   Others    → apple-touch-icon.png → apple-touch-icon-precomposed.png
+ *               → favicon.ico → Google favicon (256 px)
+ */
 @Composable
-private fun StationArtwork(station: RadioStation?, albumArtUrl: String?, size: Int) {
-    val logoUrl = remember(station?.id) { station?.let { stationLogoUrl(it) } }
-    // Reset failure state whenever the displayed image changes
+private fun StationArtwork(
+    station: RadioStation?,
+    albumArtUrl: String?,
+    isPlaying: Boolean,
+    isTrackKnown: Boolean,
+    size: Int
+) {
+    val logoUrls = remember(station?.id) { station?.let { stationLogoUrls(it) } ?: emptyList() }
+    // Reset album-art failure each time a new URL arrives
     var albumArtFailed by remember(albumArtUrl) { mutableStateOf(false) }
-    var logoFailed by remember(station?.id) { mutableStateOf(false) }
+    // Reset logo index each time the station changes
+    var logoIndex by remember(station?.id) { mutableIntStateOf(0) }
+
+    // Album art is only shown while playing with confirmed ICY + iTunes data
+    val showAlbumArt = isPlaying && isTrackKnown && albumArtUrl != null && !albumArtFailed
+
+    val currentLogoUrl = logoUrls.getOrNull(logoIndex)
 
     Box(
         contentAlignment = Alignment.Center,
@@ -264,18 +290,19 @@ private fun StationArtwork(station: RadioStation?, albumArtUrl: String?, size: I
             .background(Color(0xFF1E1E3F))
     ) {
         when {
-            albumArtUrl != null && !albumArtFailed -> AsyncImage(
+            showAlbumArt -> AsyncImage(
                 model = albumArtUrl,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 onError = { albumArtFailed = true },
                 modifier = Modifier.fillMaxSize()
             )
-            logoUrl != null && !logoFailed -> AsyncImage(
-                model = logoUrl,
+            currentLogoUrl != null -> AsyncImage(
+                model = currentLogoUrl,
                 contentDescription = station?.name,
                 contentScale = ContentScale.Crop,
-                onError = { logoFailed = true },
+                // Try the next URL in the cascade on error
+                onError = { logoIndex++ },
                 modifier = Modifier.fillMaxSize()
             )
             else -> Text(
@@ -293,22 +320,27 @@ private fun StationArtwork(station: RadioStation?, albumArtUrl: String?, size: I
 }
 
 /**
- * Builds the best available logo URL for a station:
- * - Facebook pages  → Graph API profile picture (no auth needed for public pages)
- * - Other websites  → Google favicon service at 256 px
+ * Ordered list of logo URLs to try for a station (mirrors iOS FaviconFetcher priority):
+ * Facebook → Graph API; others → apple-touch-icon variants → favicon.ico → Google Favicon.
  */
-private fun stationLogoUrl(station: RadioStation): String? {
-    val website = station.websiteUrl ?: return null
+private fun stationLogoUrls(station: RadioStation): List<String> {
+    val website = station.websiteUrl ?: return emptyList()
     return try {
-        val url = java.net.URL(website)
-        val host = url.host
+        val parsed = java.net.URL(website)
+        val host = parsed.host
+        val base = "${parsed.protocol}://$host"
         if (host.contains("facebook.com")) {
-            val path = url.path.trim('/')
-            if (path.isNotEmpty())
-                "https://graph.facebook.com/$path/picture?type=large&width=500&height=500"
-            else null
+            val page = parsed.path.trim('/')
+            if (page.isNotEmpty())
+                listOf("https://graph.facebook.com/$page/picture?type=large&width=500&height=500")
+            else emptyList()
         } else {
-            "https://www.google.com/s2/favicons?domain=$host&sz=256"
+            listOf(
+                "$base/apple-touch-icon.png",
+                "$base/apple-touch-icon-precomposed.png",
+                "$base/favicon.ico",
+                "https://www.google.com/s2/favicons?domain=$host&sz=256"
+            )
         }
-    } catch (_: Exception) { null }
+    } catch (_: Exception) { emptyList() }
 }
