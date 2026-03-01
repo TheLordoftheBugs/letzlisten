@@ -257,10 +257,11 @@ fun PlayerScreen(
 /**
  * Shows album art only when the radio is playing AND ICY metadata is present AND iTunes
  * returned an artwork URL — exactly like iOS.  Otherwise the station logo is displayed,
- * trying multiple URLs in order (like iOS FaviconFetcher):
- *   Facebook  → Graph API profile picture
- *   Others    → apple-touch-icon.png → apple-touch-icon-precomposed.png
- *               → favicon.ico → Google favicon (256 px)
+ * using the same priority as iOS FaviconFetcher:
+ *   1. Bundled drawable (logoImageName mapped to a local asset)
+ *   2. Facebook  → Graph API profile picture
+ *   3. Others    → apple-touch-icon.png → apple-touch-icon-precomposed.png
+ *                  → favicon.ico → Google favicon (256 px)
  */
 @Composable
 private fun StationArtwork(
@@ -270,6 +271,7 @@ private fun StationArtwork(
     isTrackKnown: Boolean,
     size: Int
 ) {
+    val bundledRes = remember(station?.logoImageName) { bundledLogoRes(station?.logoImageName) }
     val logoUrls = remember(station?.id) { station?.let { stationLogoUrls(it) } ?: emptyList() }
     // Reset album-art failure each time a new URL arrives
     var albumArtFailed by remember(albumArtUrl) { mutableStateOf(false) }
@@ -297,6 +299,12 @@ private fun StationArtwork(
                 onError = { albumArtFailed = true },
                 modifier = Modifier.fillMaxSize()
             )
+            bundledRes != null -> AsyncImage(
+                model = bundledRes,
+                contentDescription = station?.name,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
             currentLogoUrl != null -> AsyncImage(
                 model = currentLogoUrl,
                 contentDescription = station?.name,
@@ -317,30 +325,4 @@ private fun StationArtwork(
             )
         }
     }
-}
-
-/**
- * Ordered list of logo URLs to try for a station (mirrors iOS FaviconFetcher priority):
- * Facebook → Graph API; others → apple-touch-icon variants → favicon.ico → Google Favicon.
- */
-private fun stationLogoUrls(station: RadioStation): List<String> {
-    val website = station.websiteUrl ?: return emptyList()
-    return try {
-        val parsed = java.net.URL(website)
-        val host = parsed.host
-        val base = "${parsed.protocol}://$host"
-        if (host.contains("facebook.com")) {
-            val page = parsed.path.trim('/')
-            if (page.isNotEmpty())
-                listOf("https://graph.facebook.com/$page/picture?type=large&width=500&height=500")
-            else emptyList()
-        } else {
-            listOf(
-                "$base/apple-touch-icon.png",
-                "$base/apple-touch-icon-precomposed.png",
-                "$base/favicon.ico",
-                "https://www.google.com/s2/favicons?domain=$host&sz=256"
-            )
-        }
-    } catch (_: Exception) { emptyList() }
 }
