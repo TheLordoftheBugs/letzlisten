@@ -65,13 +65,20 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             val local = StationsRepository.loadFromAssets(getApplication())
             _stations.value = local.filter { it.isEnabled }.sortedBy { it.name }
-            _stations.value.firstOrNull()?.let { switchStation(it) }
+            _stations.value.firstOrNull()?.let { selectStation(it) }
 
             val remote = StationsRepository.fetchRemote()
             if (remote.isNotEmpty()) {
                 _stations.value = remote.filter { it.isEnabled }.sortedBy { it.name }
             }
         }
+    }
+
+    private fun selectStation(station: com.florentin.letzlisten.data.RadioStation) {
+        _currentStation.value = station
+        _currentTrack.value = TrackInfo()
+        exoPlayer.setMediaItem(MediaItem.fromUri(station.streamUrl))
+        exoPlayer.prepare()
     }
 
     fun switchStation(station: com.florentin.letzlisten.data.RadioStation) {
