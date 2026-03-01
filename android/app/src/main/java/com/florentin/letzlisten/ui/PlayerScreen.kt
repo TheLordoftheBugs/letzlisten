@@ -205,7 +205,7 @@ fun PlayerScreen(
                     .navigationBarsPadding()
                     .padding(horizontal = 24.dp, vertical = 16.dp)
             ) {
-                val canShare = hasStartedPlaying && !currentTrack.isUnknown
+                val canShare = isPlaying && !currentTrack.isUnknown
 
                 // Share (64×64, rounded rect — like iOS square.and.arrow.up button)
                 Box(
