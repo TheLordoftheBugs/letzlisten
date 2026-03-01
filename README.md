@@ -39,6 +39,31 @@ and push — both apps will pick up the change on next launch.
 | iOS 16+ | Available on the App Store |
 | Android 8.0+ | Under testing |
 
+## Download
+
+<table>
+  <tr>
+    <td align="center">
+      <strong>iOS — App Store</strong><br><br>
+      <!-- Replace the href and data= URL below with the real App Store link -->
+      <a href="https://apps.apple.com/app/letzlisten">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://apps.apple.com/app/letzlisten" alt="App Store QR code" width="150" height="150"/>
+      </a><br><br>
+      <a href="https://apps.apple.com/app/letzlisten">Download on the App Store</a>
+    </td>
+    <td align="center">
+      <strong>Android — Google Play</strong><br><br>
+      <!-- Replace the href and data= URL below with the real Google Play link -->
+      <a href="https://play.google.com/store/apps/details?id=com.letzlisten">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://play.google.com/store/apps/details?id=com.letzlisten" alt="Google Play QR code" width="150" height="150"/>
+      </a><br><br>
+      <a href="https://play.google.com/store/apps/details?id=com.letzlisten">Get it on Google Play</a> _(coming soon)_
+    </td>
+  </tr>
+</table>
+
+> **Note:** Links above are placeholders. Update the `href` and `data=` parameters once the apps are live on the stores.
+
 ---
 
 ## Copyright
