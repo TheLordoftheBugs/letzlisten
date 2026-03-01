@@ -49,6 +49,8 @@ fun PlayerScreen(
     isLoading: Boolean,
     isFavorited: Boolean,
     languageFlag: String,
+    defaultTitle: String,
+    defaultArtist: String,
     albumArtUrl: String? = null,
     artworkSize: Int = 220,
     onTogglePlayback: () -> Unit,
@@ -96,11 +98,12 @@ fun PlayerScreen(
                 overflow = TextOverflow.Ellipsis
             )
 
-            // Track info + favorite button (only when track is known, like iOS)
-            if (!currentTrack.isUnknown) {
+            // Track info: nothing before play; placeholder when playing but no metadata yet;
+            // real track + favorite button when metadata is known — mirrors iOS TrackInfoView
+            if (isPlaying) {
                 Spacer(Modifier.height(12.dp))
                 Text(
-                    text = currentTrack.title,
+                    text = if (currentTrack.isUnknown) defaultTitle else currentTrack.title,
                     fontSize = 17.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = TextPrimary,
@@ -109,7 +112,7 @@ fun PlayerScreen(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = currentTrack.artist,
+                    text = if (currentTrack.isUnknown) defaultArtist else currentTrack.artist,
                     fontSize = 14.sp,
                     color = TextSecondary,
                     textAlign = TextAlign.Center,
@@ -117,15 +120,17 @@ fun PlayerScreen(
                     overflow = TextOverflow.Ellipsis
                 )
 
-                // Favorite heart button inline (like iOS FavoriteButton below TrackInfoView)
-                Spacer(Modifier.height(8.dp))
-                IconButton(onClick = onToggleFavorite) {
-                    Icon(
-                        imageVector = if (isFavorited) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                        contentDescription = if (isFavorited) "Retirer des favoris" else "Ajouter aux favoris",
-                        tint = if (isFavorited) AccentRed else Color.White.copy(alpha = 0.7f),
-                        modifier = Modifier.size(28.dp)
-                    )
+                // Favorite heart button only when a real track is known
+                if (!currentTrack.isUnknown) {
+                    Spacer(Modifier.height(8.dp))
+                    IconButton(onClick = onToggleFavorite) {
+                        Icon(
+                            imageVector = if (isFavorited) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            contentDescription = null,
+                            tint = if (isFavorited) AccentRed else Color.White.copy(alpha = 0.7f),
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
                 }
             }
         }

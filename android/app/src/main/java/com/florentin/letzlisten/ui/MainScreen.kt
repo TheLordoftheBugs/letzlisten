@@ -52,6 +52,7 @@ fun MainScreen(viewModel: RadioViewModel) {
                 StationListPanel(
                     stations = stations,
                     currentStation = currentStation,
+                    chooseYourRadioLabel = languageManager.chooseYourRadio,
                     onStationSelected = { viewModel.switchStation(it) },
                     modifier = Modifier
                         .width(280.dp)
@@ -70,6 +71,8 @@ fun MainScreen(viewModel: RadioViewModel) {
                     isLoading = isLoading,
                     isFavorited = isFavorited,
                     languageFlag = currentLanguage.flag,
+                    defaultTitle = languageManager.defaultTitle,
+                    defaultArtist = languageManager.defaultArtist,
                     albumArtUrl = albumArtUrl,
                     artworkSize = 280,
                     onTogglePlayback = { viewModel.togglePlayback() },
@@ -91,6 +94,8 @@ fun MainScreen(viewModel: RadioViewModel) {
                 isLoading = isLoading,
                 isFavorited = isFavorited,
                 languageFlag = currentLanguage.flag,
+                defaultTitle = languageManager.defaultTitle,
+                defaultArtist = languageManager.defaultArtist,
                 albumArtUrl = albumArtUrl,
                 onTogglePlayback = { viewModel.togglePlayback() },
                 onToggleFavorite = { viewModel.toggleFavorite() },
@@ -110,6 +115,7 @@ fun MainScreen(viewModel: RadioViewModel) {
                     StationListPanel(
                         stations = stations,
                         currentStation = currentStation,
+                        chooseYourRadioLabel = languageManager.chooseYourRadio,
                         onStationSelected = {
                             viewModel.switchStation(it)
                             showStationPicker = false
@@ -128,6 +134,10 @@ fun MainScreen(viewModel: RadioViewModel) {
             ) {
                 FavoritesSheet(
                     favorites = favorites,
+                    favoritesLabel = languageManager.favorites,
+                    clearAllLabel = languageManager.clearAll,
+                    noFavoritesLabel = languageManager.noFavoritesYet,
+                    noFavoritesHintLabel = languageManager.noFavoritesHint,
                     onRemove = { viewModel.removeFavorite(it) },
                     onClearAll = { viewModel.clearAllFavorites() }
                 )
@@ -142,6 +152,7 @@ fun MainScreen(viewModel: RadioViewModel) {
                 containerColor = SurfaceDark
             ) {
                 LanguagePickerSheet(
+                    title = languageManager.selectLanguage,
                     currentLanguage = currentLanguage,
                     onSelectLanguage = {
                         languageManager.setLanguage(it)
@@ -155,6 +166,7 @@ fun MainScreen(viewModel: RadioViewModel) {
 
 @Composable
 private fun LanguagePickerSheet(
+    title: String,
     currentLanguage: AppLanguage,
     onSelectLanguage: (AppLanguage) -> Unit
 ) {
@@ -163,6 +175,13 @@ private fun LanguagePickerSheet(
             .padding(horizontal = 20.dp)
             .padding(bottom = 32.dp)
     ) {
+        Text(
+            text = title,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = androidx.compose.ui.graphics.Color.White,
+            modifier = Modifier.padding(vertical = 12.dp)
+        )
         AppLanguage.values().forEach { language ->
             Surface(
                 onClick = { onSelectLanguage(language) },

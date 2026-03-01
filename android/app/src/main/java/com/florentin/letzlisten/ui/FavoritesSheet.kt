@@ -29,6 +29,10 @@ import java.util.Locale
 @Composable
 fun FavoritesSheet(
     favorites: List<Favorite>,
+    favoritesLabel: String,
+    clearAllLabel: String,
+    noFavoritesLabel: String,
+    noFavoritesHintLabel: String,
     onRemove: (String) -> Unit,
     onClearAll: () -> Unit
 ) {
@@ -51,7 +55,7 @@ fun FavoritesSheet(
             )
             Spacer(Modifier.width(8.dp))
             Text(
-                text = "Mes favoris",
+                text = favoritesLabel,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = TextPrimary,
@@ -59,7 +63,7 @@ fun FavoritesSheet(
             )
             if (favorites.isNotEmpty()) {
                 TextButton(onClick = onClearAll) {
-                    Text("Tout effacer", color = AccentRed, fontSize = 14.sp)
+                    Text(clearAllLabel, color = AccentRed, fontSize = 14.sp)
                 }
             }
         }
@@ -79,10 +83,10 @@ fun FavoritesSheet(
                         modifier = Modifier.size(56.dp)
                     )
                     Spacer(Modifier.height(16.dp))
-                    Text("Aucun favori", fontSize = 17.sp, color = TextSecondary)
+                    Text(noFavoritesLabel, fontSize = 17.sp, color = TextSecondary)
                     Spacer(Modifier.height(6.dp))
                     Text(
-                        text = "Appuyez ♡ pendant une chanson",
+                        text = noFavoritesHintLabel,
                         fontSize = 13.sp,
                         color = TextSecondary.copy(alpha = 0.6f)
                     )
