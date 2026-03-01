@@ -82,7 +82,7 @@ fun MainScreen(viewModel: RadioViewModel) {
                     onOpenStationPicker = {}, // sidebar always visible on tablet
                     onOpenFavorites = { showFavorites = true },
                     onOpenLanguagePicker = { showLanguagePicker = true },
-                    onShare = { shareTrack(context, currentTrack, currentStation, languageManager) },
+                    onShare = { if (viewModel.isPlaying.value) shareTrack(context, currentTrack, currentStation, languageManager) },
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxHeight()
@@ -103,7 +103,7 @@ fun MainScreen(viewModel: RadioViewModel) {
                 onOpenStationPicker = { showStationPicker = true },
                 onOpenFavorites = { showFavorites = true },
                 onOpenLanguagePicker = { showLanguagePicker = true },
-                onShare = { shareTrack(context, currentTrack, currentStation, languageManager) },
+                onShare = { if (viewModel.isPlaying.value) shareTrack(context, currentTrack, currentStation, languageManager) },
                 modifier = Modifier.fillMaxSize()
             )
 
