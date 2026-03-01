@@ -4,16 +4,24 @@ import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.florentin.letzlisten.data.RadioStation
+import com.florentin.letzlisten.player.AppLanguage
+import com.florentin.letzlisten.player.LanguageManager
 import com.florentin.letzlisten.player.RadioViewModel
 import com.florentin.letzlisten.player.TrackInfo
+import com.florentin.letzlisten.ui.theme.AccentBlue
 import com.florentin.letzlisten.ui.theme.SurfaceDark
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -28,8 +36,12 @@ fun MainScreen(viewModel: RadioViewModel) {
     val isFavorited by viewModel.isFavorited.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
+    val languageManager = remember { LanguageManager(context) }
+    val currentLanguage by languageManager.currentLanguage.collectAsStateWithLifecycle()
+
     var showStationPicker by remember { mutableStateOf(false) }
     var showFavorites by remember { mutableStateOf(false) }
+    var showLanguagePicker by remember { mutableStateOf(false) }
 
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val isTablet = maxWidth >= 600.dp
@@ -56,12 +68,14 @@ fun MainScreen(viewModel: RadioViewModel) {
                     isPlaying = isPlaying,
                     isLoading = isLoading,
                     isFavorited = isFavorited,
+                    languageFlag = currentLanguage.flag,
                     artworkSize = 280,
                     onTogglePlayback = { viewModel.togglePlayback() },
                     onToggleFavorite = { viewModel.toggleFavorite() },
-                    onOpenStationPicker = {}, // sidebar is always visible on tablet
+                    onOpenStationPicker = {}, // sidebar always visible on tablet
                     onOpenFavorites = { showFavorites = true },
-                    onShare = { shareTrack(context, currentTrack, currentStation) },
+                    onOpenLanguagePicker = { showLanguagePicker = true },
+                    onShare = { shareTrack(context, currentTrack, currentStation, languageManager) },
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxHeight()
@@ -74,11 +88,13 @@ fun MainScreen(viewModel: RadioViewModel) {
                 isPlaying = isPlaying,
                 isLoading = isLoading,
                 isFavorited = isFavorited,
+                languageFlag = currentLanguage.flag,
                 onTogglePlayback = { viewModel.togglePlayback() },
                 onToggleFavorite = { viewModel.toggleFavorite() },
                 onOpenStationPicker = { showStationPicker = true },
                 onOpenFavorites = { showFavorites = true },
-                onShare = { shareTrack(context, currentTrack, currentStation) },
+                onOpenLanguagePicker = { showLanguagePicker = true },
+                onShare = { shareTrack(context, currentTrack, currentStation, languageManager) },
                 modifier = Modifier.fillMaxSize()
             )
 
@@ -114,16 +130,85 @@ fun MainScreen(viewModel: RadioViewModel) {
                 )
             }
         }
+
+        // Language picker sheet (like iOS LanguagePickerView)
+        if (showLanguagePicker) {
+            ModalBottomSheet(
+                onDismissRequest = { showLanguagePicker = false },
+                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false),
+                containerColor = SurfaceDark
+            ) {
+                LanguagePickerSheet(
+                    currentLanguage = currentLanguage,
+                    onSelectLanguage = {
+                        languageManager.setLanguage(it)
+                        showLanguagePicker = false
+                    }
+                )
+            }
+        }
     }
 }
 
-private fun shareTrack(context: Context, track: TrackInfo, station: RadioStation?) {
-    if (track.isUnknown) return
-    val text = buildString {
-        append("🎵 ${track.title} - ${track.artist}")
-        append("\n▶ Sur ${station?.name ?: "LëtzListen"}")
-        station?.websiteUrl?.let { append("\n$it") }
+@Composable
+private fun LanguagePickerSheet(
+    currentLanguage: AppLanguage,
+    onSelectLanguage: (AppLanguage) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .padding(horizontal = 20.dp)
+            .padding(bottom = 32.dp)
+    ) {
+        AppLanguage.values().forEach { language ->
+            Surface(
+                onClick = { onSelectLanguage(language) },
+                color = if (language == currentLanguage) AccentBlue.copy(alpha = 0.2f) else Color.White.copy(alpha = 0.05f),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(vertical = 14.dp, horizontal = 20.dp)
+                ) {
+                    Text(text = language.flag, fontSize = 28.sp)
+                    Spacer(Modifier.width(16.dp))
+                    Text(
+                        text = language.displayName,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.White
+                    )
+                    Spacer(Modifier.weight(1f))
+                    if (language == currentLanguage) {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = null,
+                            tint = AccentBlue,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
+            }
+        }
     }
+}
+
+private fun shareTrack(
+    context: Context,
+    track: TrackInfo,
+    station: RadioStation?,
+    languageManager: LanguageManager
+) {
+    if (track.isUnknown) return
+    val text = languageManager.shareMessage(
+        artist = track.artist,
+        title = track.title,
+        station = station?.name ?: "LëtzListen",
+        url = station?.websiteUrl
+    )
     val intent = Intent(Intent.ACTION_SEND).apply {
         type = "text/plain"
         putExtra(Intent.EXTRA_TEXT, text)

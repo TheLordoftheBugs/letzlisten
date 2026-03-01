@@ -48,11 +48,13 @@ fun PlayerScreen(
     isPlaying: Boolean,
     isLoading: Boolean,
     isFavorited: Boolean,
+    languageFlag: String,
     artworkSize: Int = 220,
     onTogglePlayback: () -> Unit,
     onToggleFavorite: () -> Unit,
     onOpenStationPicker: () -> Unit,
     onOpenFavorites: () -> Unit,
+    onOpenLanguagePicker: () -> Unit,
     onShare: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -61,7 +63,7 @@ fun PlayerScreen(
             Brush.verticalGradient(listOf(BackgroundTop, BackgroundBottom))
         )
     ) {
-        // Center content — bottom padding accounts for bar (64dp + 16dp×2) + nav bar
+        // Center content — bottom padding accounts for bar (64dp + 16dp×2)
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
@@ -76,6 +78,7 @@ fun PlayerScreen(
 
             Spacer(Modifier.height(28.dp))
 
+            // Station name
             Text(
                 text = currentStation?.name ?: "",
                 fontSize = 28.sp,
@@ -86,6 +89,7 @@ fun PlayerScreen(
                 overflow = TextOverflow.Ellipsis
             )
 
+            // Track info + favorite button (only when track is known, like iOS)
             if (!currentTrack.isUnknown) {
                 Spacer(Modifier.height(12.dp))
                 Text(
@@ -105,38 +109,79 @@ fun PlayerScreen(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
+
+                // Favorite heart button inline (like iOS FavoriteButton below TrackInfoView)
+                Spacer(Modifier.height(8.dp))
+                IconButton(onClick = onToggleFavorite) {
+                    Icon(
+                        imageVector = if (isFavorited) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                        contentDescription = if (isFavorited) "Retirer des favoris" else "Ajouter aux favoris",
+                        tint = if (isFavorited) AccentRed else Color.White.copy(alpha = 0.7f),
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
             }
         }
 
-        // Top overlay: favorites (left) + station picker (right)
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
+        // Top LEFT: Favorites (heart in circle, like iOS heart.circle)
+        Box(
+            contentAlignment = Alignment.Center,
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .fillMaxWidth()
                 .statusBarsPadding()
-                .padding(horizontal = 8.dp, vertical = 4.dp)
+                .padding(top = 16.dp, start = 20.dp)
+                .size(44.dp)
+                .clip(CircleShape)
+                .background(Color.White.copy(alpha = 0.15f))
+                .clickable(onClick = onOpenFavorites)
         ) {
-            IconButton(onClick = onOpenFavorites) {
-                Icon(
-                    imageVector = Icons.Default.FavoriteBorder,
-                    contentDescription = "Mes favoris",
-                    tint = TextPrimary,
-                    modifier = Modifier.size(26.dp)
-                )
-            }
-            Spacer(Modifier.weight(1f))
-            IconButton(onClick = onOpenStationPicker) {
-                Icon(
-                    imageVector = Icons.Default.Radio,
-                    contentDescription = "Changer de radio",
-                    tint = TextPrimary,
-                    modifier = Modifier.size(26.dp)
-                )
+            Icon(
+                imageVector = Icons.Default.FavoriteBorder,
+                contentDescription = "Mes favoris",
+                tint = Color.White.copy(alpha = 0.9f),
+                modifier = Modifier.size(20.dp)
+            )
+        }
+
+        // Top CENTER: Language picker (flag in capsule, like iOS)
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .statusBarsPadding()
+                .padding(top = 20.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(50))
+                    .background(Color.White.copy(alpha = 0.15f))
+                    .clickable(onClick = onOpenLanguagePicker)
+                    .padding(horizontal = 12.dp, vertical = 6.dp)
+            ) {
+                Text(text = languageFlag, fontSize = 20.sp)
             }
         }
 
-        // Bottom control bar — matches iOS BottomControlBar exactly
+        // Top RIGHT: Station selector (antenna like iOS)
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .statusBarsPadding()
+                .padding(top = 16.dp, end = 20.dp)
+                .size(44.dp)
+                .clip(CircleShape)
+                .background(Color.White.copy(alpha = 0.15f))
+                .clickable(onClick = onOpenStationPicker)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Radio,
+                contentDescription = "Changer de station",
+                tint = Color.White.copy(alpha = 0.9f),
+                modifier = Modifier.size(20.dp)
+            )
+        }
+
+        // Bottom control bar — [Share] [Play] like iOS (no AirPlay on Android)
         Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -145,6 +190,7 @@ fun PlayerScreen(
             HorizontalDivider(color = Color.White.copy(alpha = 0.12f))
 
             Row(
+                horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -152,10 +198,9 @@ fun PlayerScreen(
                     .navigationBarsPadding()
                     .padding(horizontal = 24.dp, vertical = 16.dp)
             ) {
-                val canShare = !currentTrack.isUnknown
-                val canFavorite = !currentTrack.isUnknown
+                val canShare = isPlaying && !currentTrack.isUnknown
 
-                // Share (64×64, rounded rect background like iOS)
+                // Share (64×64, rounded rect — like iOS square.and.arrow.up button)
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
@@ -172,9 +217,7 @@ fun PlayerScreen(
                     )
                 }
 
-                Spacer(Modifier.weight(1f))
-
-                // Play/Stop (64×64 circle, red/blue — same size as iOS)
+                // Play/Stop (64×64 circle, red/blue — like iOS)
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
@@ -198,35 +241,6 @@ fun PlayerScreen(
                             modifier = Modifier.size(28.dp)
                         )
                     }
-                }
-
-                Spacer(Modifier.weight(1f))
-
-                // Favorite (64×64, rounded rect background — red tint when favorited)
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .size(64.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(
-                            when {
-                                isFavorited -> AccentRed.copy(alpha = 0.25f)
-                                canFavorite -> Color.White.copy(alpha = 0.15f)
-                                else -> Color.White.copy(alpha = 0.05f)
-                            }
-                        )
-                        .clickable(enabled = canFavorite, onClick = onToggleFavorite)
-                ) {
-                    Icon(
-                        imageVector = if (isFavorited) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                        contentDescription = if (isFavorited) "Retirer des favoris" else "Ajouter aux favoris",
-                        tint = when {
-                            isFavorited -> AccentRed
-                            canFavorite -> Color.White.copy(alpha = 0.9f)
-                            else -> Color.White.copy(alpha = 0.4f)
-                        },
-                        modifier = Modifier.size(28.dp)
-                    )
                 }
             }
         }
