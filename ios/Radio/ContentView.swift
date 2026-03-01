@@ -478,24 +478,6 @@ struct BottomControlBar: View {
                 
                 Spacer()
 
-                // Share Button
-                let canShare = audioPlayer.isPlaying && !audioPlayer.currentTrack.isUnknown
-                Button(action: {
-                    showingShareSheet = true
-                }) {
-                    Image(systemName: "square.and.arrow.up")
-                        .font(.system(size: 28))
-                        .foregroundColor(.white.opacity(canShare ? 0.9 : 0.4))
-                        .frame(width: 64, height: 64)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.white.opacity(canShare ? 0.15 : 0.05))
-                        )
-                }
-                .disabled(!canShare)
-
-                Spacer()
-
                 // Play/Stop button
                 Button(action: {
                     audioPlayer.togglePlayback()
@@ -512,6 +494,24 @@ struct BottomControlBar: View {
                     }
                 }
                 .disabled(audioPlayer.isLoading)
+
+                Spacer()
+
+                // Share Button
+                let canShare = audioPlayer.isPlaying && !audioPlayer.currentTrack.isUnknown
+                Button(action: {
+                    showingShareSheet = true
+                }) {
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.system(size: 28))
+                        .foregroundColor(.white.opacity(canShare ? 0.9 : 0.4))
+                        .frame(width: 64, height: 64)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.white.opacity(canShare ? 0.15 : 0.05))
+                        )
+                }
+                .disabled(!canShare)
             }
             .padding(.horizontal, 24)
             .padding(.vertical, 16)
