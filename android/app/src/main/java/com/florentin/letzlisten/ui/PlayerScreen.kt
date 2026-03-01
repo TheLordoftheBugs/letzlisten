@@ -298,6 +298,11 @@ private fun StationArtwork(
             .background(Color(0xFF1E1E3F))
     ) {
         when {
+            station == null -> CircularProgressIndicator(
+                color = Color.White.copy(alpha = 0.6f),
+                modifier = Modifier.size((size / 4).dp),
+                strokeWidth = 3.dp
+            )
             showAlbumArt -> AsyncImage(
                 model = albumArtUrl,
                 contentDescription = null,
