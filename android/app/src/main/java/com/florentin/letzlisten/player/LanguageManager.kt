@@ -10,7 +10,8 @@ enum class AppLanguage(val code: String, val flag: String, val displayName: Stri
     LB("lb", "🇱🇺", "Lëtzebuergesch"),
     FR("fr", "🇫🇷", "Français"),
     DE("de", "🇩🇪", "Deutsch"),
-    EN("en", "🇬🇧", "English")
+    EN("en", "🇬🇧", "English"),
+    PT("pt", "🇵🇹", "Português")
 }
 
 class LanguageManager(context: Context) {
@@ -34,6 +35,7 @@ class LanguageManager(context: Context) {
             AppLanguage.FR -> "🎵 $title - $artist\n▶ Sur $station$suffix"
             AppLanguage.DE -> "🎵 $title - $artist\n▶ Auf $station$suffix"
             AppLanguage.EN -> "🎵 $title - $artist\n▶ On $station$suffix"
+            AppLanguage.PT -> "🎵 $title - $artist\n▶ Em $station$suffix"
         }
     }
 }
