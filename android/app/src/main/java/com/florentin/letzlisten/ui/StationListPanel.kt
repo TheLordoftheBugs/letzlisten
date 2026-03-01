@@ -16,13 +16,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
-import com.florentin.letzlisten.R
 import com.florentin.letzlisten.data.RadioStation
 import com.florentin.letzlisten.ui.theme.AccentBlue
 import com.florentin.letzlisten.ui.theme.SurfaceDark
@@ -33,6 +29,7 @@ import com.florentin.letzlisten.ui.theme.TextSecondary
 fun StationListPanel(
     stations: List<RadioStation>,
     currentStation: RadioStation?,
+    chooseYourRadioLabel: String,
     onStationSelected: (RadioStation) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -41,7 +38,7 @@ fun StationListPanel(
             .background(SurfaceDark)
     ) {
         Text(
-            text = stringResource(R.string.choose_radio),
+            text = chooseYourRadioLabel,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             color = TextPrimary,
@@ -83,14 +80,11 @@ private fun StationRow(
             .clickable(onClick = onClick)
             .padding(horizontal = 12.dp, vertical = 10.dp)
     ) {
-        AsyncImage(
-            model = station.websiteUrl?.let { "$it/favicon.ico" },
-            contentDescription = station.name,
-            contentScale = ContentScale.Fit,
+        StationLogo(
+            station = station,
             modifier = Modifier
                 .size(44.dp)
                 .clip(RoundedCornerShape(8.dp))
-                .background(Color.White.copy(alpha = 0.1f))
         )
 
         Spacer(Modifier.width(12.dp))
