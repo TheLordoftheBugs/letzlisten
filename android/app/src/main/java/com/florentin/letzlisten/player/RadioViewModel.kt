@@ -176,7 +176,12 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun togglePlayback() {
-        if (exoPlayer.isPlaying) exoPlayer.pause() else exoPlayer.play()
+        if (exoPlayer.isPlaying) {
+            _isPlaying.value = false
+            exoPlayer.pause()
+        } else {
+            exoPlayer.play()
+        }
     }
 
     fun toggleFavorite() {
