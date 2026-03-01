@@ -8,6 +8,7 @@ import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import com.florentin.letzlisten.data.StationsRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -15,6 +16,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+
+@Serializable
+private data class ItunesResponse(val results: List<ItunesTrack> = emptyList())
+
+@Serializable
+private data class ItunesTrack(val artworkUrl100: String? = null)
+
+private val itunesJson = Json { ignoreUnknownKeys = true }
 
 data class TrackInfo(
     val title: String = "",
@@ -43,6 +54,11 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
     private val _currentTrack = MutableStateFlow(TrackInfo())
     val currentTrack: StateFlow<TrackInfo> = _currentTrack.asStateFlow()
 
+    private val _albumArtUrl = MutableStateFlow<String?>(null)
+    val albumArtUrl: StateFlow<String?> = _albumArtUrl.asStateFlow()
+
+    private val itunesCache = mutableMapOf<String, String?>()
+
     val favorites = favoritesManager.favorites
 
     val isFavorited: StateFlow<Boolean> = combine(favoritesManager.favorites, _currentTrack) { favs, track ->
@@ -62,12 +78,57 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
             override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
                 val raw = mediaMetadata.title?.toString() ?: return
                 val parts = raw.split(" - ", limit = 2)
-                _currentTrack.value = if (parts.size == 2)
-                    TrackInfo(title = parts[1].trim(), artist = parts[0].trim())
-                else
-                    TrackInfo(title = raw.trim(), artist = "")
+                val artist = if (parts.size == 2) parts[0].trim() else ""
+                val title = if (parts.size == 2) parts[1].trim() else raw.trim()
+
+                val filteredTitle = filterMetadata(title) ?: return
+                val filteredArtist = filterMetadata(artist.ifBlank { null }) ?: ""
+
+                val newTrack = TrackInfo(title = filteredTitle, artist = filteredArtist)
+                if (_currentTrack.value == newTrack) return
+
+                _currentTrack.value = newTrack
+                _albumArtUrl.value = null
+                fetchAlbumArt(filteredArtist, filteredTitle)
             }
         })
+    }
+
+    private fun filterMetadata(value: String?): String? {
+        val trimmed = value?.trim() ?: return null
+        if (trimmed.length < 2) return null
+        val lower = trimmed.lowercase()
+        val junk = listOf("unknown", "unknow", "n/a", "na", "-", "...")
+        if (lower in junk) return null
+        if (lower.contains("on air")) return null
+        if (lower.contains("fm") && (lower.contains("96.6") || lower.contains("100.7") || lower.contains("105"))) return null
+        if (lower.contains("rgl") && lower.contains("fm")) return null
+        if (lower.contains("eldoradio") && lower.contains("fm")) return null
+        if (lower.contains("radio") && lower.contains("fm")) return null
+        return trimmed
+    }
+
+    private fun fetchAlbumArt(artist: String, title: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val key = "$artist-$title".lowercase()
+            if (itunesCache.containsKey(key)) {
+                _albumArtUrl.value = itunesCache[key]
+                return@launch
+            }
+            try {
+                val query = java.net.URLEncoder.encode("$artist $title", "UTF-8")
+                val raw = java.net.URL(
+                    "https://itunes.apple.com/search?term=$query&media=music&entity=song&limit=1"
+                ).readText()
+                val url = itunesJson.decodeFromString<ItunesResponse>(raw)
+                    .results.firstOrNull()?.artworkUrl100
+                    ?.replace("100x100bb", "600x600bb")
+                itunesCache[key] = url
+                _albumArtUrl.value = url
+            } catch (_: Exception) {
+                itunesCache[key] = null
+            }
+        }
     }
 
     private fun loadStations() {
@@ -86,6 +147,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
     private fun selectStation(station: com.florentin.letzlisten.data.RadioStation) {
         _currentStation.value = station
         _currentTrack.value = TrackInfo()
+        _albumArtUrl.value = null
         exoPlayer.setMediaItem(MediaItem.fromUri(station.streamUrl))
         exoPlayer.prepare()
     }
@@ -93,6 +155,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
     fun switchStation(station: com.florentin.letzlisten.data.RadioStation) {
         _currentStation.value = station
         _currentTrack.value = TrackInfo()
+        _albumArtUrl.value = null
         _isLoading.value = true
         exoPlayer.setMediaItem(MediaItem.fromUri(station.streamUrl))
         exoPlayer.prepare()

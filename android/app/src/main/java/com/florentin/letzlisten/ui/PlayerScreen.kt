@@ -49,6 +49,7 @@ fun PlayerScreen(
     isLoading: Boolean,
     isFavorited: Boolean,
     languageFlag: String,
+    albumArtUrl: String? = null,
     artworkSize: Int = 220,
     onTogglePlayback: () -> Unit,
     onToggleFavorite: () -> Unit,
@@ -74,7 +75,7 @@ fun PlayerScreen(
                 .windowInsetsPadding(WindowInsets.navigationBars)
                 .padding(bottom = 96.dp)
         ) {
-            StationArtwork(station = currentStation, size = artworkSize)
+            StationArtwork(station = currentStation, albumArtUrl = albumArtUrl, size = artworkSize)
 
             Spacer(Modifier.height(28.dp))
 
@@ -248,9 +249,11 @@ fun PlayerScreen(
 }
 
 @Composable
-private fun StationArtwork(station: RadioStation?, size: Int) {
-    var showPlaceholder by remember(station?.id) { mutableStateOf(false) }
-    val url = station?.websiteUrl?.let { "$it/favicon.ico" }
+private fun StationArtwork(station: RadioStation?, albumArtUrl: String?, size: Int) {
+    val logoUrl = remember(station?.id) { station?.let { stationLogoUrl(it) } }
+    // Reset failure state whenever the displayed image changes
+    var albumArtFailed by remember(albumArtUrl) { mutableStateOf(false) }
+    var logoFailed by remember(station?.id) { mutableStateOf(false) }
 
     Box(
         contentAlignment = Alignment.Center,
@@ -260,16 +263,22 @@ private fun StationArtwork(station: RadioStation?, size: Int) {
             .clip(RoundedCornerShape(20.dp))
             .background(Color(0xFF1E1E3F))
     ) {
-        if (url != null && !showPlaceholder) {
-            AsyncImage(
-                model = url,
-                contentDescription = station?.name,
+        when {
+            albumArtUrl != null && !albumArtFailed -> AsyncImage(
+                model = albumArtUrl,
+                contentDescription = null,
                 contentScale = ContentScale.Crop,
-                onError = { showPlaceholder = true },
+                onError = { albumArtFailed = true },
                 modifier = Modifier.fillMaxSize()
             )
-        } else {
-            Text(
+            logoUrl != null && !logoFailed -> AsyncImage(
+                model = logoUrl,
+                contentDescription = station?.name,
+                contentScale = ContentScale.Crop,
+                onError = { logoFailed = true },
+                modifier = Modifier.fillMaxSize()
+            )
+            else -> Text(
                 text = station?.name
                     ?.split(" ", "-")
                     ?.mapNotNull { it.firstOrNull()?.uppercaseChar() }
@@ -281,4 +290,25 @@ private fun StationArtwork(station: RadioStation?, size: Int) {
             )
         }
     }
+}
+
+/**
+ * Builds the best available logo URL for a station:
+ * - Facebook pages  → Graph API profile picture (no auth needed for public pages)
+ * - Other websites  → Google favicon service at 256 px
+ */
+private fun stationLogoUrl(station: RadioStation): String? {
+    val website = station.websiteUrl ?: return null
+    return try {
+        val url = java.net.URL(website)
+        val host = url.host
+        if (host.contains("facebook.com")) {
+            val path = url.path.trim('/')
+            if (path.isNotEmpty())
+                "https://graph.facebook.com/$path/picture?type=large&width=500&height=500"
+            else null
+        } else {
+            "https://www.google.com/s2/favicons?domain=$host&sz=256"
+        }
+    } catch (_: Exception) { null }
 }

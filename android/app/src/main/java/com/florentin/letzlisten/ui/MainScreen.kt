@@ -34,6 +34,7 @@ fun MainScreen(viewModel: RadioViewModel) {
     val currentTrack by viewModel.currentTrack.collectAsStateWithLifecycle()
     val favorites by viewModel.favorites.collectAsStateWithLifecycle()
     val isFavorited by viewModel.isFavorited.collectAsStateWithLifecycle()
+    val albumArtUrl by viewModel.albumArtUrl.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
     val languageManager = remember { LanguageManager(context) }
@@ -69,6 +70,7 @@ fun MainScreen(viewModel: RadioViewModel) {
                     isLoading = isLoading,
                     isFavorited = isFavorited,
                     languageFlag = currentLanguage.flag,
+                    albumArtUrl = albumArtUrl,
                     artworkSize = 280,
                     onTogglePlayback = { viewModel.togglePlayback() },
                     onToggleFavorite = { viewModel.toggleFavorite() },
@@ -89,6 +91,7 @@ fun MainScreen(viewModel: RadioViewModel) {
                 isLoading = isLoading,
                 isFavorited = isFavorited,
                 languageFlag = currentLanguage.flag,
+                albumArtUrl = albumArtUrl,
                 onTogglePlayback = { viewModel.togglePlayback() },
                 onToggleFavorite = { viewModel.toggleFavorite() },
                 onOpenStationPicker = { showStationPicker = true },
