@@ -112,6 +112,43 @@ HTTPS / Icecast streams.
 
 ---
 
+## Changelog
+
+### Version 2.0 — 2026-03-01
+
+#### iOS
+
+- **iPad: animated split panels** — station sidebar and favourites panel now slide in/out independently instead of pushing the layout
+- **iPad: favourites panel** — removed panel title, clear-all button right-aligned, corrected top padding on overlay buttons
+- **iPad: share button** — fades out when station panel is open to avoid overlap; bottom divider repositioned
+- **Bottom bar** — restored original AirPlay → Play/Stop → Share order after layout experiments
+- **Share button** — disabled while playback is paused, re-enabled when playing
+- **Playback fix** — `isPlaying` is now set to `false` synchronously on pause, preventing a brief stale-state window
+
+#### Android _(initial public build)_
+
+- **Player UI** — full redesign to match iOS: language button, heart in content area, two-button control bar (Share · Play/Stop)
+- **ICY metadata** — real-time artist & title extracted from Shoutcast/Icecast in-stream metadata
+- **Album artwork** — fetched from iTunes Search API, same logic as iOS
+- **Station logos** — bundled assets for known stations with Google Favicon / Facebook Graph API fallback cascade
+- **Favourites & share** — save tracks, share now-playing info in the same format as iOS
+- **Loading states** — spinner in the artwork box while the station list is being fetched; track-info area hidden until first play
+- **Multilingual UI** — Lëtzebuergesch · Français · Deutsch · English (Portuguese removed after review)
+- **No auto-play on startup** — stream starts only when the user taps Play
+- **HTTP streams** — network security config allows cleartext where required
+
+#### Shared
+
+- **stations.json v1.5** — Country Radio disabled; Crazy Poisons Radio retained as the sole active station
+
+---
+
+### Version 1.0 — 2026-02-28
+
+- Initial release — iOS app published; Android project scaffolded (internal testing)
+
+---
+
 ## Copyright
 
 © 2026 Florentin Arno — see [LICENSE](LICENSE).
