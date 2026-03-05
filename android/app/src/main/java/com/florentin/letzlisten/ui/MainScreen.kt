@@ -47,7 +47,9 @@ fun MainScreen(viewModel: RadioViewModel) {
     var showLanguagePicker by remember { mutableStateOf(false) }
 
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-        val isTablet = maxWidth >= 600.dp
+        // Un téléphone en paysage a une largeur >= 600dp mais une hauteur ~360dp.
+        // On exige une hauteur >= 480dp pour distinguer les vraies tablettes.
+        val isTablet = maxWidth >= 600.dp && maxHeight >= 480.dp
 
         if (isTablet) {
             Row(modifier = Modifier.fillMaxSize()) {
