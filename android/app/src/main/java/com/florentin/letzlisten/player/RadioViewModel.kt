@@ -139,6 +139,8 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
 
         _currentTrack.value = newTrack
         _albumArtUrl.value = null
+        // Reset notification artwork to station logo while album art is being fetched.
+        RadioService.icyArtworkUri.value = _currentStation.value?.let { stationArtworkUri(it) }
         fetchAlbumArt(filteredArtist, filteredTitle)
     }
 
@@ -194,6 +196,8 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
                     ?.replace("100x100bb", "600x600bb")
                 itunesCache[key] = url
                 _albumArtUrl.value = url
+                // Push album art to notification/lock screen when available.
+                if (url != null) RadioService.icyArtworkUri.value = Uri.parse(url)
             } catch (_: Exception) {
                 itunesCache[key] = null
             }
@@ -206,6 +210,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         _albumArtUrl.value = null
         _hasStartedPlaying.value = false
         RadioService.icyTitle.value = null
+        RadioService.icyArtworkUri.value = null
         mediaController?.run {
             setMediaItem(buildMediaItem(station))
             prepare()
@@ -220,6 +225,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         _albumArtUrl.value = null
         _hasStartedPlaying.value = false
         RadioService.icyTitle.value = null
+        RadioService.icyArtworkUri.value = null
         mediaController?.run {
             stop()
             playWhenReady = false
