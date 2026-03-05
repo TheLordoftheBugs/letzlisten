@@ -82,7 +82,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         else favs.any { it.title == track.title && it.artist == track.artist }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
 
-    // Handles only playback-state events. ICY metadata is handled via RadioService.icyMetadata.
+    // Handles playback-state events only. ICY metadata comes from RadioService.icyTitle.
     private val playerListener = object : Player.Listener {
         override fun onIsPlayingChanged(isPlaying: Boolean) {
             _isPlaying.value = isPlaying
@@ -103,12 +103,11 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
             ?: _stations.value.firstOrNull { it.id == "rgl" }
             ?: _stations.value.firstOrNull()
 
-        // Collect ICY metadata pushed directly from the ExoPlayer inside RadioService.
-        // This is more reliable than relying on MediaController.onMediaMetadataChanged,
-        // which does not always forward timed (ICY) metadata from the MediaSession.
+        // Collect raw ICY StreamTitle pushed directly by the ExoPlayer listener in RadioService.
+        // onMetadata(IcyInfo) is the authoritative source for live-stream track changes.
         viewModelScope.launch {
-            RadioService.icyMetadata.collect { metadata ->
-                handleMetadata(metadata ?: return@collect)
+            RadioService.icyTitle.collect { raw ->
+                handleIcyTitle(raw ?: return@collect)
             }
         }
 
@@ -124,11 +123,10 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         }, ContextCompat.getMainExecutor(application))
     }
 
-    private fun handleMetadata(mediaMetadata: MediaMetadata) {
-        val raw = mediaMetadata.title?.toString() ?: return
-        // Ignore the static metadata fired by setMediaItem (title = station name).
-        // Only real ICY stream titles contain " - " or differ from the station name.
+    private fun handleIcyTitle(raw: String) {
+        // Skip if it's just the station name broadcast by the stream itself.
         if (raw.trim() == _currentStation.value?.name?.trim()) return
+
         val parts = raw.split(" - ", limit = 2)
         val artist = if (parts.size == 2) parts[0].trim() else ""
         val title = if (parts.size == 2) parts[1].trim() else raw.trim()
@@ -207,7 +205,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         _currentTrack.value = TrackInfo()
         _albumArtUrl.value = null
         _hasStartedPlaying.value = false
-        RadioService.icyMetadata.value = null
+        RadioService.icyTitle.value = null
         mediaController?.run {
             setMediaItem(buildMediaItem(station))
             prepare()
@@ -221,7 +219,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         _currentTrack.value = TrackInfo()
         _albumArtUrl.value = null
         _hasStartedPlaying.value = false
-        RadioService.icyMetadata.value = null
+        RadioService.icyTitle.value = null
         mediaController?.run {
             stop()
             playWhenReady = false
