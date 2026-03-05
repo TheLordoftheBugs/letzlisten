@@ -8,7 +8,6 @@
 import Foundation
 import AVFoundation
 import MediaPlayer
-import Combine
 
 class RadioPlayer: NSObject, ObservableObject {
     @Published var isPlaying = false
@@ -20,7 +19,6 @@ class RadioPlayer: NSObject, ObservableObject {
     private var player: AVPlayer?
     private var timeObserver: Any?
     private var cachedStationLogo: UIImage?
-    private var cancellables = Set<AnyCancellable>()
     
     // UserDefaults key for last station
     private let lastStationKey = "LastPlayedStationID"
@@ -52,40 +50,6 @@ class RadioPlayer: NSObject, ObservableObject {
         setupPlayer()
         setupRemoteControls()
         setupNotifications()
-
-        // Once remote stations are loaded, restore the saved station from the authoritative
-        // remote list. This also re-syncs the station object if the URL/name changed.
-        RadioStationLoader.shared.$remoteLoadedAt
-            .compactMap { $0 }
-            .first()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                guard let self = self else { return }
-                let remoteStations = RadioStationLoader.shared.stations
-                let savedID = UserDefaults.standard.string(forKey: self.lastStationKey)
-
-                if let savedID, let station = remoteStations.first(where: { $0.id == savedID && $0.enabled }) {
-                    // Station still valid in remote — re-sync with latest data
-                    print("🔄 Restored last station: \(station.name)")
-                    if station.id != self.currentStation.id || station.streamURL != self.currentStation.streamURL {
-                        self.currentStation = station
-                        self.loadStation(station)
-                    } else {
-                        self.currentStation = station
-                    }
-                    UserDefaults.standard.set(station.id, forKey: self.lastStationKey)
-                } else {
-                    // Saved station removed or disabled in remote — fall back to default
-                    print("⚠️ Station '\(savedID ?? "unknown")' no longer available, switching to default")
-                    let fallback = remoteStations.first(where: { $0.id == "rgl" && $0.enabled })
-                        ?? remoteStations.first(where: { $0.enabled })
-                    guard let fallback else { return }
-                    self.currentStation = fallback
-                    self.loadStation(fallback)
-                    UserDefaults.standard.set(fallback.id, forKey: self.lastStationKey)
-                }
-            }
-            .store(in: &cancellables)
     }
     
     private func setupPlayer() {

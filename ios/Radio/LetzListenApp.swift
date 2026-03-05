@@ -22,9 +22,6 @@ struct LetzListenApp: App {
                 .environmentObject(audioPlayer)
                 .environmentObject(favoritesManager)
                 .environmentObject(languageManager)
-                .onAppear {
-                    RadioStationLoader.shared.loadStations()
-                }
         }
     }
 }
