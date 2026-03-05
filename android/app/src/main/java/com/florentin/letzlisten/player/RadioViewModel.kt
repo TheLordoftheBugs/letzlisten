@@ -55,10 +55,6 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-    // True while the remote stations.json is being fetched from GitHub (mirrors iOS RadioStationLoader.isLoading).
-    private val _isStationsLoading = MutableStateFlow(false)
-    val isStationsLoading: StateFlow<Boolean> = _isStationsLoading.asStateFlow()
-
     private val _currentTrack = MutableStateFlow(TrackInfo())
     val currentTrack: StateFlow<TrackInfo> = _currentTrack.asStateFlow()
 
@@ -142,30 +138,13 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun loadStations() {
-        viewModelScope.launch {
-            // 1. Charge immédiatement depuis les assets (réponse instantanée)
-            val local = StationsRepository.loadFromAssets(getApplication())
-            _stations.value = local.filter { it.isEnabled }.sortedBy { it.name }
-            val savedId = prefs.getString("last_station_id", null)
-            val initial = _stations.value.firstOrNull { it.id == savedId }
-                ?: _stations.value.firstOrNull { it.id == "rgl" }
-                ?: _stations.value.firstOrNull()
-            initial?.let { selectStation(it) }
-
-            // 2. Tente ensuite la mise à jour depuis GitHub (comme iOS)
-            _isStationsLoading.value = true
-            val remote = StationsRepository.fetchRemote()
-            _isStationsLoading.value = false
-            if (remote.isNotEmpty()) {
-                val updated = remote.filter { it.isEnabled }.sortedBy { it.name }
-                _stations.value = updated
-                // Si la station courante n'est plus dans la liste, basculer sur la première disponible
-                if (_currentStation.value != null &&
-                    updated.none { it.id == _currentStation.value?.id }) {
-                    updated.firstOrNull()?.let { switchStation(it) }
-                }
-            }
-        }
+        val local = StationsRepository.loadFromAssets(getApplication())
+        _stations.value = local.filter { it.isEnabled }.sortedBy { it.name }
+        val savedId = prefs.getString("last_station_id", null)
+        val initial = _stations.value.firstOrNull { it.id == savedId }
+            ?: _stations.value.firstOrNull { it.id == "rgl" }
+            ?: _stations.value.firstOrNull()
+        initial?.let { selectStation(it) }
     }
 
     private fun selectStation(station: com.florentin.letzlisten.data.RadioStation) {

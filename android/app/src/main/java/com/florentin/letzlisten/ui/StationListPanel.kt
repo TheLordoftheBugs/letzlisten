@@ -8,7 +8,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -30,7 +29,6 @@ import com.florentin.letzlisten.ui.theme.TextSecondary
 fun StationListPanel(
     stations: List<RadioStation>,
     currentStation: RadioStation?,
-    isStationsLoading: Boolean,
     chooseYourRadioLabel: String,
     onStationSelected: (RadioStation) -> Unit,
     modifier: Modifier = Modifier
@@ -39,25 +37,13 @@ fun StationListPanel(
         modifier = modifier
             .background(SurfaceDark)
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
+        Text(
+            text = chooseYourRadioLabel,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = TextPrimary,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 20.dp)
-        ) {
-            Text(
-                text = chooseYourRadioLabel,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = TextPrimary,
-                modifier = Modifier.weight(1f)
-            )
-            if (isStationsLoading) {
-                CircularProgressIndicator(
-                    color = Color.White.copy(alpha = 0.5f),
-                    modifier = Modifier.size(16.dp),
-                    strokeWidth = 2.dp
-                )
-            }
-        }
+        )
 
         HorizontalDivider(color = Color.White.copy(alpha = 0.1f))
 
