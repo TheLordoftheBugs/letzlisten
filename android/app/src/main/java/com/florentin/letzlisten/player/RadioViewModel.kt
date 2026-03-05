@@ -12,7 +12,7 @@ import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.florentin.letzlisten.RadioService
-import RadioStation
+import com.florentin.letzlisten.data.RadioStation
 import com.florentin.letzlisten.data.StationsRepository
 import com.florentin.letzlisten.ui.bundledLogoRes
 import com.florentin.letzlisten.ui.stationLogoUrls
