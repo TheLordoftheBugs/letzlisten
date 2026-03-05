@@ -60,72 +60,145 @@ fun PlayerScreen(
     onShare: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Box(
+    BoxWithConstraints(
         modifier = modifier.background(
             Brush.verticalGradient(listOf(BackgroundTop, BackgroundBottom))
         )
     ) {
-        // Center content — bottom padding accounts for bar (64dp + 16dp×2)
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 32.dp)
-                .padding(top = 80.dp)
-                .windowInsetsPadding(WindowInsets.navigationBars)
-                .padding(bottom = 96.dp)
-        ) {
-            StationArtwork(
-                station = currentStation,
-                albumArtUrl = albumArtUrl,
-                hasStartedPlaying = hasStartedPlaying,
-                isTrackKnown = !currentTrack.isUnknown,
-                size = artworkSize
-            )
+        // Compact = téléphone en mode paysage (hauteur insuffisante pour le layout portrait)
+        val isCompact = maxHeight < 500.dp
+        val canShare = isPlaying && hasStartedPlaying && !currentTrack.isUnknown
+        val btnSize = if (isCompact) 52.dp else 64.dp
+        val iconSize = if (isCompact) 22.dp else 28.dp
+        val barVerticalPadding = if (isCompact) 10.dp else 16.dp
+        // Hauteur estimée de la barre du bas : bouton + padding × 2 + divider
+        val bottomBarClearance = btnSize + barVerticalPadding * 2 + 2.dp
 
-            Spacer(Modifier.height(28.dp))
+        if (isCompact) {
+            // Layout paysage : artwork à gauche, infos à droite
+            val artworkSizeCompact = (maxHeight.value * 0.42f).toInt().coerceIn(80, 150)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(20.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .statusBarsPadding()
+                    .padding(top = 52.dp)        // dégager les boutons du haut
+                    .navigationBarsPadding()
+                    .padding(bottom = bottomBarClearance)
+                    .padding(horizontal = 24.dp)
+            ) {
+                StationArtwork(
+                    station = currentStation,
+                    albumArtUrl = albumArtUrl,
+                    hasStartedPlaying = hasStartedPlaying,
+                    isTrackKnown = !currentTrack.isUnknown,
+                    size = artworkSizeCompact
+                )
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = currentStation?.name ?: "",
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = TextPrimary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    if (hasStartedPlaying && !currentTrack.isUnknown) {
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            text = currentTrack.title,
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = TextPrimary,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text = currentTrack.artist,
+                            fontSize = 13.sp,
+                            color = TextSecondary,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        IconButton(onClick = onToggleFavorite) {
+                            Icon(
+                                imageVector = if (isFavorited) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                contentDescription = null,
+                                tint = if (isFavorited) AccentRed else Color.White.copy(alpha = 0.7f),
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        } else {
+            // Layout portrait — bottom padding = hauteur de la barre de contrôle
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 32.dp)
+                    .padding(top = 80.dp)
+                    .windowInsetsPadding(WindowInsets.navigationBars)
+                    .padding(bottom = 96.dp)
+            ) {
+                StationArtwork(
+                    station = currentStation,
+                    albumArtUrl = albumArtUrl,
+                    hasStartedPlaying = hasStartedPlaying,
+                    isTrackKnown = !currentTrack.isUnknown,
+                    size = artworkSize
+                )
 
-            // Station name
-            Text(
-                text = currentStation?.name ?: "",
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
-                color = TextPrimary,
-                textAlign = TextAlign.Center,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
+                Spacer(Modifier.height(28.dp))
 
-            // Track info: shown only when real ICY metadata is available.
-            // If the station never broadcasts artist/title, nothing is displayed.
-            if (hasStartedPlaying && !currentTrack.isUnknown) {
-                Spacer(Modifier.height(12.dp))
+                // Station name
                 Text(
-                    text = currentTrack.title,
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    text = currentStation?.name ?: "",
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
                     color = TextPrimary,
                     textAlign = TextAlign.Center,
-                    maxLines = 1,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
-                Text(
-                    text = currentTrack.artist,
-                    fontSize = 14.sp,
-                    color = TextSecondary,
-                    textAlign = TextAlign.Center,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Spacer(Modifier.height(8.dp))
-                IconButton(onClick = onToggleFavorite) {
-                    Icon(
-                        imageVector = if (isFavorited) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                        contentDescription = null,
-                        tint = if (isFavorited) AccentRed else Color.White.copy(alpha = 0.7f),
-                        modifier = Modifier.size(28.dp)
+
+                // Track info: shown only when real ICY metadata is available.
+                // If the station never broadcasts artist/title, nothing is displayed.
+                if (hasStartedPlaying && !currentTrack.isUnknown) {
+                    Spacer(Modifier.height(12.dp))
+                    Text(
+                        text = currentTrack.title,
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = TextPrimary,
+                        textAlign = TextAlign.Center,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
+                    Text(
+                        text = currentTrack.artist,
+                        fontSize = 14.sp,
+                        color = TextSecondary,
+                        textAlign = TextAlign.Center,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    IconButton(onClick = onToggleFavorite) {
+                        Icon(
+                            imageVector = if (isFavorited) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            contentDescription = null,
+                            tint = if (isFavorited) AccentRed else Color.White.copy(alpha = 0.7f),
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
                 }
             }
         }
@@ -203,17 +276,13 @@ fun PlayerScreen(
                     .fillMaxWidth()
                     .background(SurfaceDark)
                     .navigationBarsPadding()
-                    .padding(horizontal = 24.dp, vertical = 16.dp)
+                    .padding(horizontal = 24.dp, vertical = barVerticalPadding)
             ) {
-
-                val canShare = isPlaying && hasStartedPlaying && !currentTrack.isUnknown
-
-
-                // Share (64×64, rounded rect — like iOS square.and.arrow.up button)
+                // Share (rounded rect — like iOS square.and.arrow.up button)
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
-                        .size(64.dp)
+                        .size(btnSize)
                         .clip(RoundedCornerShape(12.dp))
                         .background(Color.White.copy(alpha = if (canShare) 0.15f else 0.05f))
                         .clickable(enabled = canShare, onClick = onShare)
@@ -222,15 +291,15 @@ fun PlayerScreen(
                         imageVector = Icons.Default.Share,
                         contentDescription = "Partager",
                         tint = Color.White.copy(alpha = if (canShare) 0.9f else 0.4f),
-                        modifier = Modifier.size(28.dp)
+                        modifier = Modifier.size(iconSize)
                     )
                 }
 
-                // Play/Stop (64×64 circle, red/blue — like iOS)
+                // Play/Stop (circle, red/blue — like iOS)
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
-                        .size(64.dp)
+                        .size(btnSize)
                         .shadow(8.dp, CircleShape)
                         .clip(CircleShape)
                         .background(if (isPlaying) AccentRed else AccentBlue)
@@ -239,7 +308,7 @@ fun PlayerScreen(
                     if (isLoading) {
                         CircularProgressIndicator(
                             color = Color.White,
-                            modifier = Modifier.size(28.dp),
+                            modifier = Modifier.size(iconSize),
                             strokeWidth = 3.dp
                         )
                     } else {
@@ -247,7 +316,7 @@ fun PlayerScreen(
                             imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                             contentDescription = if (isPlaying) "Pause" else "Lecture",
                             tint = Color.White,
-                            modifier = Modifier.size(28.dp)
+                            modifier = Modifier.size(iconSize)
                         )
                     }
                 }
