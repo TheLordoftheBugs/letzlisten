@@ -1,7 +1,7 @@
 {
-  "version": "1.7",
-  "last_updated": "2026-03-02 22:35",
-  "stations": 
+  "version": "1.8",
+  "last_updated": "2026-03-05 00:00",
+  "stations":
   [
     {
       "id": "crazy_poisons",
@@ -9,7 +9,15 @@
       "streamURL": "http://server4.streamserver24.com:26607/stream/1/",
       "logoImageName": "CrazyPoisonsLogo",
       "websiteURL": "https://crazypoisonsradio.biz/",
-      "isEnabled": true 
+      "isEnabled": true
+    },
+    {
+      "id": "rgl",
+      "name": "Radio Gutt Laun",
+      "streamURL": "http://rgl.selfip.net:8000/mp3",
+      "logoImageName": "RGLLogo",
+      "websiteURL": "https://www.rgl.lu",
+      "isEnabled": true
     }
   ]
 }
