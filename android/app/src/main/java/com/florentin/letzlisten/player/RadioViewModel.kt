@@ -2,6 +2,7 @@ package com.florentin.letzlisten.player
 
 import android.app.Application
 import android.content.ComponentName
+import android.net.Uri
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,7 +12,10 @@ import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.florentin.letzlisten.RadioService
+import RadioStation
 import com.florentin.letzlisten.data.StationsRepository
+import com.florentin.letzlisten.ui.bundledLogoRes
+import com.florentin.letzlisten.ui.stationLogoUrls
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,11 +50,11 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
 
     private val favoritesManager = FavoritesManager(application)
 
-    private val _stations = MutableStateFlow<List<com.florentin.letzlisten.data.RadioStation>>(emptyList())
-    val stations: StateFlow<List<com.florentin.letzlisten.data.RadioStation>> = _stations.asStateFlow()
+    private val _stations = MutableStateFlow<List<RadioStation>>(emptyList())
+    val stations: StateFlow<List<RadioStation>> = _stations.asStateFlow()
 
-    private val _currentStation = MutableStateFlow<com.florentin.letzlisten.data.RadioStation?>(null)
-    val currentStation: StateFlow<com.florentin.letzlisten.data.RadioStation?> = _currentStation.asStateFlow()
+    private val _currentStation = MutableStateFlow<RadioStation?>(null)
+    val currentStation: StateFlow<RadioStation?> = _currentStation.asStateFlow()
 
     private val _isPlaying = MutableStateFlow(false)
     val isPlaying: StateFlow<Boolean> = _isPlaying.asStateFlow()
@@ -127,6 +131,27 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         }, ContextCompat.getMainExecutor(application))
     }
 
+    private fun stationArtworkUri(station: RadioStation): Uri? {
+        val app: Application = getApplication()
+        val resId = bundledLogoRes(station.logoImageName)
+        if (resId != null) {
+            return Uri.parse("android.resource://${app.packageName}/$resId")
+        }
+        return stationLogoUrls(station).firstOrNull()?.let { Uri.parse(it) }
+    }
+
+    private fun buildMediaItem(station: RadioStation): MediaItem {
+        val metadata = MediaMetadata.Builder()
+            .setTitle(station.name)
+            .setArtist(station.name)
+            .setArtworkUri(stationArtworkUri(station))
+            .build()
+        return MediaItem.Builder()
+            .setUri(station.streamUrl)
+            .setMediaMetadata(metadata)
+            .build()
+    }
+
     private fun filterMetadata(value: String?): String? {
         val trimmed = value?.trim() ?: return null
         if (trimmed.length < 2) return null
@@ -164,18 +189,18 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun selectStation(station: com.florentin.letzlisten.data.RadioStation) {
+    private fun selectStation(station: RadioStation) {
         _currentStation.value = station
         _currentTrack.value = TrackInfo()
         _albumArtUrl.value = null
         _hasStartedPlaying.value = false
         mediaController?.run {
-            setMediaItem(MediaItem.fromUri(station.streamUrl))
+            setMediaItem(buildMediaItem(station))
             prepare()
         }
     }
 
-    fun switchStation(station: com.florentin.letzlisten.data.RadioStation) {
+    fun switchStation(station: RadioStation) {
         prefs.edit().putString("last_station_id", station.id).apply()
         _isPlaying.value = false
         _currentStation.value = station
@@ -185,7 +210,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         mediaController?.run {
             stop()
             playWhenReady = false
-            setMediaItem(MediaItem.fromUri(station.streamUrl))
+            setMediaItem(buildMediaItem(station))
             prepare()
         }
     }
