@@ -18,8 +18,8 @@ class RadioStationLoader: ObservableObject {
     /// Set to the fetch date when remote stations have been loaded successfully.
     @Published var remoteLoadedAt: Date? = nil
     
-    // URL du fichier JSON distant (GitHub)
-    private let remoteURL = "https://raw.githubusercontent.com/arnoflorentin/letzlisten/main/stations.json"
+    // URL du fichier JSON distant (GitHub) — même source qu'Android
+    private let remoteURL = "https://raw.githubusercontent.com/TheLordoftheBugs/letzlisten/main/stations.json"
     
     // Cache local
     private let cacheFileName = "stations_cache.json"

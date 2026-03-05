@@ -143,6 +143,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun loadStations() {
         viewModelScope.launch {
+            // 1. Charge immédiatement depuis les assets (réponse instantanée)
             val local = StationsRepository.loadFromAssets(getApplication())
             _stations.value = local.filter { it.isEnabled }.sortedBy { it.name }
             val savedId = prefs.getString("last_station_id", null)
@@ -150,6 +151,20 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
                 ?: _stations.value.firstOrNull { it.id == "rgl" }
                 ?: _stations.value.firstOrNull()
             initial?.let { selectStation(it) }
+
+            // 2. Tente ensuite la mise à jour depuis GitHub (comme iOS)
+            _isStationsLoading.value = true
+            val remote = StationsRepository.fetchRemote()
+            _isStationsLoading.value = false
+            if (remote.isNotEmpty()) {
+                val updated = remote.filter { it.isEnabled }.sortedBy { it.name }
+                _stations.value = updated
+                // Si la station courante n'est plus dans la liste, basculer sur la première disponible
+                if (_currentStation.value != null &&
+                    updated.none { it.id == _currentStation.value?.id }) {
+                    updated.firstOrNull()?.let { switchStation(it) }
+                }
+            }
         }
     }
 
