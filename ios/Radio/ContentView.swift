@@ -591,38 +591,40 @@ struct LanguagePickerView: View {
                 )
                 .ignoresSafeArea()
 
-                VStack(spacing: 16) {
-                    ForEach(LanguageManager.Language.allCases, id: \.rawValue) { language in
-                        Button(action: {
-                            languageManager.currentLanguage = language
-                            dismiss()
-                        }) {
-                            HStack(spacing: 16) {
-                                Text(language.flag)
-                                    .font(.system(size: 32))
-                                Text(language.displayName)
-                                    .font(.system(size: 18, weight: .medium))
-                                    .foregroundColor(.white)
-                                Spacer()
-                                if language == languageManager.currentLanguage {
-                                    Image(systemName: "checkmark")
-                                        .foregroundColor(.blue)
-                                        .font(.system(size: 16, weight: .semibold))
+                ScrollView {
+                    VStack(spacing: 16) {
+                        ForEach(LanguageManager.Language.allCases, id: \.rawValue) { language in
+                            Button(action: {
+                                languageManager.currentLanguage = language
+                                dismiss()
+                            }) {
+                                HStack(spacing: 16) {
+                                    Text(language.flag)
+                                        .font(.system(size: 32))
+                                    Text(language.displayName)
+                                        .font(.system(size: 18, weight: .medium))
+                                        .foregroundColor(.white)
+                                    Spacer()
+                                    if language == languageManager.currentLanguage {
+                                        Image(systemName: "checkmark")
+                                            .foregroundColor(.blue)
+                                            .font(.system(size: 16, weight: .semibold))
+                                    }
                                 }
+                                .padding(.vertical, 14)
+                                .padding(.horizontal, 20)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(language == languageManager.currentLanguage
+                                              ? Color.blue.opacity(0.2)
+                                              : Color.white.opacity(0.05))
+                                )
                             }
-                            .padding(.vertical, 14)
-                            .padding(.horizontal, 20)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(language == languageManager.currentLanguage
-                                          ? Color.blue.opacity(0.2)
-                                          : Color.white.opacity(0.05))
-                            )
                         }
                     }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 20)
                 }
-                .padding(.horizontal, 20)
-                .padding(.top, 20)
             }
             .navigationTitle(languageManager.selectLanguage)
             .navigationBarTitleDisplayMode(.inline)
