@@ -58,27 +58,10 @@ class RadioPlayer: NSObject, ObservableObject {
     }
     
     func switchStation(_ station: RadioStation) {
-        let wasPlaying = isPlaying
-        
-        // Stop current playback
-        if isPlaying {
-            stop()
-        }
-        
-        // Switch station
+        stop()
         currentStation = station
-        
-        // Save last played station
         UserDefaults.standard.set(station.id, forKey: lastStationKey)
-        print("💾 Saved last station: \(station.name)")
-        
-        // Reload player with new station
         loadStation(station)
-        
-        // Resume playback if it was playing
-        if wasPlaying {
-            play()
-        }
     }
     
     private func loadStation(_ station: RadioStation) {
