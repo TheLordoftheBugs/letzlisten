@@ -25,6 +25,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -60,6 +61,9 @@ fun PlayerScreen(
     onShare: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val uriHandler = LocalUriHandler.current
+    val websiteUrl = currentStation?.websiteUrl
+
     BoxWithConstraints(
         modifier = modifier.background(
             Brush.verticalGradient(listOf(BackgroundTop, BackgroundBottom))
@@ -93,7 +97,8 @@ fun PlayerScreen(
                     albumArtUrl = albumArtUrl,
                     hasStartedPlaying = hasStartedPlaying,
                     isTrackKnown = !currentTrack.isUnknown,
-                    size = artworkSizeCompact
+                    size = artworkSizeCompact,
+                    onClick = websiteUrl?.let { url -> { uriHandler.openUri(url) } }
                 )
                 Column(
                     verticalArrangement = Arrangement.Center,
@@ -105,7 +110,10 @@ fun PlayerScreen(
                         fontWeight = FontWeight.Bold,
                         color = TextPrimary,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = if (websiteUrl != null)
+                            Modifier.clickable { uriHandler.openUri(websiteUrl) }
+                        else Modifier
                     )
                     if (hasStartedPlaying && !currentTrack.isUnknown) {
                         Spacer(Modifier.height(4.dp))
@@ -153,7 +161,8 @@ fun PlayerScreen(
                     albumArtUrl = albumArtUrl,
                     hasStartedPlaying = hasStartedPlaying,
                     isTrackKnown = !currentTrack.isUnknown,
-                    size = artworkSize
+                    size = artworkSize,
+                    onClick = websiteUrl?.let { url -> { uriHandler.openUri(url) } }
                 )
 
                 Spacer(Modifier.height(28.dp))
@@ -166,7 +175,10 @@ fun PlayerScreen(
                     color = TextPrimary,
                     textAlign = TextAlign.Center,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = if (websiteUrl != null)
+                        Modifier.clickable { uriHandler.openUri(websiteUrl) }
+                    else Modifier
                 )
 
                 // Track info: shown only when real ICY metadata is available.
@@ -341,7 +353,8 @@ private fun StationArtwork(
     albumArtUrl: String?,
     hasStartedPlaying: Boolean,
     isTrackKnown: Boolean,
-    size: Int
+    size: Int,
+    onClick: (() -> Unit)? = null
 ) {
     val bundledRes = remember(station?.logoImageName) { bundledLogoRes(station?.logoImageName) }
     val logoUrls = remember(station?.id) { station?.let { stationLogoUrls(it) } ?: emptyList() }
@@ -362,6 +375,7 @@ private fun StationArtwork(
             .shadow(16.dp, RoundedCornerShape(20.dp))
             .clip(RoundedCornerShape(20.dp))
             .background(Color(0xFF1E1E3F))
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
     ) {
         when {
             station == null -> CircularProgressIndicator(
