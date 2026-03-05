@@ -79,7 +79,7 @@ fun PlayerScreen(
             val artworkSizeCompact = (maxHeight.value * 0.42f).toInt().coerceIn(80, 150)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(20.dp),
+                horizontalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterHorizontally),
                 modifier = Modifier
                     .fillMaxSize()
                     .statusBarsPadding()
@@ -97,7 +97,7 @@ fun PlayerScreen(
                 )
                 Column(
                     verticalArrangement = Arrangement.Center,
-                    modifier = Modifier.weight(1f)
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
                         text = currentStation?.name ?: "",

@@ -162,10 +162,8 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         _currentTrack.value = TrackInfo()
         _albumArtUrl.value = null
         _hasStartedPlaying.value = false
-        _isLoading.value = true
         exoPlayer.setMediaItem(MediaItem.fromUri(station.streamUrl))
         exoPlayer.prepare()
-        exoPlayer.play()
     }
 
     fun togglePlayback() {
