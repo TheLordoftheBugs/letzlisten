@@ -140,11 +140,17 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private val prefs = application.getSharedPreferences("radio_prefs", android.content.Context.MODE_PRIVATE)
+
     private fun loadStations() {
         viewModelScope.launch {
             val local = StationsRepository.loadFromAssets(getApplication())
             _stations.value = local.filter { it.isEnabled }.sortedBy { it.name }
-            _stations.value.firstOrNull()?.let { selectStation(it) }
+            val savedId = prefs.getString("last_station_id", null)
+            val initial = _stations.value.firstOrNull { it.id == savedId }
+                ?: _stations.value.firstOrNull { it.id == "rgl" }
+                ?: _stations.value.firstOrNull()
+            initial?.let { selectStation(it) }
         }
     }
 
@@ -158,6 +164,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun switchStation(station: com.florentin.letzlisten.data.RadioStation) {
+        prefs.edit().putString("last_station_id", station.id).apply()
         _currentStation.value = station
         _currentTrack.value = TrackInfo()
         _albumArtUrl.value = null
