@@ -66,6 +66,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
     val albumArtUrl: StateFlow<String?> = _albumArtUrl.asStateFlow()
 
     private val itunesCache = mutableMapOf<String, String?>()
+    private val prefs = application.getSharedPreferences("radio_prefs", android.content.Context.MODE_PRIVATE)
 
     val favorites = favoritesManager.favorites
 
@@ -139,8 +140,6 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
-
-    private val prefs = application.getSharedPreferences("radio_prefs", android.content.Context.MODE_PRIVATE)
 
     private fun loadStations() {
         viewModelScope.launch {
