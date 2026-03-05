@@ -126,6 +126,9 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun handleMetadata(mediaMetadata: MediaMetadata) {
         val raw = mediaMetadata.title?.toString() ?: return
+        // Ignore the static metadata fired by setMediaItem (title = station name).
+        // Only real ICY stream titles contain " - " or differ from the station name.
+        if (raw.trim() == _currentStation.value?.name?.trim()) return
         val parts = raw.split(" - ", limit = 2)
         val artist = if (parts.size == 2) parts[0].trim() else ""
         val title = if (parts.size == 2) parts[1].trim() else raw.trim()
