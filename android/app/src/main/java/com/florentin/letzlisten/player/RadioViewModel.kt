@@ -145,13 +145,6 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
             val local = StationsRepository.loadFromAssets(getApplication())
             _stations.value = local.filter { it.isEnabled }.sortedBy { it.name }
             _stations.value.firstOrNull()?.let { selectStation(it) }
-
-            _isStationsLoading.value = true
-            val remote = StationsRepository.fetchRemote()
-            _isStationsLoading.value = false
-            if (remote.isNotEmpty()) {
-                _stations.value = remote.filter { it.isEnabled }.sortedBy { it.name }
-            }
         }
     }
 
