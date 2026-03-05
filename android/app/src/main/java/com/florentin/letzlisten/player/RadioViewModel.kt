@@ -1,13 +1,18 @@
 package com.florentin.letzlisten.player
 
 import android.app.Application
+import android.content.ComponentName
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
-import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.session.MediaController
+import androidx.media3.session.SessionToken
+import com.florentin.letzlisten.RadioService
 import com.florentin.letzlisten.data.StationsRepository
+import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -36,7 +41,9 @@ data class TrackInfo(
 
 class RadioViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val exoPlayer = ExoPlayer.Builder(application).build()
+    private var controllerFuture: ListenableFuture<MediaController>? = null
+    private var mediaController: MediaController? = null
+
     private val favoritesManager = FavoritesManager(application)
 
     private val _stations = MutableStateFlow<List<com.florentin.letzlisten.data.RadioStation>>(emptyList())
@@ -71,33 +78,53 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         else favs.any { it.title == track.title && it.artist == track.artist }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
 
+    private val playerListener = object : Player.Listener {
+        override fun onIsPlayingChanged(isPlaying: Boolean) {
+            _isPlaying.value = isPlaying
+            if (isPlaying) _hasStartedPlaying.value = true
+        }
+
+        override fun onPlaybackStateChanged(state: Int) {
+            _isLoading.value = state == Player.STATE_BUFFERING
+        }
+
+        override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
+            val raw = mediaMetadata.title?.toString() ?: return
+            val parts = raw.split(" - ", limit = 2)
+            val artist = if (parts.size == 2) parts[0].trim() else ""
+            val title = if (parts.size == 2) parts[1].trim() else raw.trim()
+
+            val filteredTitle = filterMetadata(title) ?: return
+            val filteredArtist = filterMetadata(artist.ifBlank { null }) ?: ""
+
+            val newTrack = TrackInfo(title = filteredTitle, artist = filteredArtist)
+            if (_currentTrack.value == newTrack) return
+
+            _currentTrack.value = newTrack
+            _albumArtUrl.value = null
+            fetchAlbumArt(filteredArtist, filteredTitle)
+        }
+    }
+
     init {
-        loadStations()
-        exoPlayer.addListener(object : Player.Listener {
-            override fun onIsPlayingChanged(isPlaying: Boolean) {
-                _isPlaying.value = isPlaying
-                if (isPlaying) _hasStartedPlaying.value = true
-            }
-            override fun onPlaybackStateChanged(state: Int) {
-                _isLoading.value = state == Player.STATE_BUFFERING
-            }
-            override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
-                val raw = mediaMetadata.title?.toString() ?: return
-                val parts = raw.split(" - ", limit = 2)
-                val artist = if (parts.size == 2) parts[0].trim() else ""
-                val title = if (parts.size == 2) parts[1].trim() else raw.trim()
+        // Load station list immediately so UI can display it before the controller connects.
+        val local = StationsRepository.loadFromAssets(application)
+        _stations.value = local.filter { it.isEnabled }.sortedBy { it.name }
+        val savedId = prefs.getString("last_station_id", null)
+        val initialStation = _stations.value.firstOrNull { it.id == savedId }
+            ?: _stations.value.firstOrNull { it.id == "rgl" }
+            ?: _stations.value.firstOrNull()
 
-                val filteredTitle = filterMetadata(title) ?: return
-                val filteredArtist = filterMetadata(artist.ifBlank { null }) ?: ""
-
-                val newTrack = TrackInfo(title = filteredTitle, artist = filteredArtist)
-                if (_currentTrack.value == newTrack) return
-
-                _currentTrack.value = newTrack
-                _albumArtUrl.value = null
-                fetchAlbumArt(filteredArtist, filteredTitle)
-            }
-        })
+        // Connect to RadioService asynchronously via MediaController.
+        val sessionToken = SessionToken(application, ComponentName(application, RadioService::class.java))
+        val future = MediaController.Builder(application, sessionToken).buildAsync()
+        controllerFuture = future
+        future.addListener({
+            val controller = future.get()
+            mediaController = controller
+            controller.addListener(playerListener)
+            initialStation?.let { selectStation(it) }
+        }, ContextCompat.getMainExecutor(application))
     }
 
     private fun filterMetadata(value: String?): String? {
@@ -137,44 +164,39 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun loadStations() {
-        val local = StationsRepository.loadFromAssets(getApplication())
-        _stations.value = local.filter { it.isEnabled }.sortedBy { it.name }
-        val savedId = prefs.getString("last_station_id", null)
-        val initial = _stations.value.firstOrNull { it.id == savedId }
-            ?: _stations.value.firstOrNull { it.id == "rgl" }
-            ?: _stations.value.firstOrNull()
-        initial?.let { selectStation(it) }
-    }
-
     private fun selectStation(station: com.florentin.letzlisten.data.RadioStation) {
         _currentStation.value = station
         _currentTrack.value = TrackInfo()
         _albumArtUrl.value = null
         _hasStartedPlaying.value = false
-        exoPlayer.setMediaItem(MediaItem.fromUri(station.streamUrl))
-        exoPlayer.prepare()
+        mediaController?.run {
+            setMediaItem(MediaItem.fromUri(station.streamUrl))
+            prepare()
+        }
     }
 
     fun switchStation(station: com.florentin.letzlisten.data.RadioStation) {
         prefs.edit().putString("last_station_id", station.id).apply()
-        exoPlayer.stop()
-        exoPlayer.playWhenReady = false
         _isPlaying.value = false
         _currentStation.value = station
         _currentTrack.value = TrackInfo()
         _albumArtUrl.value = null
         _hasStartedPlaying.value = false
-        exoPlayer.setMediaItem(MediaItem.fromUri(station.streamUrl))
-        exoPlayer.prepare()
+        mediaController?.run {
+            stop()
+            playWhenReady = false
+            setMediaItem(MediaItem.fromUri(station.streamUrl))
+            prepare()
+        }
     }
 
     fun togglePlayback() {
-        if (exoPlayer.isPlaying) {
+        val controller = mediaController ?: return
+        if (controller.isPlaying) {
             _isPlaying.value = false
-            exoPlayer.pause()
+            controller.pause()
         } else {
-            exoPlayer.play()
+            controller.play()
         }
     }
 
@@ -197,6 +219,9 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
 
     override fun onCleared() {
         super.onCleared()
-        exoPlayer.release()
+        mediaController?.removeListener(playerListener)
+        controllerFuture?.let { MediaController.releaseFuture(it) }
+        controllerFuture = null
+        mediaController = null
     }
 }
