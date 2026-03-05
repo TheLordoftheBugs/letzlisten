@@ -82,6 +82,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         else favs.any { it.title == track.title && it.artist == track.artist }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
 
+    // Handles only playback-state events. ICY metadata is handled via RadioService.icyMetadata.
     private val playerListener = object : Player.Listener {
         override fun onIsPlayingChanged(isPlaying: Boolean) {
             _isPlaying.value = isPlaying
@@ -90,23 +91,6 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
 
         override fun onPlaybackStateChanged(state: Int) {
             _isLoading.value = state == Player.STATE_BUFFERING
-        }
-
-        override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
-            val raw = mediaMetadata.title?.toString() ?: return
-            val parts = raw.split(" - ", limit = 2)
-            val artist = if (parts.size == 2) parts[0].trim() else ""
-            val title = if (parts.size == 2) parts[1].trim() else raw.trim()
-
-            val filteredTitle = filterMetadata(title) ?: return
-            val filteredArtist = filterMetadata(artist.ifBlank { null }) ?: ""
-
-            val newTrack = TrackInfo(title = filteredTitle, artist = filteredArtist)
-            if (_currentTrack.value == newTrack) return
-
-            _currentTrack.value = newTrack
-            _albumArtUrl.value = null
-            fetchAlbumArt(filteredArtist, filteredTitle)
         }
     }
 
@@ -119,6 +103,15 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
             ?: _stations.value.firstOrNull { it.id == "rgl" }
             ?: _stations.value.firstOrNull()
 
+        // Collect ICY metadata pushed directly from the ExoPlayer inside RadioService.
+        // This is more reliable than relying on MediaController.onMediaMetadataChanged,
+        // which does not always forward timed (ICY) metadata from the MediaSession.
+        viewModelScope.launch {
+            RadioService.icyMetadata.collect { metadata ->
+                handleMetadata(metadata ?: return@collect)
+            }
+        }
+
         // Connect to RadioService asynchronously via MediaController.
         val sessionToken = SessionToken(application, ComponentName(application, RadioService::class.java))
         val future = MediaController.Builder(application, sessionToken).buildAsync()
@@ -129,6 +122,23 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
             controller.addListener(playerListener)
             initialStation?.let { selectStation(it) }
         }, ContextCompat.getMainExecutor(application))
+    }
+
+    private fun handleMetadata(mediaMetadata: MediaMetadata) {
+        val raw = mediaMetadata.title?.toString() ?: return
+        val parts = raw.split(" - ", limit = 2)
+        val artist = if (parts.size == 2) parts[0].trim() else ""
+        val title = if (parts.size == 2) parts[1].trim() else raw.trim()
+
+        val filteredTitle = filterMetadata(title) ?: return
+        val filteredArtist = filterMetadata(artist.ifBlank { null }) ?: ""
+
+        val newTrack = TrackInfo(title = filteredTitle, artist = filteredArtist)
+        if (_currentTrack.value == newTrack) return
+
+        _currentTrack.value = newTrack
+        _albumArtUrl.value = null
+        fetchAlbumArt(filteredArtist, filteredTitle)
     }
 
     private fun stationArtworkUri(station: RadioStation): Uri? {
@@ -194,6 +204,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         _currentTrack.value = TrackInfo()
         _albumArtUrl.value = null
         _hasStartedPlaying.value = false
+        RadioService.icyMetadata.value = null
         mediaController?.run {
             setMediaItem(buildMediaItem(station))
             prepare()
@@ -207,6 +218,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         _currentTrack.value = TrackInfo()
         _albumArtUrl.value = null
         _hasStartedPlaying.value = false
+        RadioService.icyMetadata.value = null
         mediaController?.run {
             stop()
             playWhenReady = false
