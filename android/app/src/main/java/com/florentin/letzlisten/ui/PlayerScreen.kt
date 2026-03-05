@@ -262,7 +262,7 @@ fun PlayerScreen(
             )
         }
 
-        // Bottom control bar — [Share] [Play] like iOS (no AirPlay on Android)
+        // Bottom control bar — [Play] [Share] (no AirPlay on Android)
         Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -279,23 +279,6 @@ fun PlayerScreen(
                     .navigationBarsPadding()
                     .padding(horizontal = 24.dp, vertical = barVerticalPadding)
             ) {
-                // Share (rounded rect — like iOS square.and.arrow.up button)
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .size(btnSize)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color.White.copy(alpha = if (canShare) 0.15f else 0.05f))
-                        .clickable(enabled = canShare, onClick = onShare)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Share,
-                        contentDescription = "Partager",
-                        tint = Color.White.copy(alpha = if (canShare) 0.9f else 0.4f),
-                        modifier = Modifier.size(iconSize)
-                    )
-                }
-
                 // Play/Stop (circle, red/blue — like iOS)
                 Box(
                     contentAlignment = Alignment.Center,
@@ -320,6 +303,23 @@ fun PlayerScreen(
                             modifier = Modifier.size(iconSize)
                         )
                     }
+                }
+
+                // Share (rounded rect — like iOS square.and.arrow.up button)
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(btnSize)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color.White.copy(alpha = if (canShare) 0.15f else 0.05f))
+                        .clickable(enabled = canShare, onClick = onShare)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Share,
+                        contentDescription = "Partager",
+                        tint = Color.White.copy(alpha = if (canShare) 0.9f else 0.4f),
+                        modifier = Modifier.size(iconSize)
+                    )
                 }
             }
         }

@@ -186,7 +186,9 @@ private fun LanguagePickerSheet(
             color = androidx.compose.ui.graphics.Color.White,
             modifier = Modifier.padding(vertical = 12.dp)
         )
-        AppLanguage.values().forEach { language ->
+        val sortedLanguages = AppLanguage.values()
+            .sortedWith(compareBy({ it != AppLanguage.LB }, { it.displayName }))
+        sortedLanguages.forEach { language ->
             Surface(
                 onClick = { onSelectLanguage(language) },
                 color = if (language == currentLanguage) AccentBlue.copy(alpha = 0.2f) else Color.White.copy(alpha = 0.05f),
