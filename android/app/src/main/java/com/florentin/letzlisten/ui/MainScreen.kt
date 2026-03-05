@@ -142,6 +142,8 @@ fun MainScreen(viewModel: RadioViewModel) {
                     clearAllLabel = languageManager.clearAll,
                     noFavoritesLabel = languageManager.noFavoritesYet,
                     noFavoritesHintLabel = languageManager.noFavoritesHint,
+                    confirmClearAllLabel = languageManager.confirmClearAll,
+                    cancelLabel = languageManager.cancel,
                     onRemove = { viewModel.removeFavorite(it) },
                     onClearAll = { viewModel.clearAllFavorites() }
                 )

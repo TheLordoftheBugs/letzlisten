@@ -76,6 +76,22 @@ class LanguageManager(context: Context) {
         AppLanguage.PT -> "Selecionar idioma"
     }
 
+    val cancel: String get() = when (_currentLanguage.value) {
+        AppLanguage.LB -> "Ofbriechen"
+        AppLanguage.FR -> "Annuler"
+        AppLanguage.DE -> "Abbrechen"
+        AppLanguage.EN -> "Cancel"
+        AppLanguage.PT -> "Cancelar"
+    }
+
+    val confirmClearAll: String get() = when (_currentLanguage.value) {
+        AppLanguage.LB -> "All Favoritten läschen?"
+        AppLanguage.FR -> "Supprimer tous les favoris ?"
+        AppLanguage.DE -> "Alle Favoriten löschen?"
+        AppLanguage.EN -> "Delete all favourites?"
+        AppLanguage.PT -> "Eliminar todos os favoritos?"
+    }
+
     fun shareMessage(artist: String, title: String, station: String, url: String?): String {
         val base = when (_currentLanguage.value) {
             AppLanguage.LB -> "Moien, ech lauschteren elo op $artist - $title op $station."

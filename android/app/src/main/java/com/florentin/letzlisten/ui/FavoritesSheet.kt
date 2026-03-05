@@ -10,7 +10,10 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Radio
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,9 +36,33 @@ fun FavoritesSheet(
     clearAllLabel: String,
     noFavoritesLabel: String,
     noFavoritesHintLabel: String,
+    confirmClearAllLabel: String,
+    cancelLabel: String,
     onRemove: (String) -> Unit,
     onClearAll: () -> Unit
 ) {
+    var showConfirmDialog by remember { mutableStateOf(false) }
+
+    if (showConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showConfirmDialog = false },
+            text = { Text(confirmClearAllLabel, color = TextPrimary) },
+            confirmButton = {
+                TextButton(onClick = {
+                    showConfirmDialog = false
+                    onClearAll()
+                }) {
+                    Text(clearAllLabel, color = AccentRed)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showConfirmDialog = false }) {
+                    Text(cancelLabel, color = TextSecondary)
+                }
+            }
+        )
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -62,7 +89,7 @@ fun FavoritesSheet(
                 modifier = Modifier.weight(1f)
             )
             if (favorites.isNotEmpty()) {
-                TextButton(onClick = onClearAll) {
+                TextButton(onClick = { showConfirmDialog = true }) {
                     Text(clearAllLabel, color = AccentRed, fontSize = 14.sp)
                 }
             }
