@@ -165,6 +165,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
     fun switchStation(station: com.florentin.letzlisten.data.RadioStation) {
         prefs.edit().putString("last_station_id", station.id).apply()
         exoPlayer.stop()
+        exoPlayer.playWhenReady = false
         _isPlaying.value = false
         _currentStation.value = station
         _currentTrack.value = TrackInfo()
