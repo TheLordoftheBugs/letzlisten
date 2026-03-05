@@ -247,6 +247,7 @@ fun PlayerScreen(
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .statusBarsPadding()
+                .navigationBarsPadding()   // décale vers la gauche quand la nav-bar est à droite (paysage)
                 .padding(top = 16.dp, end = 20.dp)
                 .size(44.dp)
                 .clip(CircleShape)
