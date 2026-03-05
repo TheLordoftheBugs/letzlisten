@@ -261,12 +261,11 @@ struct LandscapeLayout: View {
     @ObservedObject var favoritesManager: FavoritesManager
     let stationLogo: UIImage?
     @Binding var showingShareSheet: Bool
-    
+
     var body: some View {
         VStack(spacing: 0) {
-            Spacer()
-            
-            HStack(spacing: 40) {
+            // Main content — top padding clears the header overlay buttons (~60pt)
+            HStack(spacing: 32) {
                 // Left: Artwork (tappable = link to station website)
                 Group {
                     if let urlString = audioPlayer.currentStation.websiteURL,
@@ -275,96 +274,132 @@ struct LandscapeLayout: View {
                             ArtworkView(
                                 artwork: audioPlayer.currentArtwork,
                                 stationLogo: stationLogo,
-                                size: 160
+                                size: 120
                             )
                         }
                     } else {
                         ArtworkView(
                             artwork: audioPlayer.currentArtwork,
                             stationLogo: stationLogo,
-                            size: 160
+                            size: 120
                         )
                     }
                 }
-                .padding(.leading, 40)
+                .padding(.leading, 72)
 
-                // Right: Info and controls
-                VStack(spacing: 20) {
+                // Right: Station name + track info + favourite button
+                VStack(spacing: 10) {
                     // Station name (tappable = link to station website)
                     Group {
                         if let urlString = audioPlayer.currentStation.websiteURL,
                            let url = URL(string: urlString) {
                             Link(destination: url) {
                                 Text(audioPlayer.currentStation.name)
-                                    .font(.system(size: 28, weight: .bold))
+                                    .font(.system(size: 18, weight: .bold))
                                     .foregroundColor(.white)
                                     .multilineTextAlignment(.center)
                                     .frame(maxWidth: .infinity)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.7)
                             }
                         } else {
                             Text(audioPlayer.currentStation.name)
-                                .font(.system(size: 28, weight: .bold))
+                                .font(.system(size: 18, weight: .bold))
                                 .foregroundColor(.white)
                                 .multilineTextAlignment(.center)
                                 .frame(maxWidth: .infinity)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.7)
                         }
                     }
 
-                    // Track info + favorite button (only when metadata is known)
+                    // Track info + favourite button (only when metadata is known)
                     if !audioPlayer.currentTrack.isUnknown {
-                        TrackInfoView(track: audioPlayer.currentTrack)
+                        VStack(spacing: 4) {
+                            Text(audioPlayer.currentTrack.title)
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundColor(.white)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.8)
+                            Text(audioPlayer.currentTrack.artist)
+                                .font(.system(size: 13, weight: .regular))
+                                .foregroundColor(.white.opacity(0.8))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.8)
+                        }
 
                         FavoriteButton(
                             audioPlayer: audioPlayer,
                             favoritesManager: favoritesManager
                         )
                     }
-
-                    Spacer().frame(height: 20)
-                    
-                    // Play controls inline
-                    HStack(spacing: 30) {
-                        // AirPlay
-                        AirPlayButton()
-                            .frame(width: 50, height: 50)
-                        
-                        // Play/Stop
-                        Button(action: {
-                            audioPlayer.togglePlayback()
-                        }) {
-                            ZStack {
-                                Circle()
-                                    .fill(audioPlayer.isPlaying ? Color.red : Color.blue)
-                                    .frame(width: 64, height: 64)
-                                
-                                Image(systemName: audioPlayer.isPlaying ? "stop.fill" : "play.fill")
-                                    .font(.system(size: 28))
-                                    .foregroundColor(.white)
-                            }
-                        }
-                        .disabled(audioPlayer.isLoading)
-                        
-                        // Share button
-                        let canShare = audioPlayer.isPlaying && !audioPlayer.currentTrack.isUnknown
-                        Button(action: {
-                            showingShareSheet = true
-                        }) {
-                            Image(systemName: "square.and.arrow.up")
-                                .font(.system(size: 24))
-                                .foregroundColor(.white.opacity(canShare ? 0.9 : 0.4))
-                                .frame(width: 50, height: 50)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .fill(Color.white.opacity(canShare ? 0.15 : 0.05))
-                                )
-                        }
-                        .disabled(!canShare)
-                    }
                 }
-                .padding(.trailing, 40)
+                .padding(.trailing, 72)
             }
-            
-            Spacer()
+            .padding(.top, 60)
+            .frame(maxHeight: .infinity)
+
+            // Bottom controls bar — icons styled like the top menu buttons
+            VStack(spacing: 0) {
+                Divider()
+                    .background(Color.white.opacity(0.1))
+
+                HStack(spacing: 0) {
+                    Spacer()
+
+                    // AirPlay — circle style matching top menu
+                    ZStack {
+                        Circle()
+                            .fill(Color.white.opacity(0.15))
+                            .frame(width: 44, height: 44)
+                        AirPlayButton()
+                            .frame(width: 44, height: 44)
+                    }
+
+                    Spacer()
+
+                    // Play/Stop — main action, keeps coloured circle
+                    Button(action: {
+                        audioPlayer.togglePlayback()
+                    }) {
+                        ZStack {
+                            Circle()
+                                .fill(audioPlayer.isPlaying ? Color.red : Color.blue)
+                                .frame(width: 52, height: 52)
+                                .shadow(color: (audioPlayer.isPlaying ? Color.red : Color.blue).opacity(0.4), radius: 6, x: 0, y: 3)
+                            Image(systemName: audioPlayer.isPlaying ? "stop.fill" : "play.fill")
+                                .font(.system(size: 22))
+                                .foregroundColor(.white)
+                        }
+                    }
+                    .disabled(audioPlayer.isLoading)
+
+                    Spacer()
+
+                    // Share — circle style matching top menu
+                    let canShare = audioPlayer.isPlaying && !audioPlayer.currentTrack.isUnknown
+                    Button(action: {
+                        showingShareSheet = true
+                    }) {
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundColor(.white.opacity(canShare ? 0.9 : 0.4))
+                            .padding(12)
+                            .background(
+                                Circle()
+                                    .fill(Color.white.opacity(canShare ? 0.15 : 0.05))
+                            )
+                    }
+                    .disabled(!canShare)
+
+                    Spacer()
+                }
+                .padding(.vertical, 8)
+                .background(
+                    Color(red: 0.08, green: 0.08, blue: 0.12)
+                        .opacity(0.95)
+                )
+            }
         }
     }
 }
@@ -664,6 +699,7 @@ struct iPadSplitLayout: View {
 struct iPadFavoritesPanel: View {
     @EnvironmentObject var favoritesManager: FavoritesManager
     @EnvironmentObject var languageManager: LanguageManager
+    @State private var showConfirmClearAll = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -672,11 +708,17 @@ struct iPadFavoritesPanel: View {
 
                 if !favoritesManager.favorites.isEmpty {
                     Button(role: .destructive) {
-                        favoritesManager.clearAll()
+                        showConfirmClearAll = true
                     } label: {
                         Text(languageManager.clearAll)
                             .font(.system(size: 14))
                             .foregroundColor(.red)
+                    }
+                    .alert(languageManager.confirmClearAll, isPresented: $showConfirmClearAll) {
+                        Button(languageManager.clearAll, role: .destructive) {
+                            favoritesManager.clearAll()
+                        }
+                        Button(languageManager.cancel, role: .cancel) {}
                     }
                 }
             }

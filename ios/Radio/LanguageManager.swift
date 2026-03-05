@@ -2,7 +2,7 @@
 //  LanguageManager.swift
 //  Letzebuerg FM
 //
-//  Manages app language: Lëtzebuergesch (default), Français, Deutsch, English
+//  Manages app language: Lëtzebuergesch (default), Deutsch, English, Français, Português
 //
 
 import Foundation
@@ -12,26 +12,29 @@ class LanguageManager: ObservableObject {
     static let shared = LanguageManager()
 
     enum Language: String, CaseIterable {
+        case luxembourgish = "lb"
         case german = "de"
         case english = "en"
         case french = "fr"
-        case luxembourgish = "lb"
+        case portuguese = "pt"
 
         var displayName: String {
             switch self {
             case .luxembourgish: return "Lëtzebuergesch"
-            case .french:        return "Français"
             case .german:        return "Deutsch"
             case .english:       return "English"
+            case .french:        return "Français"
+            case .portuguese:    return "Português"
             }
         }
 
         var flag: String {
             switch self {
             case .luxembourgish: return "🇱🇺"
-            case .french:        return "🇫🇷"
             case .german:        return "🇩🇪"
             case .english:       return "🇬🇧"
+            case .french:        return "🇫🇷"
+            case .portuguese:    return "🇵🇹"
             }
         }
     }
@@ -52,90 +55,120 @@ class LanguageManager: ObservableObject {
     var chooseYourRadio: String {
         switch currentLanguage {
         case .luxembourgish: return "Wielt Är Radio"
-        case .french:        return "Choisissez votre radio"
         case .german:        return "Wählen Sie Ihr Radio"
         case .english:       return "Choose Your Radio"
+        case .french:        return "Choisissez votre radio"
+        case .portuguese:    return "Escolha a sua rádio"
         }
     }
 
     var back: String {
         switch currentLanguage {
         case .luxembourgish: return "Zréck"
-        case .french:        return "Retour"
         case .german:        return "Zurück"
         case .english:       return "Back"
+        case .french:        return "Retour"
+        case .portuguese:    return "Voltar"
         }
     }
 
     var favorites: String {
         switch currentLanguage {
         case .luxembourgish: return "Favoritten"
-        case .french:        return "Favoris"
         case .german:        return "Favoriten"
         case .english:       return "Favourites"
+        case .french:        return "Favoris"
+        case .portuguese:    return "Favoritos"
         }
     }
 
     var noFavoritesYet: String {
         switch currentLanguage {
         case .luxembourgish: return "Nach keng Favoritten"
-        case .french:        return "Pas encore de favoris"
         case .german:        return "Noch keine Favoriten"
         case .english:       return "No Favourites Yet"
+        case .french:        return "Pas encore de favoris"
+        case .portuguese:    return "Ainda sem favoritos"
         }
     }
 
     var noFavoritesHint: String {
         switch currentLanguage {
         case .luxembourgish: return "Tippt op d'Häerz-Ikon fir Är Liblingslidder ze späicheren"
-        case .french:        return "Appuyez sur l'icône cœur pour sauvegarder vos chansons préférées"
         case .german:        return "Tippen Sie auf das Herz-Symbol, um Ihre Lieblingslieder zu speichern"
         case .english:       return "Tap the heart icon to save your favourite songs"
+        case .french:        return "Appuyez sur l'icône cœur pour sauvegarder vos chansons préférées"
+        case .portuguese:    return "Toque no ícone de coração para guardar as suas músicas favoritas"
         }
     }
 
     var done: String {
         switch currentLanguage {
         case .luxembourgish: return "Fäerdeg"
-        case .french:        return "Terminé"
         case .german:        return "Fertig"
         case .english:       return "Done"
+        case .french:        return "Terminé"
+        case .portuguese:    return "Concluído"
         }
     }
 
     var clearAll: String {
         switch currentLanguage {
         case .luxembourgish: return "Alles läschen"
-        case .french:        return "Tout effacer"
         case .german:        return "Alles löschen"
         case .english:       return "Clear All"
+        case .french:        return "Tout effacer"
+        case .portuguese:    return "Apagar tudo"
+        }
+    }
+
+    var cancel: String {
+        switch currentLanguage {
+        case .luxembourgish: return "Ofbriechen"
+        case .german:        return "Abbrechen"
+        case .english:       return "Cancel"
+        case .french:        return "Annuler"
+        case .portuguese:    return "Cancelar"
+        }
+    }
+
+    var confirmClearAll: String {
+        switch currentLanguage {
+        case .luxembourgish: return "All Favoritten läschen?"
+        case .german:        return "Alle Favoriten löschen?"
+        case .english:       return "Delete all favourites?"
+        case .french:        return "Supprimer tous les favoris ?"
+        case .portuguese:    return "Eliminar todos os favoritos?"
         }
     }
 
     var selectLanguage: String {
         switch currentLanguage {
         case .luxembourgish: return "Sprooch wielen"
-        case .french:        return "Choisir la langue"
         case .german:        return "Sprache wählen"
         case .english:       return "Select Language"
+        case .french:        return "Choisir la langue"
+        case .portuguese:    return "Selecionar idioma"
         }
     }
 
     var defaultTitle: String {
         switch currentLanguage {
         case .luxembourgish: return "Titel"
-        case .french:        return "Titre"
         case .german:        return "Titel"
         case .english:       return "Title"
+        case .french:        return "Titre"
+        case .portuguese:    return "Título"
         }
     }
 
     var defaultArtist: String {
         switch currentLanguage {
         case .luxembourgish: return "Kënschtler"
-        case .french:        return "Artiste"
         case .german:        return "Künstler"
         case .english:       return "Artist"
+        case .french:        return "Artiste"
+        case .portuguese:    return "Artista"
         }
     }
 
@@ -144,12 +177,14 @@ class LanguageManager: ObservableObject {
         switch currentLanguage {
         case .luxembourgish:
             base = "Moien, ech lauschteren elo op \(artist) - \(title) op \(station)."
-        case .french:
-            base = "Salut, j'écoute \(artist) - \(title) sur \(station)."
         case .german:
             base = "Hallo, ich höre gerade \(artist) - \(title) auf \(station)."
         case .english:
             base = "Hey, I'm listening to \(artist) - \(title) on \(station)."
+        case .french:
+            base = "Salut, j'écoute \(artist) - \(title) sur \(station)."
+        case .portuguese:
+            base = "Olá, estou a ouvir \(artist) - \(title) na \(station)."
         }
         if let url = url { return "\(base)\n\(url)" }
         return base

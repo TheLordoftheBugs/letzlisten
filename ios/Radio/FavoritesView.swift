@@ -11,7 +11,8 @@ struct FavoritesView: View {
     @EnvironmentObject var favoritesManager: FavoritesManager
     @EnvironmentObject var languageManager: LanguageManager
     @Environment(\.dismiss) var dismiss
-    
+    @State private var showConfirmClearAll = false
+
     var body: some View {
         NavigationView {
             ZStack {
@@ -25,14 +26,14 @@ struct FavoritesView: View {
                     endPoint: .bottom
                 )
                 .ignoresSafeArea()
-                
+
                 if favoritesManager.favorites.isEmpty {
                     // Empty state
                     VStack(spacing: 16) {
                         Image(systemName: "heart.slash")
                             .font(.system(size: 60))
                             .foregroundColor(.white.opacity(0.4))
-                        
+
                         Text(languageManager.noFavoritesYet)
                             .font(.title2)
                             .fontWeight(.semibold)
@@ -67,11 +68,11 @@ struct FavoritesView: View {
                     }
                     .foregroundColor(.blue)
                 }
-                
+
                 if !favoritesManager.favorites.isEmpty {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button(role: .destructive) {
-                            favoritesManager.clearAll()
+                            showConfirmClearAll = true
                         } label: {
                             Text(languageManager.clearAll)
                                 .foregroundColor(.red)
@@ -81,6 +82,12 @@ struct FavoritesView: View {
             }
             .toolbarBackground(.visible, for: .navigationBar)
             .toolbarBackground(Color(red: 0.08, green: 0.08, blue: 0.12), for: .navigationBar)
+            .alert(languageManager.confirmClearAll, isPresented: $showConfirmClearAll) {
+                Button(languageManager.clearAll, role: .destructive) {
+                    favoritesManager.clearAll()
+                }
+                Button(languageManager.cancel, role: .cancel) {}
+            }
         }
     }
 }
