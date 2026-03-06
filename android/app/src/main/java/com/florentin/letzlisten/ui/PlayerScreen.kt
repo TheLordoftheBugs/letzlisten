@@ -274,7 +274,7 @@ fun PlayerScreen(
             )
         }
 
-        // Bottom control bar — [Play] [Share] (no AirPlay on Android)
+        // Bottom control bar — Play centré, Share en bas à droite
         Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -282,19 +282,18 @@ fun PlayerScreen(
         ) {
             HorizontalDivider(color = Color.White.copy(alpha = 0.12f))
 
-            Row(
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically,
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(SurfaceDark)
                     .navigationBarsPadding()
                     .padding(horizontal = 24.dp, vertical = barVerticalPadding)
             ) {
-                // Play/Stop (circle, red/blue — like iOS)
+                // Play/Stop — centré
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
+                        .align(Alignment.Center)
                         .size(btnSize)
                         .shadow(8.dp, CircleShape)
                         .clip(CircleShape)
@@ -317,10 +316,11 @@ fun PlayerScreen(
                     }
                 }
 
-                // Share (rounded rect — like iOS square.and.arrow.up button)
+                // Share — coin droit
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
+                        .align(Alignment.CenterEnd)
                         .size(btnSize)
                         .clip(RoundedCornerShape(12.dp))
                         .background(Color.White.copy(alpha = if (canShare) 0.15f else 0.05f))
