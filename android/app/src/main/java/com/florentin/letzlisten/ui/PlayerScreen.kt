@@ -236,12 +236,10 @@ fun PlayerScreen(
         }
 
         // Top CENTER: Language picker (flag in capsule, like iOS)
-        // Seul l'inset top est utilisé pour éviter que l'inset latéral (barre de statut en
-        // paysage / découpe caméra) ne décale la capsule par rapport au bouton play.
         Box(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .windowInsetsPadding(WindowInsets.statusBars.only(WindowInsetsSides.Top))
+                .statusBarsPadding()
                 .padding(top = 20.dp)
         ) {
             Box(
