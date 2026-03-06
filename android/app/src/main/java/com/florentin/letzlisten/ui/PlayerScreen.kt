@@ -236,10 +236,11 @@ fun PlayerScreen(
         }
 
         // Top CENTER: Language picker (flag in capsule, like iOS)
+        // only(Top) : exclut l'inset latéral (découpe caméra) qui décalerait la capsule.
         Box(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .statusBarsPadding()
+                .windowInsetsPadding(WindowInsets.statusBars.only(WindowInsetsSides.Top))
                 .padding(top = 20.dp)
         ) {
             Box(
