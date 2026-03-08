@@ -289,4 +289,22 @@ class LanguageManager: ObservableObject {
         if let url = url { return "\(base)\n\(url)" }
         return base
     }
+
+    func shareStationMessage(station: String, url: String?) -> String {
+        let base: String
+        switch currentLanguage {
+        case .luxembourgish:
+            base = "Moien, ech lauschteren elo Radio: \(station)."
+        case .german:
+            base = "Hallo, ich höre gerade Radio: \(station)."
+        case .english:
+            base = "Hey, I'm listening to the radio: \(station)."
+        case .french:
+            base = "Salut, j'écoute la radio : \(station)."
+        case .portuguese:
+            base = "Olá, estou a ouvir a rádio: \(station)."
+        }
+        if let url = url { return "\(base)\n\(url)" }
+        return base
+    }
 }

@@ -138,7 +138,7 @@ struct ContentView: View {
         .overlay(alignment: .bottom) {
             let btnSize: CGFloat = isLandscape ? 53 : 60
             let playSize: CGFloat = isLandscape ? 62 : 77
-            let canShare = audioPlayer.isPlaying && !audioPlayer.currentTrack.isUnknown
+            let canShare = audioPlayer.isPlaying
 
             HStack(spacing: 0) {
                 // AirPlay - LEFT
@@ -220,15 +220,19 @@ struct ContentView: View {
     }
     
     private func generateShareItems() -> [Any] {
-        let title = audioPlayer.currentTrack.title
-        let artist = audioPlayer.currentTrack.artist
         let station = audioPlayer.currentStation.name
-        let message = languageManager.shareMessage(
-            artist: artist,
-            title: title,
-            station: station,
-            url: audioPlayer.currentStation.websiteURL
-        )
+        let url = audioPlayer.currentStation.websiteURL
+        let message: String
+        if audioPlayer.currentTrack.isUnknown {
+            message = languageManager.shareStationMessage(station: station, url: url)
+        } else {
+            message = languageManager.shareMessage(
+                artist: audioPlayer.currentTrack.artist,
+                title: audioPlayer.currentTrack.title,
+                station: station,
+                url: url
+            )
+        }
         return [message]
     }
 }
