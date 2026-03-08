@@ -42,46 +42,47 @@ struct SettingsView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
 
-                        // MARK: Language — dropdown picker
-                        sectionHeader(languageManager.language)
+                        // MARK: Paramètres — langue + lecture dans une seule carte
+                        sectionHeader(languageManager.settings)
 
-                        HStack {
-                            Text("\(languageManager.currentLanguage.flag)  \(languageManager.currentLanguage.displayName)")
-                                .font(.system(size: 17, weight: .medium))
-                                .foregroundColor(.white)
-                            Spacer()
-                            Picker("", selection: $languageManager.currentLanguage) {
-                                ForEach(LanguageManager.Language.allCases, id: \.rawValue) { lang in
-                                    Text("\(lang.flag)  \(lang.displayName)").tag(lang)
-                                }
-                            }
-                            .pickerStyle(.menu)
-                            .accentColor(.blue)
-                        }
-                        .padding(.vertical, 13)
-                        .padding(.horizontal, 16)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.white.opacity(0.06))
-                        )
-
-                        // MARK: Playback — continuous playback toggle
-                        sectionHeader(languageManager.playback)
-
-                        Toggle(isOn: $continuousPlayback) {
-                            VStack(alignment: .leading, spacing: 3) {
-                                Text(languageManager.continuousPlayback)
+                        VStack(spacing: 0) {
+                            // Langue
+                            HStack {
+                                Text(languageManager.language)
                                     .font(.system(size: 17, weight: .medium))
                                     .foregroundColor(.white)
-                                Text(languageManager.continuousPlaybackHint)
-                                    .font(.system(size: 13))
-                                    .foregroundColor(.white.opacity(0.5))
-                                    .fixedSize(horizontal: false, vertical: true)
+                                Spacer()
+                                Picker("", selection: $languageManager.currentLanguage) {
+                                    ForEach(LanguageManager.Language.allCases, id: \.rawValue) { lang in
+                                        Text("\(lang.flag)  \(lang.displayName)").tag(lang)
+                                    }
+                                }
+                                .pickerStyle(.menu)
+                                .accentColor(.blue)
                             }
+                            .padding(.vertical, 13)
+                            .padding(.horizontal, 16)
+
+                            Divider()
+                                .background(Color.white.opacity(0.1))
+                                .padding(.horizontal, 16)
+
+                            // Lecture continue
+                            Toggle(isOn: $continuousPlayback) {
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(languageManager.continuousPlayback)
+                                        .font(.system(size: 17, weight: .medium))
+                                        .foregroundColor(.white)
+                                    Text(languageManager.continuousPlaybackHint)
+                                        .font(.system(size: 13))
+                                        .foregroundColor(.white.opacity(0.5))
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                            }
+                            .tint(.blue)
+                            .padding(.vertical, 13)
+                            .padding(.horizontal, 16)
                         }
-                        .tint(.blue)
-                        .padding(.vertical, 13)
-                        .padding(.horizontal, 16)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(Color.white.opacity(0.06))
