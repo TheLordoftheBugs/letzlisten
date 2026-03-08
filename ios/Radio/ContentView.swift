@@ -501,12 +501,6 @@ struct BottomControlBar: View {
     @EnvironmentObject var favoritesManager: FavoritesManager
     @Binding var showingShareSheet: Bool
 
-    private var safeAreaBottom: CGFloat {
-        UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .first?.keyWindow?.safeAreaInsets.bottom ?? 0
-    }
-
     var body: some View {
         VStack(spacing: 0) {
             Divider()
@@ -555,8 +549,7 @@ struct BottomControlBar: View {
                 .disabled(!canShare)
             }
             .padding(.horizontal, 24)
-            .padding(.top, 16)
-            .padding(.bottom, 16 + safeAreaBottom)
+            .padding(.vertical, 16)
         }
         .background(
             Color(red: 0.08, green: 0.08, blue: 0.12)
