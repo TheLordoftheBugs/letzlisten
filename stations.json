@@ -8,7 +8,7 @@
       "streamURL": "https://sp0.redeaudio.com/8084/stream/1/",
       "logoImageName": "AntenaLogo",
       "websiteURL": "https://www.facebook.com/antenamais/",
-      "isEnabled": false 
+      "isEnabled": true 
     },
     {
       "id": "country_radio",
@@ -16,7 +16,7 @@
       "streamURL": "http://streaming.aoip.international:8000/cr-gilsdorf",
       "logoImageName": "CountryLogo",
       "websiteURL": "https://www.facebook.com/CountryRadioGilsdorf/",
-      "isEnabled": false
+      "isEnabled": true
     },
     {
       "id": "crazy_poisons",
@@ -32,7 +32,7 @@
       "streamURL": "https://direct.croonerradio.fr/croonerradio-midfi.mp3",
       "logoImageName": "CroonerLogo",
       "websiteURL": "https://www.croonerradio.com",
-      "isEnabled": false  
+      "isEnabled": true  
     },
     {
       "id": "eldoradio",
@@ -40,7 +40,7 @@
       "streamURL": "http://sc-eldolive.newmedia.lu/;stream.nvs",
       "logoImageName": "EldoradioLogo",
       "websiteURL": "https://www.eldo.lu",
-      "isEnabled": false  
+      "isEnabled": true  
     },
     {
       "id": "fce_continuo",
@@ -48,7 +48,7 @@
       "streamURL": "https://listen.radioking.com/radio/551009/stream/610262",
       "logoImageName": "FCELogo",
       "websiteURL": "https://fce-lu.com/fce-continuo",
-      "isEnabled": false 
+      "isEnabled": true 
     },
     {
       "id": "free_radio_lux",
@@ -56,7 +56,7 @@
       "streamURL": "https://www.radioking.com/play/rfm-luxembourg/137599",
       "logoImageName": "FRLLogo",
       "websiteURL": "https://www.frl.lu/",
-      "isEnabled": false 
+      "isEnabled": true 
     },
     {
       "id": "generation_dance",
@@ -64,7 +64,7 @@
       "streamURL": "https://generation.dance/mobile.pls",
       "logoImageName": "GenDanceLogo",
       "websiteURL": "https://generation.dance/",
-      "isEnabled": false 
+      "isEnabled": true 
     },
     {
       "id": "lessentiel",
@@ -72,7 +72,7 @@
       "streamURL": "http://lessentielradio.ice.infomaniak.ch/lessentielradio-128.mp3",
       "logoImageName": "LessentielLogo",
       "websiteURL": "https://www.facebook.com/lessentielradio",
-      "isEnabled": false 
+      "isEnabled": true 
     },
     {
       "id": "lorfm",
@@ -80,7 +80,7 @@
       "streamURL": "https://stream.lorfm.com/live.mp3",
       "logoImageName": "LORFMLogo",
       "websiteURL": "https://www.facebook.com/officiel.lorfm",
-      "isEnabled": false
+      "isEnabled": true
     },
     {
       "id": "lux_global",
@@ -88,7 +88,7 @@
       "streamURL": "https://stream.luxglobalradio.lu/live.mp3",
       "logoImageName": "LuxGlobalLogo",
       "websiteURL": "https://www.facebook.com/globalradio.lu/",
-      "isEnabled": false
+      "isEnabled": true
     },
     {
       "id": "music_radio1",
@@ -96,7 +96,7 @@
       "streamURL": "https://stream.musicradio1.lu/live.mp3",
       "logoImageName": "MusicRadio1Logo",
       "websiteURL": "https://www.musicradio1.lu",
-      "isEnabled": false
+      "isEnabled": true
     },
     {
       "id": "nostalgie_lux",
@@ -104,7 +104,7 @@
       "streamURL": "https://stream.nostalgie.lu/live.mp3",
       "logoImageName": "NostalgieLogo",
       "websiteURL": "https://www.nostalgie.lu",
-      "isEnabled": false
+      "isEnabled": true
     },
     {
       "id": "opus_1007",
@@ -112,7 +112,7 @@
       "streamURL": "https://stream.100komma7.lu/opus/live/mp3/128/stream.mp3",
       "logoImageName": "OpusLogo",
       "websiteURL": "https://www.100komma7.lu",
-      "isEnabled": false
+      "isEnabled": true
     },
     {
       "id": "peiteng_on_air",
@@ -120,7 +120,7 @@
       "streamURL": "https://stream.peitengonair.lu/live.mp3",
       "logoImageName": "PeitengLogo",
       "websiteURL": "https://www.peitengonair.lu",
-      "isEnabled": false
+      "isEnabled": true
     },
     {
       "id": "radio_1007",
@@ -128,7 +128,7 @@
       "streamURL": "https://stream.100komma7.lu/100komma7/live/mp3/128/stream.mp3",
       "logoImageName": "Radio1007Logo",
       "websiteURL": "https://www.100komma7.lu",
-      "isEnabled": false
+      "isEnabled": true
     },
     {
       "id": "radio_208",
@@ -136,7 +136,7 @@
       "streamURL": "https://stream.radio208.lu/live.mp3",
       "logoImageName": "Radio208Logo",
       "websiteURL": "https://www.radio208.lu",
-      "isEnabled": false
+      "isEnabled": true
     },
     {
       "id": "radio_aktiv",
@@ -144,7 +144,7 @@
       "streamURL": "https://stream.radioaktiv.lu/live.mp3",
       "logoImageName": "AktivLogo",
       "websiteURL": "https://www.radioaktiv.lu",
-      "isEnabled": false
+      "isEnabled": true
     },
     {
       "id": "radio_amizade",
@@ -152,7 +152,7 @@
       "streamURL": "https://stream.radioamizade.lu/live.mp3",
       "logoImageName": "AmizadeLogo",
       "websiteURL": "https://www.radioamizade.lu",
-      "isEnabled": false
+      "isEnabled": true
     },
     {
       "id": "radio_ara",
@@ -160,7 +160,7 @@
       "streamURL": "https://stream.ara.lu/ara.mp3",
       "logoImageName": "ARALogo",
       "websiteURL": "https://www.ara.lu",
-      "isEnabled": false
+      "isEnabled": true
     },
     {
       "id": "rbv",
@@ -168,7 +168,7 @@
       "streamURL": "https://stream.rbv.lu/live.mp3",
       "logoImageName": "RBVLogo",
       "websiteURL": "https://www.rbv.lu",
-      "isEnabled": false
+      "isEnabled": true
     },
     {
       "id": "radio_cents",
@@ -176,7 +176,7 @@
       "streamURL": "https://stream.radiocents.lu/live.mp3",
       "logoImageName": "CentsLogo",
       "websiteURL": "https://www.radiocents.lu",
-      "isEnabled": false
+      "isEnabled": true
     },
     {
       "id": "radio_diddeleng",
@@ -184,7 +184,7 @@
       "streamURL": "https://stream.radiodiddeleng.lu/live.mp3",
       "logoImageName": "DiddelengLogo",
       "websiteURL": "https://www.facebook.com/Dudelangefm.radiolocale",
-      "isEnabled": false
+      "isEnabled": true
     },
     {
       "id": "rgl",
@@ -192,7 +192,7 @@
       "streamURL": "http://rgl.selfip.net:8000/mp3",
       "logoImageName": "RGLLogo",
       "websiteURL": "https://www.rgl.lu",
-      "isEnabled": false
+      "isEnabled": true
     },
     {
       "id": "radio_jeans",
@@ -200,7 +200,7 @@
       "streamURL": "https://stream.jeansgeneration.lu/live.mp3",
       "logoImageName": "JeansLogo",
       "websiteURL": "https://www.jeansgeneration.lu",
-      "isEnabled": false
+      "isEnabled": true
     },
     {
       "id": "radio_larochette",
@@ -208,7 +208,7 @@
       "streamURL": "https://stream.radiolarochette.com/live.mp3",
       "logoImageName": "LarochetteLogo",
       "websiteURL": "https://www.radiolarochette.com",
-      "isEnabled": false
+      "isEnabled": true
     },
     {
       "id": "radio_latina",
@@ -216,7 +216,7 @@
       "streamURL": "https://stream.radiolatina.lu/live.mp3",
       "logoImageName": "LatinaLogo",
       "websiteURL": "https://www.radiolatina.lu",
-      "isEnabled": false
+      "isEnabled": true
     },
     {
       "id": "radio_lrb",
@@ -224,7 +224,7 @@
       "streamURL": "https://stream.radiolrb.lu/live.mp3",
       "logoImageName": "LRBLogo",
       "websiteURL": "https://www.radiolrb.lu",
-      "isEnabled": false
+      "isEnabled": true
     },
     {
       "id": "radio_lusitana",
@@ -232,7 +232,7 @@
       "streamURL": "https://stream.lusitanafm.lu/live.mp3",
       "logoImageName": "LusitanaLogo",
       "websiteURL": "https://www.lusitanafm.lu",
-      "isEnabled": false
+      "isEnabled": true
     },
     {
       "id": "radio_lux_523",
@@ -240,7 +240,7 @@
       "streamURL": "https://stream.radiolux523.lu/live.mp3",
       "logoImageName": "Lux523Logo",
       "websiteURL": "https://www.radiolux523.lu",
-      "isEnabled": false
+      "isEnabled": true
     },
     {
       "id": "radio_mess",
@@ -248,7 +248,7 @@
       "streamURL": "https://stream.radiomess.lu/live.mp3",
       "logoImageName": "RadioMessLogo",
       "websiteURL": "https://www.radiomess.lu",
-      "isEnabled": false
+      "isEnabled": true
     },
     {
       "id": "radio_puls",
@@ -256,7 +256,7 @@
       "streamURL": "https://stream.radiopuls.lu/live.mp3",
       "logoImageName": "PulsLogo",
       "websiteURL": "https://www.radiopuls.lu",
-      "isEnabled": false
+      "isEnabled": true
     },
     {
       "id": "radio_rom",
@@ -264,7 +264,7 @@
       "streamURL": "https://stream.radiorom.lu/live.mp3",
       "logoImageName": "ROMLogo",
       "websiteURL": "https://www.radiorom.lu",
-      "isEnabled": false
+      "isEnabled": true
     },
     {
       "id": "rtl_de",
@@ -272,7 +272,7 @@
       "streamURL": "https://stream.rtlradio.de/radio/mp3-128/",
       "logoImageName": "RTLDELogo",
       "websiteURL": "https://www.rtl.de",
-      "isEnabled": false
+      "isEnabled": true
     },
     {
       "id": "rtl_letz",
@@ -280,7 +280,7 @@
       "streamURL": "http://radio.rtl.lu/mp3.pls",
       "logoImageName": "RTLLogo",
       "websiteURL": "https://www.rtl.lu",
-      "isEnabled": false
+      "isEnabled": true
     },
     {
       "id": "today_radio",
@@ -288,7 +288,7 @@
       "streamURL": "https://stream.rtltoday.lu/live.mp3",
       "logoImageName": "RTLTodayLogo",
       "websiteURL": "https://www.rtltoday.lu",
-      "isEnabled": false
+      "isEnabled": true
     },
     {
       "id": "studio_lux",
@@ -296,7 +296,7 @@
       "streamURL": "https://stream.studioluxfm.lu/live.mp3",
       "logoImageName": "StudioLuxLogo",
       "websiteURL": "https://www.studioluxfm.lu",
-      "isEnabled": false
+      "isEnabled": true
     }
   ]
 }
