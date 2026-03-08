@@ -549,7 +549,7 @@ struct BottomControlBar: View {
                 .disabled(!canShare)
             }
             .padding(.horizontal, 24)
-            .padding(.vertical, 8)
+            .padding(.vertical, 16)
             .background(
                 Color(red: 0.08, green: 0.08, blue: 0.12)
                     .opacity(0.95)
