@@ -18,6 +18,9 @@ struct SettingsView: View {
     @State private var versionTapCount = 0
     @State private var secretFeedback: String? = nil
     @State private var isRefreshing = false
+    @State private var showPinEntry = false
+    @State private var pinDigits = ""
+    @State private var pinError = false
 
     private var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—"
@@ -162,7 +165,23 @@ struct SettingsView: View {
                     .animation(.easeInOut(duration: 0.2), value: versionTapCount)
                     .animation(.easeInOut(duration: 0.3), value: secretFeedback)
                 }
+
+                // PIN overlay
+                if showPinEntry {
+                    PinEntryOverlay(
+                        digits: $pinDigits,
+                        hasError: $pinError,
+                        onCancel: {
+                            showPinEntry = false
+                            pinDigits = ""
+                            pinError = false
+                        },
+                        onValidate: { handlePinValidation() }
+                    )
+                    .transition(.opacity)
+                }
             }
+            .animation(.easeInOut(duration: 0.2), value: showPinEntry)
             .navigationTitle(languageManager.settings)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -183,11 +202,28 @@ struct SettingsView: View {
     // MARK: - Secret mode
 
     private func handleVersionTap() {
-        guard secretFeedback == nil, !isRefreshing else { return }
+        guard secretFeedback == nil, !isRefreshing, !showPinEntry else { return }
         versionTapCount += 1
         if versionTapCount >= 7 {
             versionTapCount = 0
+            pinDigits = ""
+            pinError = false
+            withAnimation { showPinEntry = true }
+        }
+    }
+
+    private func handlePinValidation() {
+        if pinDigits == "1234" {
+            showPinEntry = false
+            pinDigits = ""
+            pinError = false
             triggerRemoteRefresh()
+        } else {
+            withAnimation(.default) { pinError = true }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                withAnimation { pinError = false }
+                pinDigits = ""
+            }
         }
     }
 
@@ -215,6 +251,86 @@ struct SettingsView: View {
             .foregroundColor(.white.opacity(0.45))
             .padding(.leading, 4)
             .padding(.bottom, -8)
+    }
+}
+
+// MARK: - PIN Entry Overlay
+
+private struct PinEntryOverlay: View {
+    @Binding var digits: String
+    @Binding var hasError: Bool
+    let onCancel: () -> Void
+    let onValidate: () -> Void
+
+    private let keys = ["1","2","3","4","5","6","7","8","9","","0","⌫"]
+
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.75)
+                .ignoresSafeArea()
+
+            VStack(spacing: 28) {
+                Text("🔐")
+                    .font(.system(size: 40))
+
+                // Dots
+                HStack(spacing: 16) {
+                    ForEach(0..<4, id: \.self) { i in
+                        Circle()
+                            .fill(i < digits.count
+                                  ? (hasError ? Color.red : Color.blue)
+                                  : Color.white.opacity(0.25))
+                            .frame(width: 14, height: 14)
+                            .scaleEffect(hasError && i < digits.count ? 1.3 : 1.0)
+                    }
+                }
+                .animation(.spring(response: 0.3), value: hasError)
+
+                // Numpad
+                LazyVGrid(columns: Array(repeating: GridItem(.fixed(72)), count: 3), spacing: 12) {
+                    ForEach(keys, id: \.self) { key in
+                        if key.isEmpty {
+                            Color.clear.frame(width: 72, height: 52)
+                        } else {
+                            Button(action: { handleKey(key) }) {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(Color.white.opacity(key == "⌫" ? 0.08 : 0.14))
+                                    Text(key)
+                                        .font(.system(size: key == "⌫" ? 20 : 24, weight: .medium))
+                                        .foregroundColor(.white)
+                                }
+                                .frame(width: 72, height: 52)
+                            }
+                        }
+                    }
+                }
+
+                Button(action: onCancel) {
+                    Text("Annuler")
+                        .font(.system(size: 16))
+                        .foregroundColor(.white.opacity(0.5))
+                }
+                .padding(.top, 4)
+            }
+            .padding(32)
+            .background(
+                RoundedRectangle(cornerRadius: 24)
+                    .fill(Color(red: 0.1, green: 0.1, blue: 0.2))
+            )
+            .padding(.horizontal, 32)
+        }
+    }
+
+    private func handleKey(_ key: String) {
+        if key == "⌫" {
+            if !digits.isEmpty { digits.removeLast() }
+        } else if digits.count < 4 {
+            digits.append(key)
+            if digits.count == 4 {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { onValidate() }
+            }
+        }
     }
 }
 
