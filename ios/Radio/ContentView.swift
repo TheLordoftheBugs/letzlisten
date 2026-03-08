@@ -85,9 +85,9 @@ struct ContentView: View {
                 }
             }) {
                 Image(systemName: isIPad && showFavoritesPanel ? "heart.circle.fill" : "heart.circle")
-                    .font(.system(size: 20, weight: .semibold))
+                    .font(.system(size: isLandscape ? 20 : 26, weight: .semibold))
                     .foregroundColor(.white.opacity(0.9))
-                    .padding(12)
+                    .padding(isLandscape ? 12 : 19)
                     .background(
                         Circle()
                             .fill(Color.white.opacity(isIPad && showFavoritesPanel ? 0.25 : 0.15))
@@ -108,9 +108,9 @@ struct ContentView: View {
                 }
             }) {
                 Image(systemName: isIPad && showStationPanel ? "antenna.radiowaves.left.and.right.circle.fill" : "antenna.radiowaves.left.and.right")
-                    .font(.system(size: 20, weight: .semibold))
+                    .font(.system(size: isLandscape ? 20 : 26, weight: .semibold))
                     .foregroundColor(.white.opacity(0.9))
-                    .padding(12)
+                    .padding(isLandscape ? 12 : 19)
                     .background(
                         Circle()
                             .fill(Color.white.opacity(isIPad && showStationPanel ? 0.25 : 0.15))
@@ -124,9 +124,9 @@ struct ContentView: View {
                 showSettings = true
             }) {
                 Image(systemName: "gearshape")
-                    .font(.system(size: 20, weight: .semibold))
+                    .font(.system(size: isLandscape ? 20 : 26, weight: .semibold))
                     .foregroundColor(.white.opacity(0.9))
-                    .padding(12)
+                    .padding(isLandscape ? 12 : 19)
                     .background(
                         Circle()
                             .fill(Color.white.opacity(0.15))
