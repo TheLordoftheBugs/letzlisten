@@ -212,6 +212,56 @@ class LanguageManager: ObservableObject {
         }
     }
 
+    var playback: String {
+        switch currentLanguage {
+        case .luxembourgish: return "Nolauschteren"
+        case .german:        return "Wiedergabe"
+        case .english:       return "Playback"
+        case .french:        return "Lecture"
+        case .portuguese:    return "Reprodução"
+        }
+    }
+
+    var continuousPlayback: String {
+        switch currentLanguage {
+        case .luxembourgish: return "Duerchgehend nolauschteren"
+        case .german:        return "Durchgehende Wiedergabe"
+        case .english:       return "Continuous Playback"
+        case .french:        return "Lecture continue"
+        case .portuguese:    return "Reprodução contínua"
+        }
+    }
+
+    var continuousPlaybackHint: String {
+        switch currentLanguage {
+        case .luxembourgish: return "Lues weider wann d'Radio gewiesselt gëtt"
+        case .german:        return "Wiedergabe beim Stationswechsel fortsetzen"
+        case .english:       return "Keep playing when switching stations"
+        case .french:        return "Continuer la lecture lors du changement de station"
+        case .portuguese:    return "Manter reprodução ao trocar de estação"
+        }
+    }
+
+    var stationsUpdated: String {
+        switch currentLanguage {
+        case .luxembourgish: return "✓ Statiounen aktualiséiert"
+        case .german:        return "✓ Sender aktualisiert"
+        case .english:       return "✓ Stations updated"
+        case .french:        return "✓ Stations mises à jour"
+        case .portuguese:    return "✓ Estações atualizadas"
+        }
+    }
+
+    var stationsUpdateFailed: String {
+        switch currentLanguage {
+        case .luxembourgish: return "⚠ Aktualiséierung fehlgeschloen"
+        case .german:        return "⚠ Aktualisierung fehlgeschlagen"
+        case .english:       return "⚠ Update failed"
+        case .french:        return "⚠ Échec de la mise à jour"
+        case .portuguese:    return "⚠ Falha na atualização"
+        }
+    }
+
     func shareMessage(artist: String, title: String, station: String, url: String?) -> String {
         let base: String
         switch currentLanguage {

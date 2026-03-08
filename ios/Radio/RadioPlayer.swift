@@ -42,6 +42,9 @@ class RadioPlayer: NSObject, ObservableObject {
 
         super.init()
 
+        // Register defaults — continuousPlayback is ON by default
+        UserDefaults.standard.register(defaults: ["continuousPlayback": true])
+
         // Always persist so the station is saved even on first launch
         UserDefaults.standard.set(currentStation.id, forKey: lastStationKey)
 
@@ -58,10 +61,14 @@ class RadioPlayer: NSObject, ObservableObject {
     }
     
     func switchStation(_ station: RadioStation) {
+        let wasPlaying = isPlaying
         stop()
         currentStation = station
         UserDefaults.standard.set(station.id, forKey: lastStationKey)
         loadStation(station)
+        if wasPlaying && UserDefaults.standard.bool(forKey: "continuousPlayback") {
+            play()
+        }
     }
     
     private func loadStation(_ station: RadioStation) {

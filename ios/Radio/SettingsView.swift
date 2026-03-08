@@ -2,7 +2,8 @@
 //  SettingsView.swift
 //  Letzebuerg FM
 //
-//  Settings sheet: language selection and app info
+//  Settings sheet: language (dropdown), playback options, app info
+//  Secret: tap version 7 times to force-refresh stations from remote
 //
 
 import SwiftUI
@@ -11,8 +12,17 @@ struct SettingsView: View {
     @EnvironmentObject var languageManager: LanguageManager
     @Environment(\.dismiss) var dismiss
 
+    @AppStorage("continuousPlayback") private var continuousPlayback = true
+
+    @State private var versionTapCount = 0
+    @State private var secretFeedback: String? = nil
+    @State private var isRefreshing = false
+
     private var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—"
+    }
+    private var buildNumber: String {
+        Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "—"
     }
 
     var body: some View {
@@ -31,50 +41,21 @@ struct SettingsView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
 
-                        // MARK: Language section
+                        // MARK: Language — dropdown picker
                         sectionHeader(languageManager.language)
 
-                        VStack(spacing: 8) {
-                            ForEach(LanguageManager.Language.allCases, id: \.rawValue) { lang in
-                                Button(action: {
-                                    languageManager.currentLanguage = lang
-                                }) {
-                                    HStack(spacing: 16) {
-                                        Text(lang.flag)
-                                            .font(.system(size: 28))
-                                        Text(lang.displayName)
-                                            .font(.system(size: 17, weight: .medium))
-                                            .foregroundColor(.white)
-                                        Spacer()
-                                        if lang == languageManager.currentLanguage {
-                                            Image(systemName: "checkmark")
-                                                .foregroundColor(.blue)
-                                                .font(.system(size: 15, weight: .semibold))
-                                        }
-                                    }
-                                    .padding(.vertical, 13)
-                                    .padding(.horizontal, 16)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .fill(lang == languageManager.currentLanguage
-                                                  ? Color.blue.opacity(0.2)
-                                                  : Color.white.opacity(0.06))
-                                    )
-                                }
-                            }
-                        }
-
-                        // MARK: About section
-                        sectionHeader(languageManager.about)
-
                         HStack {
-                            Text(languageManager.version)
+                            Text("\(languageManager.currentLanguage.flag)  \(languageManager.currentLanguage.displayName)")
                                 .font(.system(size: 17, weight: .medium))
                                 .foregroundColor(.white)
                             Spacer()
-                            Text(appVersion)
-                                .font(.system(size: 17))
-                                .foregroundColor(.white.opacity(0.5))
+                            Picker("", selection: $languageManager.currentLanguage) {
+                                ForEach(LanguageManager.Language.allCases, id: \.rawValue) { lang in
+                                    Text("\(lang.flag)  \(lang.displayName)").tag(lang)
+                                }
+                            }
+                            .pickerStyle(.menu)
+                            .accentColor(.blue)
                         }
                         .padding(.vertical, 13)
                         .padding(.horizontal, 16)
@@ -82,10 +63,84 @@ struct SettingsView: View {
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(Color.white.opacity(0.06))
                         )
+
+                        // MARK: Playback — continuous playback toggle
+                        sectionHeader(languageManager.playback)
+
+                        Toggle(isOn: $continuousPlayback) {
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(languageManager.continuousPlayback)
+                                    .font(.system(size: 17, weight: .medium))
+                                    .foregroundColor(.white)
+                                Text(languageManager.continuousPlaybackHint)
+                                    .font(.system(size: 13))
+                                    .foregroundColor(.white.opacity(0.5))
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                        }
+                        .tint(.blue)
+                        .padding(.vertical, 13)
+                        .padding(.horizontal, 16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.white.opacity(0.06))
+                        )
+
+                        // MARK: About — version + build, 7-tap secret
+                        sectionHeader(languageManager.about)
+
+                        VStack(spacing: 0) {
+                            HStack {
+                                Text(languageManager.version)
+                                    .font(.system(size: 17, weight: .medium))
+                                    .foregroundColor(.white)
+                                Spacer()
+                                if isRefreshing {
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle(tint: .white.opacity(0.5)))
+                                        .scaleEffect(0.8)
+                                } else if let feedback = secretFeedback {
+                                    Text(feedback)
+                                        .font(.system(size: 14))
+                                        .foregroundColor(.white.opacity(0.7))
+                                        .transition(.opacity)
+                                } else {
+                                    Text("\(appVersion) (Build \(buildNumber))")
+                                        .font(.system(size: 17))
+                                        .foregroundColor(.white.opacity(0.5))
+                                }
+                            }
+                            .padding(.vertical, 13)
+                            .padding(.horizontal, 16)
+                        }
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.white.opacity(0.06))
+                        )
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            handleVersionTap()
+                        }
+
+                        // Secret tap progress dots (visible after first tap)
+                        if versionTapCount > 0 {
+                            HStack(spacing: 6) {
+                                Spacer()
+                                ForEach(0..<7, id: \.self) { i in
+                                    Circle()
+                                        .fill(i < versionTapCount ? Color.blue : Color.white.opacity(0.2))
+                                        .frame(width: 6, height: 6)
+                                }
+                                Spacer()
+                            }
+                            .transition(.opacity)
+                        }
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, 20)
                     .padding(.bottom, 40)
+                    .animation(.easeInOut(duration: 0.2), value: versionTapCount)
+                    .animation(.easeInOut(duration: 0.3), value: secretFeedback)
                 }
             }
             .navigationTitle(languageManager.settings)
@@ -104,6 +159,34 @@ struct SettingsView: View {
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
     }
+
+    // MARK: - Secret mode
+
+    private func handleVersionTap() {
+        guard secretFeedback == nil, !isRefreshing else { return }
+        versionTapCount += 1
+        if versionTapCount >= 7 {
+            versionTapCount = 0
+            triggerRemoteRefresh()
+        }
+    }
+
+    private func triggerRemoteRefresh() {
+        isRefreshing = true
+        RadioStationLoader.shared.fetchFromRemote { success in
+            isRefreshing = false
+            withAnimation {
+                secretFeedback = success
+                    ? languageManager.stationsUpdated
+                    : languageManager.stationsUpdateFailed
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                withAnimation { secretFeedback = nil }
+            }
+        }
+    }
+
+    // MARK: - Helpers
 
     @ViewBuilder
     private func sectionHeader(_ title: String) -> some View {

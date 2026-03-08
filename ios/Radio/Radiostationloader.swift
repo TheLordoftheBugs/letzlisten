@@ -13,6 +13,9 @@ class RadioStationLoader: ObservableObject {
 
     @Published var stations: [RadioStation] = []
 
+    // Remote URL for secret station refresh (7-tap on version in Settings)
+    private let remoteStationsURL = "https://raw.githubusercontent.com/TheLordoftheBugs/letzlisten_source/main/ios/Radio/stations.json"
+
     private init() {
         loadFromBundle()
     }
@@ -24,6 +27,26 @@ class RadioStationLoader: ObservableObject {
             return
         }
         stations = config.stations.sorted { $0.name < $1.name }
+    }
+
+    func fetchFromRemote(completion: @escaping (Bool) -> Void) {
+        guard let url = URL(string: remoteStationsURL) else {
+            DispatchQueue.main.async { completion(false) }
+            return
+        }
+        URLSession.shared.dataTask(with: url) { [weak self] data, _, error in
+            guard let self = self,
+                  let data = data,
+                  error == nil,
+                  let config = self.parseJSON(data) else {
+                DispatchQueue.main.async { completion(false) }
+                return
+            }
+            DispatchQueue.main.async {
+                self.stations = config.stations.sorted { $0.name < $1.name }
+                completion(true)
+            }
+        }.resume()
     }
 
     private func parseJSON(_ data: Data) -> StationConfig? {
