@@ -15,7 +15,7 @@ class RadioStationLoader: ObservableObject {
     @Published var stationsVersion: String = ""
 
     // Remote URL for secret station refresh (7-tap on version in Settings)
-    private let remoteStationsURL = "https://raw.githubusercontent.com/TheLordoftheBugs/letzlisten_source/main/ios/Radio/stations.json"
+    private let remoteStationsURL = "https://raw.githubusercontent.com/TheLordoftheBugs/letzlisten/main/stations.json"
 
     private init() {
         loadFromBundle()
