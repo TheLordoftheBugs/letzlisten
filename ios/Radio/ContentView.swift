@@ -70,67 +70,69 @@ struct ContentView: View {
                 )
             }
         }
-        // Favorites button - Top LEFT
-        .overlay(alignment: .topLeading) {
-            Button(action: {
-                if isIPad {
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        showFavoritesPanel.toggle()
+        // Top buttons — fixed circle size so all 3 are identical regardless of icon shape
+        .overlay(alignment: .top) {
+            let circleSize: CGFloat = isLandscape ? 44 : 50
+            let iconSize: CGFloat = isLandscape ? 20 : 22
+
+            HStack(spacing: 0) {
+                // Favorites - LEFT
+                Button(action: {
+                    if isIPad {
+                        withAnimation(.easeInOut(duration: 0.3)) { showFavoritesPanel.toggle() }
+                    } else {
+                        showFavorites = true
                     }
-                } else {
-                    showFavorites = true
-                }
-            }) {
-                Image(systemName: isIPad && showFavoritesPanel ? "heart.circle.fill" : "heart.circle")
-                    .font(.system(size: isLandscape ? 20 : 26, weight: .semibold))
-                    .foregroundColor(.white.opacity(0.9))
-                    .padding(isLandscape ? 12 : 19)
-                    .background(
+                }) {
+                    ZStack {
                         Circle()
                             .fill(Color.white.opacity(isIPad && showFavoritesPanel ? 0.25 : 0.15))
-                    )
-            }
-            .padding(.top, 16)
-            .padding(.leading, 20)
-        }
-        // Station selector button - Top CENTER
-        .overlay(alignment: .top) {
-            Button(action: {
-                if isIPad {
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        showStationPanel.toggle()
+                        Image(systemName: isIPad && showFavoritesPanel ? "heart.fill" : "heart")
+                            .font(.system(size: iconSize, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.9))
                     }
-                } else {
-                    showStationSelector = true
+                    .frame(width: circleSize, height: circleSize)
                 }
-            }) {
-                Image(systemName: isIPad && showStationPanel ? "antenna.radiowaves.left.and.right.circle.fill" : "antenna.radiowaves.left.and.right")
-                    .font(.system(size: isLandscape ? 20 : 26, weight: .semibold))
-                    .foregroundColor(.white.opacity(0.9))
-                    .padding(isLandscape ? 12 : 19)
-                    .background(
+                .padding(.leading, 20)
+
+                Spacer()
+
+                // Station selector - CENTER
+                Button(action: {
+                    if isIPad {
+                        withAnimation(.easeInOut(duration: 0.3)) { showStationPanel.toggle() }
+                    } else {
+                        showStationSelector = true
+                    }
+                }) {
+                    ZStack {
                         Circle()
                             .fill(Color.white.opacity(isIPad && showStationPanel ? 0.25 : 0.15))
-                    )
-            }
-            .padding(.top, 16)
-        }
-        // Settings button - Top RIGHT
-        .overlay(alignment: .topTrailing) {
-            Button(action: {
-                showSettings = true
-            }) {
-                Image(systemName: "gearshape")
-                    .font(.system(size: isLandscape ? 20 : 26, weight: .semibold))
-                    .foregroundColor(.white.opacity(0.9))
-                    .padding(isLandscape ? 12 : 19)
-                    .background(
+                        Image(systemName: "antenna.radiowaves.left.and.right")
+                            .font(.system(size: iconSize, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.9))
+                    }
+                    .frame(width: circleSize, height: circleSize)
+                }
+
+                Spacer()
+
+                // Settings - RIGHT
+                Button(action: {
+                    showSettings = true
+                }) {
+                    ZStack {
                         Circle()
                             .fill(Color.white.opacity(0.15))
-                    )
+                        Image(systemName: "gearshape")
+                            .font(.system(size: iconSize, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.9))
+                    }
+                    .frame(width: circleSize, height: circleSize)
+                }
+                .padding(.trailing, 20)
             }
             .padding(.top, 16)
-            .padding(.trailing, 20)
         }
         // Bottom buttons (AirPlay / Play / Share) — single HStack for perfect alignment
         .overlay(alignment: .bottom) {
