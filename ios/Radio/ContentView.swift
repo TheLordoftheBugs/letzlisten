@@ -186,7 +186,7 @@ struct ContentView: View {
                 .disabled(!canShare)
                 .padding(.trailing, 20)
             }
-            .padding(.bottom, 16)
+            .padding(.bottom, 4)
         }
         .sheet(isPresented: $showFavorites) {
             FavoritesView()
