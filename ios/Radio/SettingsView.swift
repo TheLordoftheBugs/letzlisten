@@ -13,6 +13,7 @@ struct SettingsView: View {
     @Environment(\.dismiss) var dismiss
 
     @AppStorage("continuousPlayback") private var continuousPlayback = true
+    @ObservedObject private var stationLoader = RadioStationLoader.shared
 
     @State private var versionTapCount = 0
     @State private var secretFeedback: String? = nil
@@ -90,6 +91,7 @@ struct SettingsView: View {
                         sectionHeader(languageManager.about)
 
                         VStack(spacing: 0) {
+                            // App version — tappable (secret mode)
                             HStack {
                                 Text(languageManager.version)
                                     .font(.system(size: 17, weight: .medium))
@@ -112,15 +114,30 @@ struct SettingsView: View {
                             }
                             .padding(.vertical, 13)
                             .padding(.horizontal, 16)
+                            .contentShape(Rectangle())
+                            .onTapGesture { handleVersionTap() }
+
+                            Divider()
+                                .background(Color.white.opacity(0.1))
+                                .padding(.horizontal, 16)
+
+                            // Stations list version — updates on bundle load and remote fetch
+                            HStack {
+                                Text(languageManager.stationsListVersion)
+                                    .font(.system(size: 17, weight: .medium))
+                                    .foregroundColor(.white)
+                                Spacer()
+                                Text(stationLoader.stationsVersion.isEmpty ? "—" : stationLoader.stationsVersion)
+                                    .font(.system(size: 17))
+                                    .foregroundColor(.white.opacity(0.5))
+                            }
+                            .padding(.vertical, 13)
+                            .padding(.horizontal, 16)
                         }
                         .background(
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(Color.white.opacity(0.06))
                         )
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            handleVersionTap()
-                        }
 
                         // Secret tap progress dots (visible after first tap)
                         if versionTapCount > 0 {

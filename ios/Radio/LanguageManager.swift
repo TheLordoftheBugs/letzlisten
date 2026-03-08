@@ -242,6 +242,16 @@ class LanguageManager: ObservableObject {
         }
     }
 
+    var stationsListVersion: String {
+        switch currentLanguage {
+        case .luxembourgish: return "Radiolëscht"
+        case .german:        return "Senderliste"
+        case .english:       return "Stations list"
+        case .french:        return "Liste des stations"
+        case .portuguese:    return "Lista de estações"
+        }
+    }
+
     var stationsUpdated: String {
         switch currentLanguage {
         case .luxembourgish: return "✓ Statiounen aktualiséiert"
