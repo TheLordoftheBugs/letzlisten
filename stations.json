@@ -168,7 +168,7 @@
       "streamURL": "https://stream.rbv.lu/live.mp3",
       "logoImageName": "RBVLogo",
       "websiteURL": "https://www.rbv.lu",
-      "isEnabled": false
+      "isEnabled": true
     },
     {
       "id": "radio_cents",
