@@ -143,41 +143,29 @@ class RadioPlayer: NSObject, ObservableObject {
             let retainedCtx = Unmanaged.passRetained(tapContext)
 
             // C-compatible callbacks — no captures allowed; context is passed via clientInfo.
-            var callbacks = MTAudioProcessingTapCallbacks()
-            callbacks.version = kMTAudioProcessingTapCallbacksVersion_0
-            callbacks.clientInfo = retainedCtx.toOpaque()
-
-            callbacks.`init` = { tap, clientInfo, tapStorageOut in
+            let tapInit: MTAudioProcessingTapInitCallback = { tap, clientInfo, tapStorageOut in
                 tapStorageOut.pointee = clientInfo
             }
-
-            callbacks.finalize = { tap in
+            let tapFinalize: MTAudioProcessingTapFinalizeCallback = { tap in
                 guard let storage = MTAudioProcessingTapGetStorage(tap) else { return }
                 Unmanaged<ShazamTapContext>.fromOpaque(storage).release()
             }
-
-            callbacks.prepare = { tap, _, processingFormat in
+            let tapPrepare: MTAudioProcessingTapPrepareCallback = { tap, _, processingFormat in
                 guard let storage = MTAudioProcessingTapGetStorage(tap) else { return }
                 let ctx = Unmanaged<ShazamTapContext>.fromOpaque(storage).takeUnretainedValue()
                 ctx.format = AVAudioFormat(streamDescription: processingFormat)
             }
-
-            callbacks.process = { tap, numberFrames, _, bufferListInOut, numberFramesOut, flagsOut in
-                // Pull audio from the source (fills bufferListInOut)
+            let tapProcess: MTAudioProcessingTapProcessCallback = { tap, numberFrames, _, bufferListInOut, numberFramesOut, flagsOut in
                 MTAudioProcessingTapGetSourceAudio(tap, numberFrames, bufferListInOut, flagsOut, nil, numberFramesOut)
-
                 guard let storage = MTAudioProcessingTapGetStorage(tap) else { return }
                 let ctx = Unmanaged<ShazamTapContext>.fromOpaque(storage).takeUnretainedValue()
                 guard let format = ctx.format,
                       let matcher = ctx.matcher,
                       matcher.isRunning else { return }
-
                 let frameCount = AVAudioFrameCount(numberFramesOut.pointee)
                 guard frameCount > 0,
                       let pcmBuffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: frameCount) else { return }
                 pcmBuffer.frameLength = frameCount
-
-                // Copy audio data from the tap buffer into the PCM buffer
                 let srcPtr = UnsafeMutableAudioBufferListPointer(bufferListInOut)
                 let dstPtr = UnsafeMutableAudioBufferListPointer(pcmBuffer.mutableAudioBufferList)
                 for i in 0..<min(srcPtr.count, dstPtr.count) {
@@ -185,9 +173,17 @@ class RadioPlayer: NSObject, ObservableObject {
                         memcpy(dst, src, Int(srcPtr[i].mDataByteSize))
                     }
                 }
-
                 matcher.match(buffer: pcmBuffer)
             }
+            var callbacks = MTAudioProcessingTapCallbacks(
+                version: kMTAudioProcessingTapCallbacksVersion_0,
+                clientInfo: retainedCtx.toOpaque(),
+                init: tapInit,
+                finalize: tapFinalize,
+                prepare: tapPrepare,
+                unprepare: nil,
+                process: tapProcess
+            )
 
             var tap: Unmanaged<MTAudioProcessingTap>?
             let status = MTAudioProcessingTapCreate(
