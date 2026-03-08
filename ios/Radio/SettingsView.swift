@@ -51,7 +51,8 @@ struct SettingsView: View {
                                 Text(languageManager.language)
                                     .font(.system(size: 17, weight: .medium))
                                     .foregroundColor(.white)
-                                Spacer()
+                                    .lineLimit(1)
+                                Spacer(minLength: 8)
                                 Picker("", selection: $languageManager.currentLanguage) {
                                     ForEach(LanguageManager.Language.allCases, id: \.rawValue) { lang in
                                         Text("\(lang.flag)  \(lang.displayName)").tag(lang)
@@ -59,6 +60,7 @@ struct SettingsView: View {
                                 }
                                 .pickerStyle(.menu)
                                 .accentColor(.blue)
+                                .fixedSize()
                             }
                             .padding(.vertical, 13)
                             .padding(.horizontal, 16)
