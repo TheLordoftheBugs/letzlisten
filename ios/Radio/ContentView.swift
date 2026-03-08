@@ -132,53 +132,59 @@ struct ContentView: View {
             .padding(.top, 16)
             .padding(.trailing, 20)
         }
-        // AirPlay button - Bottom LEFT
-        .overlay(alignment: .bottomLeading) {
-            ZStack {
-                Circle()
-                    .fill(Color.white.opacity(0.15))
-                AirPlayButton()
-            }
-            .frame(width: isLandscape ? 44 : 50, height: isLandscape ? 44 : 50)
-            .padding(.bottom, 16)
-            .padding(.leading, 20)
-        }
-        // Play/Stop button - Bottom CENTER
+        // Bottom buttons (AirPlay / Play / Share) — single HStack for perfect alignment
         .overlay(alignment: .bottom) {
-            Button(action: {
-                audioPlayer.togglePlayback()
-            }) {
+            let btnSize: CGFloat = isLandscape ? 44 : 50
+            let playSize: CGFloat = isLandscape ? 52 : 64
+            let canShare = audioPlayer.isPlaying && !audioPlayer.currentTrack.isUnknown
+
+            HStack(spacing: 0) {
+                // AirPlay - LEFT
                 ZStack {
                     Circle()
-                        .fill(audioPlayer.isPlaying ? Color.red : Color.blue)
-                        .frame(width: isLandscape ? 52 : 64, height: isLandscape ? 52 : 64)
-                        .shadow(color: (audioPlayer.isPlaying ? Color.red : Color.blue).opacity(0.4), radius: isLandscape ? 6 : 8, x: 0, y: isLandscape ? 3 : 4)
-                    Image(systemName: audioPlayer.isPlaying ? "stop.fill" : "play.fill")
-                        .font(.system(size: isLandscape ? 22 : 28))
-                        .foregroundColor(.white)
+                        .fill(Color.white.opacity(0.15))
+                    AirPlayButton()
                 }
-            }
-            .disabled(audioPlayer.isLoading)
-            .padding(.bottom, 16)
-        }
-        // Share button - Bottom RIGHT
-        .overlay(alignment: .bottomTrailing) {
-            let canShare = audioPlayer.isPlaying && !audioPlayer.currentTrack.isUnknown
-            Button(action: {
-                showingShareSheet = true
-            }) {
-                Image(systemName: "square.and.arrow.up")
-                    .font(.system(size: isLandscape ? 20 : 26, weight: .semibold))
-                    .foregroundColor(.white.opacity(canShare ? 0.9 : 0.4))
-                    .padding(isLandscape ? 12 : 19)
-                    .background(
+                .frame(width: btnSize, height: btnSize)
+                .padding(.leading, 20)
+
+                Spacer()
+
+                // Play/Stop - CENTER
+                Button(action: {
+                    audioPlayer.togglePlayback()
+                }) {
+                    ZStack {
+                        Circle()
+                            .fill(audioPlayer.isPlaying ? Color.red : Color.blue)
+                            .shadow(color: (audioPlayer.isPlaying ? Color.red : Color.blue).opacity(0.4), radius: isLandscape ? 6 : 8, x: 0, y: isLandscape ? 3 : 4)
+                        Image(systemName: audioPlayer.isPlaying ? "stop.fill" : "play.fill")
+                            .font(.system(size: isLandscape ? 22 : 28))
+                            .foregroundColor(.white)
+                    }
+                    .frame(width: playSize, height: playSize)
+                }
+                .disabled(audioPlayer.isLoading)
+
+                Spacer()
+
+                // Share - RIGHT
+                Button(action: {
+                    showingShareSheet = true
+                }) {
+                    ZStack {
                         Circle()
                             .fill(Color.white.opacity(canShare ? 0.15 : 0.05))
-                    )
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.system(size: isLandscape ? 20 : 22, weight: .semibold))
+                            .foregroundColor(.white.opacity(canShare ? 0.9 : 0.4))
+                    }
+                    .frame(width: btnSize, height: btnSize)
+                }
+                .disabled(!canShare)
+                .padding(.trailing, 20)
             }
-            .disabled(!canShare)
             .padding(.bottom, 16)
-            .padding(.trailing, 20)
         }
         .sheet(isPresented: $showFavorites) {
             FavoritesView()
