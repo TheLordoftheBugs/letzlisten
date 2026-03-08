@@ -314,7 +314,8 @@ struct LandscapeLayout: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Main content — top padding clears the header overlay buttons (~60pt)
+            Spacer()
+            // Main content — paddings clear header (~60pt) and footer (~60pt) overlays
             HStack(spacing: 32) {
                 // Left: Artwork (tappable = link to station website)
                 Group {
@@ -386,9 +387,10 @@ struct LandscapeLayout: View {
                 }
                 .padding(.trailing, 72)
             }
-            .padding(.top, 60)
-            .frame(maxHeight: .infinity)
+            Spacer()
         }
+        .padding(.top, 60)
+        .padding(.bottom, 60)
     }
 }
 
