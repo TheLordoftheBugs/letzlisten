@@ -1,5 +1,6 @@
 package com.florentin.letzlisten
 
+import android.content.Intent
 import android.net.Uri
 import androidx.media3.common.Metadata
 import androidx.media3.common.Player
@@ -84,6 +85,17 @@ class RadioService : MediaSessionService() {
 
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? =
         mediaSession
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        mediaSession?.player?.let { player ->
+            if (!player.playWhenReady || player.mediaItemCount == 0) {
+                stopSelf()
+            } else {
+                player.stop()
+                stopSelf()
+            }
+        } ?: stopSelf()
+    }
 
     override fun onDestroy() {
         serviceScope.cancel()
