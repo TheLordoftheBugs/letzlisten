@@ -500,12 +500,18 @@ struct BottomControlBar: View {
     @EnvironmentObject var audioPlayer: RadioPlayer
     @EnvironmentObject var favoritesManager: FavoritesManager
     @Binding var showingShareSheet: Bool
-    
+
+    private var safeAreaBottom: CGFloat {
+        UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first?.keyWindow?.safeAreaInsets.bottom ?? 0
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             Divider()
                 .background(Color.white.opacity(0.1))
-            
+
             HStack(spacing: 20) {
                 // AirPlay button
                 AirPlayButton()
@@ -549,7 +555,8 @@ struct BottomControlBar: View {
                 .disabled(!canShare)
             }
             .padding(.horizontal, 24)
-            .padding(.vertical, 16)
+            .padding(.top, 16)
+            .padding(.bottom, 16 + safeAreaBottom)
         }
         .background(
             Color(red: 0.08, green: 0.08, blue: 0.12)
