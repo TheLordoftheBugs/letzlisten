@@ -61,7 +61,7 @@
     {
       "id": "generation_dance",
       "name": "Generation Dance",
-      "streamURL": "https://generation.dance/mobile.pls",
+      "streamURL": "https://generation.dance:8000/stream64",
       "logoImageName": "GenDanceLogo",
       "websiteURL": "https://generation.dance/",
       "isEnabled": false 
