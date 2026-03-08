@@ -49,7 +49,7 @@ and push — both apps will pick up the change on next launch.
       <a href="https://apps.apple.com/app/letz-listen/id6759719994">
         <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://apps.apple.com/app/letz-listen/id6759719994" alt="App Store QR code" width="150" height="150"/>
       </a><br><br>
-      <a href="https://apps.apple.com/app/letzlisten">Download on the App Store</a>
+      <a href="https://apps.apple.com/app/letz-listen/id6759719994">Download on the App Store</a>
     </td>
     <td align="center">
       <strong>Android — Google Play</strong><br><br>
