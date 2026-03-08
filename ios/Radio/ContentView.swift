@@ -72,8 +72,8 @@ struct ContentView: View {
         }
         // Top buttons — fixed circle size so all 3 are identical regardless of icon shape
         .overlay(alignment: .top) {
-            let circleSize: CGFloat = isLandscape ? 44 : 50
-            let iconSize: CGFloat = isLandscape ? 20 : 22
+            let circleSize: CGFloat = isLandscape ? 53 : 60
+            let iconSize: CGFloat = isLandscape ? 24 : 26
 
             HStack(spacing: 0) {
                 // Favorites - LEFT
@@ -136,8 +136,8 @@ struct ContentView: View {
         }
         // Bottom buttons (AirPlay / Play / Share) — single HStack for perfect alignment
         .overlay(alignment: .bottom) {
-            let btnSize: CGFloat = isLandscape ? 44 : 50
-            let playSize: CGFloat = isLandscape ? 52 : 64
+            let btnSize: CGFloat = isLandscape ? 53 : 60
+            let playSize: CGFloat = isLandscape ? 62 : 77
             let canShare = audioPlayer.isPlaying && !audioPlayer.currentTrack.isUnknown
 
             HStack(spacing: 0) {
@@ -161,7 +161,7 @@ struct ContentView: View {
                             .fill(audioPlayer.isPlaying ? Color.red : Color.blue)
                             .shadow(color: (audioPlayer.isPlaying ? Color.red : Color.blue).opacity(0.4), radius: isLandscape ? 6 : 8, x: 0, y: isLandscape ? 3 : 4)
                         Image(systemName: audioPlayer.isPlaying ? "stop.fill" : "play.fill")
-                            .font(.system(size: isLandscape ? 22 : 28))
+                            .font(.system(size: isLandscape ? 26 : 34))
                             .foregroundColor(.white)
                     }
                     .frame(width: playSize, height: playSize)
@@ -178,7 +178,7 @@ struct ContentView: View {
                         Circle()
                             .fill(Color.white.opacity(canShare ? 0.15 : 0.05))
                         Image(systemName: "square.and.arrow.up")
-                            .font(.system(size: isLandscape ? 20 : 22, weight: .semibold))
+                            .font(.system(size: isLandscape ? 24 : 26, weight: .semibold))
                             .foregroundColor(.white.opacity(canShare ? 0.9 : 0.4))
                     }
                     .frame(width: btnSize, height: btnSize)
