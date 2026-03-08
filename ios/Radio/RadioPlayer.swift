@@ -210,7 +210,7 @@ class RadioPlayer: NSObject, ObservableObject {
     private func startShazamIfNeeded() {
         guard #available(iOS 15, *) else { return }
         guard isPlaying, currentTrack.isUnknown else { return }
-        guard !(shazamMatcher as? ShazamMatcher)?.isRunning ?? false else { return }
+        guard (shazamMatcher as? ShazamMatcher)?.isRunning != true else { return }
 
         shazamDebounceTimer?.invalidate()
         // Wait 5 s before starting: short gaps between tracks shouldn't trigger Shazam.
