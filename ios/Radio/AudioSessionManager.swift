@@ -18,11 +18,7 @@ class AudioSessionManager {
             let audioSession = AVAudioSession.sharedInstance()
             
             // Set category to playback for background audio
-            try audioSession.setCategory(
-                .playback,
-                mode: .default,
-                options: [.allowAirPlay, .allowBluetoothA2DP]
-            )
+            try audioSession.setCategory(.playback, mode: .default)
             
             // Activate the audio session
             try audioSession.setActive(true)
