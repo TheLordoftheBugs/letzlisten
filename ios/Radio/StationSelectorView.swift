@@ -13,10 +13,9 @@ struct StationSelectorView: View {
     @Environment(\.dismiss) var dismiss
     @ObservedObject private var stationLoader = RadioStationLoader.shared
     
-    // Sorted stations: only enabled stations, sorted alphabetically
+    // All stations sorted alphabetically (disabled ones shown but not clickable)
     private var sortedStations: [RadioStation] {
         RadioStation.stations
-            .filter { $0.enabled }  // Only show enabled stations
             .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
     }
     
@@ -84,7 +83,7 @@ struct StationButton: View {
     @State private var logo: UIImage?
     
     var body: some View {
-        Button(action: action) {
+        Button(action: station.enabled ? action : {}) {
             HStack(spacing: 16) {
                 // Station logo with loading
                 if let logo = logo {

@@ -686,7 +686,6 @@ struct iPadStationSidebar: View {
 
     private var sortedStations: [RadioStation] {
         RadioStation.stations
-            .filter { $0.enabled }
             .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
     }
 
@@ -730,7 +729,7 @@ struct iPadStationRow: View {
     @State private var logo: UIImage?
 
     var body: some View {
-        Button(action: onTap) {
+        Button(action: station.enabled ? onTap : {}) {
             HStack(spacing: 12) {
                 Group {
                     if let logo = logo {
@@ -739,7 +738,7 @@ struct iPadStationRow: View {
                             .aspectRatio(contentMode: .fit)
                     } else {
                         RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.white.opacity(0.1))
+                            .fill(Color.white.opacity(station.enabled ? 0.1 : 0.05))
                             .overlay(
                                 ProgressView()
                                     .progressViewStyle(CircularProgressViewStyle(tint: .white.opacity(0.5)))
@@ -749,15 +748,20 @@ struct iPadStationRow: View {
                 }
                 .frame(width: 44, height: 44)
                 .cornerRadius(8)
+                .opacity(station.enabled ? 1.0 : 0.3)
 
                 Text(station.name)
-                    .font(.system(size: 16, weight: isSelected ? .semibold : .regular))
-                    .foregroundColor(.white)
+                    .font(.system(size: 16, weight: isSelected && station.enabled ? .semibold : .regular))
+                    .foregroundColor(.white.opacity(station.enabled ? 1.0 : 0.4))
                     .lineLimit(1)
 
                 Spacer()
 
-                if isSelected {
+                if !station.enabled {
+                    Image(systemName: "lock.fill")
+                        .font(.system(size: 14))
+                        .foregroundColor(.white.opacity(0.3))
+                } else if isSelected {
                     Image(systemName: "checkmark")
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(.blue)
@@ -767,7 +771,7 @@ struct iPadStationRow: View {
             .padding(.vertical, 10)
             .background(
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(isSelected ? Color.blue.opacity(0.2) : Color.clear)
+                    .fill(isSelected && station.enabled ? Color.blue.opacity(0.2) : Color.clear)
             )
         }
         .onAppear {
