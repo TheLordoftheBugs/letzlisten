@@ -233,15 +233,15 @@ struct PortraitLayout: View {
                     }
                 }
 
-                // Track info + favorite button (only when metadata is known)
-                if !audioPlayer.currentTrack.isUnknown {
-                    TrackInfoView(track: audioPlayer.currentTrack)
+                // Track info + favorite button (always reserve space, hidden when no metadata)
+                TrackInfoView(track: audioPlayer.currentTrack)
+                    .opacity(audioPlayer.currentTrack.isUnknown ? 0 : 1)
 
-                    FavoriteButton(
-                        audioPlayer: audioPlayer,
-                        favoritesManager: favoritesManager
-                    )
-                }
+                FavoriteButton(
+                    audioPlayer: audioPlayer,
+                    favoritesManager: favoritesManager
+                )
+                .opacity(audioPlayer.currentTrack.isUnknown ? 0 : 1)
             }
             .padding(.horizontal, 40)
 
