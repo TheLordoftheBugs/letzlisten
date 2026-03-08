@@ -52,24 +52,21 @@ struct ContentView: View {
                     favoritesManager: favoritesManager,
                     stationLogo: stationLogo,
                     showFavoritesPanel: $showFavoritesPanel,
-                    showStationPanel: $showStationPanel,
-                    showingShareSheet: $showingShareSheet
+                    showStationPanel: $showStationPanel
                 )
             } else if isLandscape {
                 // iPhone landscape layout
                 LandscapeLayout(
                     audioPlayer: audioPlayer,
                     favoritesManager: favoritesManager,
-                    stationLogo: stationLogo,
-                    showingShareSheet: $showingShareSheet
+                    stationLogo: stationLogo
                 )
             } else {
                 // iPhone portrait layout
                 PortraitLayout(
                     audioPlayer: audioPlayer,
                     favoritesManager: favoritesManager,
-                    stationLogo: stationLogo,
-                    showingShareSheet: $showingShareSheet
+                    stationLogo: stationLogo
                 )
             }
         }
@@ -135,6 +132,54 @@ struct ContentView: View {
             .padding(.top, 16)
             .padding(.trailing, 20)
         }
+        // AirPlay button - Bottom LEFT
+        .overlay(alignment: .bottomLeading) {
+            ZStack {
+                Circle()
+                    .fill(Color.white.opacity(0.15))
+                AirPlayButton()
+            }
+            .frame(width: isLandscape ? 44 : 50, height: isLandscape ? 44 : 50)
+            .padding(.bottom, 16)
+            .padding(.leading, 20)
+        }
+        // Play/Stop button - Bottom CENTER
+        .overlay(alignment: .bottom) {
+            Button(action: {
+                audioPlayer.togglePlayback()
+            }) {
+                ZStack {
+                    Circle()
+                        .fill(audioPlayer.isPlaying ? Color.red : Color.blue)
+                        .frame(width: isLandscape ? 52 : 64, height: isLandscape ? 52 : 64)
+                        .shadow(color: (audioPlayer.isPlaying ? Color.red : Color.blue).opacity(0.4), radius: isLandscape ? 6 : 8, x: 0, y: isLandscape ? 3 : 4)
+                    Image(systemName: audioPlayer.isPlaying ? "stop.fill" : "play.fill")
+                        .font(.system(size: isLandscape ? 22 : 28))
+                        .foregroundColor(.white)
+                }
+            }
+            .disabled(audioPlayer.isLoading)
+            .padding(.bottom, 16)
+        }
+        // Share button - Bottom RIGHT
+        .overlay(alignment: .bottomTrailing) {
+            let canShare = audioPlayer.isPlaying && !audioPlayer.currentTrack.isUnknown
+            Button(action: {
+                showingShareSheet = true
+            }) {
+                Image(systemName: "square.and.arrow.up")
+                    .font(.system(size: isLandscape ? 20 : 26, weight: .semibold))
+                    .foregroundColor(.white.opacity(canShare ? 0.9 : 0.4))
+                    .padding(isLandscape ? 12 : 19)
+                    .background(
+                        Circle()
+                            .fill(Color.white.opacity(canShare ? 0.15 : 0.05))
+                    )
+            }
+            .disabled(!canShare)
+            .padding(.bottom, 16)
+            .padding(.trailing, 20)
+        }
         .sheet(isPresented: $showFavorites) {
             FavoritesView()
                 .environmentObject(favoritesManager)
@@ -185,12 +230,11 @@ struct PortraitLayout: View {
     @ObservedObject var audioPlayer: RadioPlayer
     @ObservedObject var favoritesManager: FavoritesManager
     let stationLogo: UIImage?
-    @Binding var showingShareSheet: Bool
-    
+
     var body: some View {
         VStack(spacing: 0) {
             Spacer()
-            
+
             // Station artwork and info
             VStack(spacing: 24) {
                 // Artwork (tappable = link to station website)
@@ -246,11 +290,6 @@ struct PortraitLayout: View {
             .padding(.horizontal, 40)
 
             Spacer()
-
-            // Bottom control bar
-            BottomControlBar(showingShareSheet: $showingShareSheet)
-                .environmentObject(audioPlayer)
-                .environmentObject(favoritesManager)
         }
     }
 }
@@ -260,7 +299,6 @@ struct LandscapeLayout: View {
     @ObservedObject var audioPlayer: RadioPlayer
     @ObservedObject var favoritesManager: FavoritesManager
     let stationLogo: UIImage?
-    @Binding var showingShareSheet: Bool
 
     var body: some View {
         VStack(spacing: 0) {
@@ -338,68 +376,6 @@ struct LandscapeLayout: View {
             }
             .padding(.top, 60)
             .frame(maxHeight: .infinity)
-
-            // Bottom controls bar — icons styled like the top menu buttons
-            VStack(spacing: 0) {
-                Divider()
-                    .background(Color.white.opacity(0.1))
-
-                HStack(spacing: 0) {
-                    Spacer()
-
-                    // AirPlay — circle style matching top menu
-                    ZStack {
-                        Circle()
-                            .fill(Color.white.opacity(0.15))
-                            .frame(width: 44, height: 44)
-                        AirPlayButton()
-                            .frame(width: 44, height: 44)
-                    }
-
-                    Spacer()
-
-                    // Play/Stop — main action, keeps coloured circle
-                    Button(action: {
-                        audioPlayer.togglePlayback()
-                    }) {
-                        ZStack {
-                            Circle()
-                                .fill(audioPlayer.isPlaying ? Color.red : Color.blue)
-                                .frame(width: 52, height: 52)
-                                .shadow(color: (audioPlayer.isPlaying ? Color.red : Color.blue).opacity(0.4), radius: 6, x: 0, y: 3)
-                            Image(systemName: audioPlayer.isPlaying ? "stop.fill" : "play.fill")
-                                .font(.system(size: 22))
-                                .foregroundColor(.white)
-                        }
-                    }
-                    .disabled(audioPlayer.isLoading)
-
-                    Spacer()
-
-                    // Share — circle style matching top menu
-                    let canShare = audioPlayer.isPlaying && !audioPlayer.currentTrack.isUnknown
-                    Button(action: {
-                        showingShareSheet = true
-                    }) {
-                        Image(systemName: "square.and.arrow.up")
-                            .font(.system(size: 20, weight: .semibold))
-                            .foregroundColor(.white.opacity(canShare ? 0.9 : 0.4))
-                            .padding(12)
-                            .background(
-                                Circle()
-                                    .fill(Color.white.opacity(canShare ? 0.15 : 0.05))
-                            )
-                    }
-                    .disabled(!canShare)
-
-                    Spacer()
-                }
-                .padding(.vertical, 8)
-                .background(
-                    Color(red: 0.08, green: 0.08, blue: 0.12)
-                        .opacity(0.95)
-                )
-            }
         }
     }
 }
@@ -492,70 +468,6 @@ struct FavoriteButton: View {
                 .foregroundColor(isFavorited ? .red : .white.opacity(0.7))
         }
         .padding(.top, 8)
-    }
-}
-
-// MARK: - Bottom Control Bar
-struct BottomControlBar: View {
-    @EnvironmentObject var audioPlayer: RadioPlayer
-    @EnvironmentObject var favoritesManager: FavoritesManager
-    @Binding var showingShareSheet: Bool
-
-    var body: some View {
-        VStack(spacing: 0) {
-            Divider()
-                .background(Color.white.opacity(0.1))
-
-            HStack(spacing: 20) {
-                // AirPlay button
-                AirPlayButton()
-                    .frame(width: 64, height: 64)
-                
-                Spacer()
-
-                // Play/Stop button
-                Button(action: {
-                    audioPlayer.togglePlayback()
-                }) {
-                    ZStack {
-                        Circle()
-                            .fill(audioPlayer.isPlaying ? Color.red : Color.blue)
-                            .frame(width: 64, height: 64)
-                            .shadow(color: (audioPlayer.isPlaying ? Color.red : Color.blue).opacity(0.4), radius: 8, x: 0, y: 4)
-
-                        Image(systemName: audioPlayer.isPlaying ? "stop.fill" : "play.fill")
-                            .font(.system(size: 28))
-                            .foregroundColor(.white)
-                    }
-                }
-                .disabled(audioPlayer.isLoading)
-
-                Spacer()
-
-                // Share Button
-                let canShare = audioPlayer.isPlaying && !audioPlayer.currentTrack.isUnknown
-                Button(action: {
-                    showingShareSheet = true
-                }) {
-                    Image(systemName: "square.and.arrow.up")
-                        .font(.system(size: 28))
-                        .foregroundColor(.white.opacity(canShare ? 0.9 : 0.4))
-                        .frame(width: 64, height: 64)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.white.opacity(canShare ? 0.15 : 0.05))
-                        )
-                }
-                .disabled(!canShare)
-            }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 16)
-        }
-        .background(
-            Color(red: 0.08, green: 0.08, blue: 0.12)
-                .opacity(0.95)
-                .ignoresSafeArea(edges: .bottom)
-        )
     }
 }
 
@@ -653,7 +565,6 @@ struct iPadSplitLayout: View {
     let stationLogo: UIImage?
     @Binding var showFavoritesPanel: Bool
     @Binding var showStationPanel: Bool
-    @Binding var showingShareSheet: Bool
 
     var body: some View {
         HStack(spacing: 0) {
@@ -672,8 +583,7 @@ struct iPadSplitLayout: View {
             PortraitLayout(
                 audioPlayer: audioPlayer,
                 favoritesManager: favoritesManager,
-                stationLogo: stationLogo,
-                showingShareSheet: $showingShareSheet
+                stationLogo: stationLogo
             )
             .frame(maxWidth: .infinity)
 
