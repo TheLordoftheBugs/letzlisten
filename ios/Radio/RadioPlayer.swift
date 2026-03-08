@@ -147,17 +147,17 @@ class RadioPlayer: NSObject, ObservableObject {
                 tapStorageOut.pointee = clientInfo
             }
             let tapFinalize: MTAudioProcessingTapFinalizeCallback = { tap in
-                guard let storage = MTAudioProcessingTapGetStorage(tap) else { return }
+                let storage = MTAudioProcessingTapGetStorage(tap)
                 Unmanaged<ShazamTapContext>.fromOpaque(storage).release()
             }
             let tapPrepare: MTAudioProcessingTapPrepareCallback = { tap, _, processingFormat in
-                guard let storage = MTAudioProcessingTapGetStorage(tap) else { return }
+                let storage = MTAudioProcessingTapGetStorage(tap)
                 let ctx = Unmanaged<ShazamTapContext>.fromOpaque(storage).takeUnretainedValue()
                 ctx.format = AVAudioFormat(streamDescription: processingFormat)
             }
             let tapProcess: MTAudioProcessingTapProcessCallback = { tap, numberFrames, _, bufferListInOut, numberFramesOut, flagsOut in
                 MTAudioProcessingTapGetSourceAudio(tap, numberFrames, bufferListInOut, flagsOut, nil, numberFramesOut)
-                guard let storage = MTAudioProcessingTapGetStorage(tap) else { return }
+                let storage = MTAudioProcessingTapGetStorage(tap)
                 let ctx = Unmanaged<ShazamTapContext>.fromOpaque(storage).takeUnretainedValue()
                 guard let format = ctx.format,
                       let matcher = ctx.matcher,
