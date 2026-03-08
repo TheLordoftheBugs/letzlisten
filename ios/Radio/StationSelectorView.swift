@@ -11,6 +11,7 @@ struct StationSelectorView: View {
     @EnvironmentObject var audioPlayer: RadioPlayer
     @EnvironmentObject var languageManager: LanguageManager
     @Environment(\.dismiss) var dismiss
+    @ObservedObject private var stationLoader = RadioStationLoader.shared
     
     // Sorted stations: only enabled stations, sorted alphabetically
     private var sortedStations: [RadioStation] {

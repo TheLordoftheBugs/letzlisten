@@ -771,6 +771,7 @@ struct iPadFavoritesPanel: View {
 struct iPadStationSidebar: View {
     @ObservedObject var audioPlayer: RadioPlayer
     @EnvironmentObject var languageManager: LanguageManager
+    @ObservedObject private var stationLoader = RadioStationLoader.shared
 
     private var sortedStations: [RadioStation] {
         RadioStation.stations
