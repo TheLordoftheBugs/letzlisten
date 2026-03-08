@@ -9,17 +9,8 @@ A native radio app for Luxembourg, available on **iOS** and **Android** _(Androi
 
 ```
 letzlisten/
-├── docs/          # Privacy policy & support pages
-└── stations.json  # Station list (shared source of truth for both apps)
+└── docs/          # Privacy policy & support pages
 ```
-
-## Station list
-
-Stations are driven by `stations.json` at the repository root. Both apps
-ship a bundled copy and refresh silently from the remote GitHub URL on each launch.
-
-To enable or disable a station, edit the `isEnabled` field in `stations.json`
-and push — both apps will pick up the change on next launch.
 
 ## About the app
 
@@ -53,10 +44,6 @@ and push — both apps will pick up the change on next launch.
     </td>
     <td align="center">
       <strong>Android — Google Play</strong><br><br>
-      <!-- Replace the href and data= URL below with the real Google Play link -->
-      <a href="https://play.google.com/store/apps/details?id=com.letzlisten">
-        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://play.google.com/store/apps/details?id=com.letzlisten" alt="Google Play QR code" width="150" height="150"/>
-      </a><br><br>
       <a href="https://play.google.com/store/apps/details?id=com.letzlisten">Get it on Google Play</a> _(coming soon)_
     </td>
   </tr>
