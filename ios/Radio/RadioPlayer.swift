@@ -16,10 +16,12 @@ class RadioPlayer: NSObject, ObservableObject {
     @Published var currentTrack = TrackInfo(title: "Title", artist: "Artist")
     @Published var currentStation: RadioStation
     @Published var currentArtwork: UIImage?  // Album artwork (nil = use station logo)
-    
+    @Published var sleepTimerEnd: Date? = nil
+
     private var player: AVPlayer?
     private var timeObserver: Any?
     private var cachedStationLogo: UIImage?
+    private var sleepWorkItem: DispatchWorkItem?
     
     // UserDefaults key for last station
     private let lastStationKey = "LastPlayedStationID"
@@ -270,6 +272,27 @@ class RadioPlayer: NSObject, ObservableObject {
         return trimmed
     }
     
+    // MARK: - Sleep Timer
+
+    func setSleepTimer(minutes: Int) {
+        cancelSleepTimer()
+        sleepTimerEnd = Date().addingTimeInterval(TimeInterval(minutes * 60))
+        let item = DispatchWorkItem { [weak self] in
+            self?.stop()
+            self?.sleepTimerEnd = nil
+        }
+        sleepWorkItem = item
+        DispatchQueue.main.asyncAfter(deadline: .now() + TimeInterval(minutes * 60), execute: item)
+    }
+
+    func cancelSleepTimer() {
+        sleepWorkItem?.cancel()
+        sleepWorkItem = nil
+        sleepTimerEnd = nil
+    }
+
+    // MARK: - Playback
+
     func togglePlayback() {
         if isPlaying {
             stop()
