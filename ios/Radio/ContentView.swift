@@ -150,6 +150,7 @@ struct ContentView: View {
                     isPresented: $showSleepTimerDialog,
                     titleVisibility: .visible
                 ) {
+                    Button("2 min") { audioPlayer.setSleepTimer(minutes: 2) }
                     Button("15 min") { audioPlayer.setSleepTimer(minutes: 15) }
                     Button("30 min") { audioPlayer.setSleepTimer(minutes: 30) }
                     Button("60 min") { audioPlayer.setSleepTimer(minutes: 60) }
