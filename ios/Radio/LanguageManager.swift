@@ -272,26 +272,6 @@ class LanguageManager: ObservableObject {
         }
     }
 
-    var sleepTimer: String {
-        switch currentLanguage {
-        case .luxembourgish: return "Schlof-Timer"
-        case .german:        return "Schlaf-Timer"
-        case .english:       return "Sleep Timer"
-        case .french:        return "Minuterie"
-        case .portuguese:    return "Temporizador"
-        }
-    }
-
-    var sleepTimerCancel: String {
-        switch currentLanguage {
-        case .luxembourgish: return "Timer ofbriechen"
-        case .german:        return "Timer abbrechen"
-        case .english:       return "Cancel Timer"
-        case .french:        return "Annuler la minuterie"
-        case .portuguese:    return "Cancelar temporizador"
-        }
-    }
-
     func shareMessage(artist: String, title: String, station: String, url: String?) -> String {
         let base: String
         switch currentLanguage {

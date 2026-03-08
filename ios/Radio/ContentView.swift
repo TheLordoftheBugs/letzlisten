@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import Combine
 
 struct ContentView: View {
     @EnvironmentObject var audioPlayer: RadioPlayer
@@ -20,9 +19,6 @@ struct ContentView: View {
     @State private var showFavoritesPanel = false   // iPad: left panel
     @State private var showStationPanel = false     // iPad: right panel
     @State private var stationLogo: UIImage?
-    @State private var showSleepTimerDialog = false
-    @State private var timerTick = Date()           // forces UI refresh for countdown
-    
     // Detect orientation
     @Environment(\.verticalSizeClass) var verticalSizeClass
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
@@ -120,51 +116,6 @@ struct ContentView: View {
 
                 Spacer()
 
-                // Sleep Timer - RIGHT-CENTER
-                let timerActive = audioPlayer.sleepTimerEnd != nil
-                let remainingMinutes: Int? = {
-                    guard let end = audioPlayer.sleepTimerEnd else { return nil }
-                    let secs = max(0, end.timeIntervalSinceNow)
-                    return Int(ceil(secs / 60))
-                }()
-
-                Button(action: { showSleepTimerDialog = true }) {
-                    VStack(spacing: 2) {
-                        ZStack {
-                            Circle()
-                                .fill(Color.white.opacity(timerActive ? 0.25 : 0.15))
-                            Image(systemName: timerActive ? "moon.zzz.fill" : "moon.zzz")
-                                .font(.system(size: iconSize, weight: .semibold))
-                                .foregroundColor(timerActive ? .orange : .white.opacity(0.9))
-                        }
-                        .frame(width: circleSize, height: circleSize)
-
-                        if timerActive, let mins = remainingMinutes {
-                            Text("\(mins)'")
-                                .font(.system(size: 9, weight: .semibold))
-                                .foregroundColor(.orange)
-                        }
-                    }
-                }
-                .confirmationDialog(
-                    languageManager.sleepTimer,
-                    isPresented: $showSleepTimerDialog,
-                    titleVisibility: .visible
-                ) {
-                    Button("2 min") { audioPlayer.setSleepTimer(minutes: 2) }
-                    Button("15 min") { audioPlayer.setSleepTimer(minutes: 15) }
-                    Button("30 min") { audioPlayer.setSleepTimer(minutes: 30) }
-                    Button("60 min") { audioPlayer.setSleepTimer(minutes: 60) }
-                    if timerActive {
-                        Button(languageManager.sleepTimerCancel, role: .destructive) {
-                            audioPlayer.cancelSleepTimer()
-                        }
-                    }
-                    Button(languageManager.cancel, role: .cancel) {}
-                }
-
-                Spacer()
-
                 // Settings - RIGHT
                 Button(action: {
                     showSettings = true
@@ -258,9 +209,6 @@ struct ContentView: View {
         }
         .onChange(of: audioPlayer.currentStation.id) { _ in
             loadStationLogo()
-        }
-        .onReceive(Timer.publish(every: 30, on: .main, in: .common).autoconnect()) { date in
-            timerTick = date
         }
     }
     
