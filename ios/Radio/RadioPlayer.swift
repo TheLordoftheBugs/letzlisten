@@ -185,7 +185,7 @@ class RadioPlayer: NSObject, ObservableObject {
                 process: tapProcess
             )
 
-            var tap: Unmanaged<MTAudioProcessingTap>?
+            var tap: MTAudioProcessingTap?
             let status = MTAudioProcessingTapCreate(
                 kCFAllocatorDefault, &callbacks,
                 kMTAudioProcessingTapCreationFlag_PreEffects, &tap
@@ -193,7 +193,7 @@ class RadioPlayer: NSObject, ObservableObject {
             guard status == noErr, let tap = tap else { return }
 
             let inputParams = AVMutableAudioMixInputParameters(track: audioTrack)
-            inputParams.audioTapProcessor = tap.takeRetainedValue()
+            inputParams.audioTapProcessor = tap
 
             let audioMix = AVMutableAudioMix()
             audioMix.inputParameters = [inputParams]
