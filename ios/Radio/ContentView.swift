@@ -15,7 +15,7 @@ struct ContentView: View {
     @State private var showFavorites = false
     @State private var showingShareSheet = false
     @State private var showStationSelector = false
-    @State private var showLanguagePicker = false
+    @State private var showSettings = false
     @State private var showFavoritesPanel = false   // iPad: left panel
     @State private var showStationPanel = false     // iPad: right panel
     @State private var stationLogo: UIImage?
@@ -96,24 +96,8 @@ struct ContentView: View {
             .padding(.top, 16)
             .padding(.leading, 20)
         }
-        // Language picker button - Top CENTER
+        // Station selector button - Top CENTER
         .overlay(alignment: .top) {
-            Button(action: {
-                showLanguagePicker = true
-            }) {
-                Text(languageManager.currentLanguage.flag)
-                    .font(.system(size: 20))
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(
-                        Capsule()
-                            .fill(Color.white.opacity(0.15))
-                    )
-            }
-            .padding(.top, 20)
-        }
-        // Station selector button - Top RIGHT
-        .overlay(alignment: .topTrailing) {
             Button(action: {
                 if isIPad {
                     withAnimation(.easeInOut(duration: 0.3)) {
@@ -133,6 +117,22 @@ struct ContentView: View {
                     )
             }
             .padding(.top, 16)
+        }
+        // Settings button - Top RIGHT
+        .overlay(alignment: .topTrailing) {
+            Button(action: {
+                showSettings = true
+            }) {
+                Image(systemName: "gearshape")
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundColor(.white.opacity(0.9))
+                    .padding(12)
+                    .background(
+                        Circle()
+                            .fill(Color.white.opacity(0.15))
+                    )
+            }
+            .padding(.top, 16)
             .padding(.trailing, 20)
         }
         .sheet(isPresented: $showFavorites) {
@@ -148,8 +148,8 @@ struct ContentView: View {
                 .environmentObject(audioPlayer)
                 .environmentObject(languageManager)
         }
-        .sheet(isPresented: $showLanguagePicker) {
-            LanguagePickerView()
+        .sheet(isPresented: $showSettings) {
+            SettingsView()
                 .environmentObject(languageManager)
         }
         .onAppear {

@@ -172,6 +172,46 @@ class LanguageManager: ObservableObject {
         }
     }
 
+    var settings: String {
+        switch currentLanguage {
+        case .luxembourgish: return "Astellungen"
+        case .german:        return "Einstellungen"
+        case .english:       return "Settings"
+        case .french:        return "Paramètres"
+        case .portuguese:    return "Definições"
+        }
+    }
+
+    var language: String {
+        switch currentLanguage {
+        case .luxembourgish: return "Sprooch"
+        case .german:        return "Sprache"
+        case .english:       return "Language"
+        case .french:        return "Langue"
+        case .portuguese:    return "Idioma"
+        }
+    }
+
+    var about: String {
+        switch currentLanguage {
+        case .luxembourgish: return "Iwwert"
+        case .german:        return "Über"
+        case .english:       return "About"
+        case .french:        return "À propos"
+        case .portuguese:    return "Sobre"
+        }
+    }
+
+    var version: String {
+        switch currentLanguage {
+        case .luxembourgish: return "Versioun"
+        case .german:        return "Version"
+        case .english:       return "Version"
+        case .french:        return "Version"
+        case .portuguese:    return "Versão"
+        }
+    }
+
     func shareMessage(artist: String, title: String, station: String, url: String?) -> String {
         let base: String
         switch currentLanguage {
