@@ -316,8 +316,8 @@ struct LandscapeLayout: View {
         VStack(spacing: 0) {
             Spacer()
             // Main content — paddings clear header (~60pt) and footer (~60pt) overlays
-            HStack(spacing: 32) {
-                // Left: Artwork (tappable = link to station website)
+            HStack(spacing: 0) {
+                // Left half: Artwork centré dans sa moitié
                 Group {
                     if let urlString = audioPlayer.currentStation.websiteURL,
                        let url = URL(string: urlString) {
@@ -336,9 +336,9 @@ struct LandscapeLayout: View {
                         )
                     }
                 }
-                .padding(.leading, 72)
+                .frame(maxWidth: .infinity)
 
-                // Right: Station name + track info + favourite button
+                // Right half: Station name + track info + favourite button centrés
                 VStack(spacing: 10) {
                     // Station name (tappable = link to station website)
                     Group {
@@ -349,7 +349,6 @@ struct LandscapeLayout: View {
                                     .font(.system(size: 18, weight: .bold))
                                     .foregroundColor(.white)
                                     .multilineTextAlignment(.center)
-                                    .frame(maxWidth: .infinity)
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.7)
                             }
@@ -358,7 +357,6 @@ struct LandscapeLayout: View {
                                 .font(.system(size: 18, weight: .bold))
                                 .foregroundColor(.white)
                                 .multilineTextAlignment(.center)
-                                .frame(maxWidth: .infinity)
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.7)
                         }
@@ -385,7 +383,7 @@ struct LandscapeLayout: View {
                         )
                     }
                 }
-                .padding(.trailing, 72)
+                .frame(maxWidth: .infinity)
             }
             Spacer()
         }
