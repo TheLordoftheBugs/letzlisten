@@ -27,8 +27,6 @@ import com.florentin.letzlisten.ui.theme.TextPrimary
  */
 @DrawableRes
 fun bundledLogoRes(logoImageName: String?): Int? = when (logoImageName) {
-    "CountryLogo" -> R.drawable.countrylogo
-    "CrazyPoisonsLogo" -> R.drawable.crazypoisonslogo
     "RGLLogo" -> R.drawable.rgllogo
     else -> null
 }
