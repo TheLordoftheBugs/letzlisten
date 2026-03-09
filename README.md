@@ -36,6 +36,7 @@ letzlisten/
   <tr>
     <td align="center">
       <strong>iOS — App Store</strong><br><br>
+
       <a href="https://apps.apple.com/app/letz-listen/id6759719994">
         <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://apps.apple.com/app/letz-listen/id6759719994" alt="App Store QR code" width="150" height="150"/>
       </a><br><br>
