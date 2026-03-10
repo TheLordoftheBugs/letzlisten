@@ -623,28 +623,11 @@ struct iPadSplitLayout: View {
 struct iPadFavoritesPanel: View {
     @EnvironmentObject var favoritesManager: FavoritesManager
     @EnvironmentObject var languageManager: LanguageManager
-    @State private var showConfirmClearAll = false
 
     var body: some View {
         VStack(spacing: 0) {
             HStack {
                 Spacer()
-
-                if !favoritesManager.favorites.isEmpty {
-                    Button(role: .destructive) {
-                        showConfirmClearAll = true
-                    } label: {
-                        Text(languageManager.clearAll)
-                            .font(.system(size: 14))
-                            .foregroundColor(.red)
-                    }
-                    .alert(languageManager.confirmClearAll, isPresented: $showConfirmClearAll) {
-                        Button(languageManager.clearAll, role: .destructive) {
-                            favoritesManager.clearAll()
-                        }
-                        Button(languageManager.cancel, role: .cancel) {}
-                    }
-                }
             }
             .padding(.horizontal, 16)
             .padding(.top, 16)
@@ -702,7 +685,7 @@ struct iPadStationSidebar: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Text(languageManager.chooseYourRadio)
+            Text(languageManager.radio)
                 .font(.system(size: 18, weight: .bold))
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity, alignment: .leading)

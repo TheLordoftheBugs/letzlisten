@@ -195,7 +195,7 @@ struct SettingsView: View {
             .navigationTitle(languageManager.settings)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .navigationBarTrailing) {
                     Button(languageManager.done) {
                         dismiss()
                     }

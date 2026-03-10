@@ -61,7 +61,7 @@ struct FavoritesView: View {
             .navigationTitle(languageManager.favorites)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .navigationBarTrailing) {
                     Button(languageManager.done) {
                         dismiss()
                     }

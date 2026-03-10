@@ -55,8 +55,8 @@ struct StationSelectorView: View {
             .navigationTitle(languageManager.radio)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(languageManager.back) {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(languageManager.done) {
                         dismiss()
                     }
                     .foregroundColor(.blue)
