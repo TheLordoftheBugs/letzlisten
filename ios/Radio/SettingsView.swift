@@ -2,16 +2,23 @@
 //  SettingsView.swift
 //  Letzebuerg FM
 //
-//  Settings sheet: language (dropdown), playback options, app info
+//  Settings sheet: language (dropdown), playback options, app info, favorites export/import
 //
 
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct SettingsView: View {
     @EnvironmentObject var languageManager: LanguageManager
+    @EnvironmentObject var favoritesManager: FavoritesManager
     @Environment(\.dismiss) var dismiss
 
     @AppStorage("continuousPlayback") private var continuousPlayback = true
+
+    @State private var showExportSheet = false
+    @State private var exportedURL: URL? = nil
+    @State private var showFileImporter = false
+    @State private var importFeedback: String? = nil
 
     private var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—"
@@ -84,6 +91,62 @@ struct SettingsView: View {
                                 .fill(Color.white.opacity(0.06))
                         )
 
+                        // MARK: Favoris — export / import
+                        sectionHeader(languageManager.favorites)
+
+                        VStack(spacing: 0) {
+                            // Export
+                            Button(action: exportFavorites) {
+                                HStack {
+                                    Text(languageManager.exportFavorites)
+                                        .font(.system(size: 17, weight: .medium))
+                                        .foregroundColor(.white)
+                                    Spacer()
+                                    Image(systemName: "square.and.arrow.up")
+                                        .foregroundColor(.blue)
+                                }
+                                .padding(.vertical, 13)
+                                .padding(.horizontal, 16)
+                            }
+
+                            Divider()
+                                .background(Color.white.opacity(0.1))
+                                .padding(.horizontal, 16)
+
+                            // Import
+                            Button(action: { showFileImporter = true }) {
+                                HStack {
+                                    Text(languageManager.importFavorites)
+                                        .font(.system(size: 17, weight: .medium))
+                                        .foregroundColor(.white)
+                                    Spacer()
+                                    Image(systemName: "square.and.arrow.down")
+                                        .foregroundColor(.blue)
+                                }
+                                .padding(.vertical, 13)
+                                .padding(.horizontal, 16)
+                            }
+
+                            // Feedback import
+                            if let feedback = importFeedback {
+                                Divider()
+                                    .background(Color.white.opacity(0.1))
+                                    .padding(.horizontal, 16)
+
+                                Text(feedback)
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.white.opacity(0.7))
+                                    .padding(.vertical, 10)
+                                    .padding(.horizontal, 16)
+                                    .transition(.opacity)
+                            }
+                        }
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.white.opacity(0.06))
+                        )
+                        .animation(.easeInOut(duration: 0.2), value: importFeedback)
+
                         // MARK: About — version + build
                         sectionHeader(languageManager.about)
 
@@ -122,9 +185,55 @@ struct SettingsView: View {
             }
             .toolbarBackground(.visible, for: .navigationBar)
             .toolbarBackground(Color(red: 0.08, green: 0.08, blue: 0.12), for: .navigationBar)
+            .sheet(isPresented: $showExportSheet) {
+                if let url = exportedURL {
+                    ActivityView(activityItems: [url])
+                }
+            }
+            .fileImporter(
+                isPresented: $showFileImporter,
+                allowedContentTypes: [UTType.json],
+                allowsMultipleSelection: false
+            ) { result in
+                handleImport(result: result)
+            }
         }
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
+    }
+
+    // MARK: - Actions
+
+    private func exportFavorites() {
+        guard let data = favoritesManager.exportData() else { return }
+        let tmpURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("favoris-letzlisten.json")
+        try? data.write(to: tmpURL)
+        exportedURL = tmpURL
+        showExportSheet = true
+    }
+
+    private func handleImport(result: Result<[URL], Error>) {
+        guard case .success(let urls) = result, let url = urls.first else { return }
+        let accessing = url.startAccessingSecurityScopedResource()
+        defer { if accessing { url.stopAccessingSecurityScopedResource() } }
+        guard let data = try? Data(contentsOf: url) else {
+            showImportFeedback(languageManager.importFailed)
+            return
+        }
+        let count = favoritesManager.importFavorites(from: data)
+        if count < 0 {
+            showImportFeedback(languageManager.importFailed)
+        } else {
+            showImportFeedback(languageManager.importSuccess(count: count))
+        }
+    }
+
+    private func showImportFeedback(_ message: String) {
+        withAnimation { importFeedback = message }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            withAnimation { importFeedback = nil }
+        }
     }
 
     // MARK: - Helpers
@@ -139,7 +248,20 @@ struct SettingsView: View {
     }
 }
 
+// MARK: - Activity View (share sheet)
+
+private struct ActivityView: UIViewControllerRepresentable {
+    let activityItems: [Any]
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
+}
+
 #Preview {
     SettingsView()
         .environmentObject(LanguageManager.shared)
+        .environmentObject(FavoritesManager())
 }

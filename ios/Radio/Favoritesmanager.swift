@@ -80,4 +80,27 @@ class FavoritesManager: ObservableObject {
         favorites.removeAll()
         saveFavorites()
     }
+
+    // Export favorites as JSON data
+    func exportData() -> Data? {
+        try? JSONEncoder().encode(favorites)
+    }
+
+    // Import favorites from JSON data — skips duplicates, returns count added
+    func importFavorites(from data: Data) -> Int {
+        guard let imported = try? JSONDecoder().decode([Favorite].self, from: data) else { return -1 }
+        var count = 0
+        for fav in imported {
+            let alreadyExists = favorites.contains { $0.title == fav.title && $0.artist == fav.artist }
+            if !alreadyExists {
+                favorites.append(fav)
+                count += 1
+            }
+        }
+        if count > 0 {
+            favorites.sort { $0.timestamp > $1.timestamp }
+            saveFavorites()
+        }
+        return count
+    }
 }

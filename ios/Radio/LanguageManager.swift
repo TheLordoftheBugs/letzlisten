@@ -242,6 +242,46 @@ class LanguageManager: ObservableObject {
         }
     }
 
+    var exportFavorites: String {
+        switch currentLanguage {
+        case .luxembourgish: return "Exportéieren"
+        case .german:        return "Exportieren"
+        case .english:       return "Export"
+        case .french:        return "Exporter"
+        case .portuguese:    return "Exportar"
+        }
+    }
+
+    var importFavorites: String {
+        switch currentLanguage {
+        case .luxembourgish: return "Importéieren"
+        case .german:        return "Importieren"
+        case .english:       return "Import"
+        case .french:        return "Importer"
+        case .portuguese:    return "Importar"
+        }
+    }
+
+    var importFailed: String {
+        switch currentLanguage {
+        case .luxembourgish: return "⚠ Fichier net valabel"
+        case .german:        return "⚠ Ungültige Datei"
+        case .english:       return "⚠ Invalid file"
+        case .french:        return "⚠ Fichier invalide"
+        case .portuguese:    return "⚠ Arquivo inválido"
+        }
+    }
+
+    func importSuccess(count: Int) -> String {
+        switch currentLanguage {
+        case .luxembourgish: return "✓ \(count) Favorit\(count == 1 ? "" : "en") importéiert"
+        case .german:        return "✓ \(count) Favorit\(count == 1 ? "" : "en") importiert"
+        case .english:       return "✓ \(count) favourite\(count == 1 ? "" : "s") imported"
+        case .french:        return "✓ \(count) favori\(count == 1 ? "" : "s") importé\(count == 1 ? "" : "s")"
+        case .portuguese:    return "✓ \(count) favorito\(count == 1 ? "" : "s") importado\(count == 1 ? "" : "s")"
+        }
+    }
+
     func shareMessage(artist: String, title: String, station: String, url: String?) -> String {
         let base: String
         switch currentLanguage {
