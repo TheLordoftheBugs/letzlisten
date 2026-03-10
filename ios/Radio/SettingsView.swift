@@ -100,14 +100,15 @@ struct SettingsView: View {
                                 HStack {
                                     Text(languageManager.exportFavorites)
                                         .font(.system(size: 17, weight: .medium))
-                                        .foregroundColor(.white)
+                                        .foregroundColor(favoritesManager.favorites.isEmpty ? .white.opacity(0.3) : .white)
                                     Spacer()
                                     Image(systemName: "square.and.arrow.up")
-                                        .foregroundColor(.blue)
+                                        .foregroundColor(favoritesManager.favorites.isEmpty ? .blue.opacity(0.3) : .blue)
                                 }
                                 .padding(.vertical, 13)
                                 .padding(.horizontal, 16)
                             }
+                            .disabled(favoritesManager.favorites.isEmpty)
 
                             Divider()
                                 .background(Color.white.opacity(0.1))
