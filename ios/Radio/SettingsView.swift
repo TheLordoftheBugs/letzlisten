@@ -15,8 +15,6 @@ struct SettingsView: View {
 
     @AppStorage("continuousPlayback") private var continuousPlayback = true
 
-    @State private var showExportSheet = false
-    @State private var exportedURL: URL? = nil
     @State private var showFileImporter = false
     @State private var importFeedback: String? = nil
     @State private var showConfirmClearAll = false
@@ -97,19 +95,31 @@ struct SettingsView: View {
 
                         VStack(spacing: 0) {
                             // Export
-                            Button(action: exportFavorites) {
+                            if let url = makeExportFile(), !favoritesManager.favorites.isEmpty {
+                                ShareLink(item: url) {
+                                    HStack {
+                                        Text(languageManager.exportFavorites)
+                                            .font(.system(size: 17, weight: .medium))
+                                            .foregroundColor(.white)
+                                        Spacer()
+                                        Image(systemName: "square.and.arrow.up")
+                                            .foregroundColor(.blue)
+                                    }
+                                    .padding(.vertical, 13)
+                                    .padding(.horizontal, 16)
+                                }
+                            } else {
                                 HStack {
                                     Text(languageManager.exportFavorites)
                                         .font(.system(size: 17, weight: .medium))
-                                        .foregroundColor(favoritesManager.favorites.isEmpty ? .white.opacity(0.3) : .white)
+                                        .foregroundColor(.white.opacity(0.3))
                                     Spacer()
                                     Image(systemName: "square.and.arrow.up")
-                                        .foregroundColor(favoritesManager.favorites.isEmpty ? .blue.opacity(0.3) : .blue)
+                                        .foregroundColor(.blue.opacity(0.3))
                                 }
                                 .padding(.vertical, 13)
                                 .padding(.horizontal, 16)
                             }
-                            .disabled(favoritesManager.favorites.isEmpty)
 
                             Divider()
                                 .background(Color.white.opacity(0.1))
@@ -210,11 +220,6 @@ struct SettingsView: View {
                 }
                 Button(languageManager.cancel, role: .cancel) {}
             }
-            .sheet(isPresented: $showExportSheet) {
-                if let url = exportedURL {
-                    ActivityView(activityItems: [url])
-                }
-            }
             .fileImporter(
                 isPresented: $showFileImporter,
                 allowedContentTypes: [UTType.json],
@@ -229,13 +234,12 @@ struct SettingsView: View {
 
     // MARK: - Actions
 
-    private func exportFavorites() {
-        guard let data = favoritesManager.exportData() else { return }
-        let tmpURL = FileManager.default.temporaryDirectory
+    private func makeExportFile() -> URL? {
+        guard let data = favoritesManager.exportData() else { return nil }
+        let url = FileManager.default.temporaryDirectory
             .appendingPathComponent("favoris-letzlisten.json")
-        try? data.write(to: tmpURL)
-        exportedURL = tmpURL
-        showExportSheet = true
+        try? data.write(to: url)
+        return url
     }
 
     private func handleImport(result: Result<[URL], Error>) {
@@ -273,26 +277,6 @@ struct SettingsView: View {
     }
 }
 
-// MARK: - Activity View (share sheet)
-
-private struct ActivityView: UIViewControllerRepresentable {
-    let activityItems: [Any]
-
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        let controller = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let window = windowScene.windows.first {
-            controller.popoverPresentationController?.sourceView = window
-            controller.popoverPresentationController?.sourceRect = CGRect(
-                x: window.bounds.midX, y: window.bounds.midY, width: 0, height: 0
-            )
-            controller.popoverPresentationController?.permittedArrowDirections = []
-        }
-        return controller
-    }
-
-    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
-}
 
 #Preview {
     SettingsView()
