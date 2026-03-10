@@ -34,13 +34,6 @@ struct StationSelectorView: View {
                 .ignoresSafeArea()
                 
                 VStack(spacing: 0) {
-                    // Header
-                    Text(languageManager.chooseYourRadio)
-                        .font(.system(size: 24, weight: .bold))
-                        .foregroundColor(.white)
-                        .padding(.top, 20)
-                        .padding(.bottom, 10)
-                    
                     // Scrollable station list
                     ScrollView {
                         LazyVStack(spacing: 12) {
@@ -59,6 +52,7 @@ struct StationSelectorView: View {
                     }
                 }
             }
+            .navigationTitle(languageManager.radio)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {

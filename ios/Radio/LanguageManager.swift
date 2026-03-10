@@ -72,6 +72,8 @@ class LanguageManager: ObservableObject {
         }
     }
 
+    var radio: String { "Radio" }
+
     var favorites: String {
         switch currentLanguage {
         case .luxembourgish: return "Favoritten"

@@ -60,7 +60,7 @@ struct FavoritesView: View {
                 }
             }
             .navigationTitle(languageManager.favorites)
-            .navigationBarTitleDisplayMode(.large)
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(languageManager.done) {
