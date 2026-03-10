@@ -16,21 +16,24 @@ letzlisten/
 └── stations.json         # Shared station list (source of truth)
 ```
 
-## iOS
-
-### Features
+## Features
 
 - Stream curated Luxembourg radio stations
-- Adaptive layout: portrait, landscape, and **iPad-optimised** (persistent station sidebar)
+- (iOS) Adaptive layout: portrait, landscape, and iPad-optimised (persistent station sidebar and favourites panel)
+- (Android) Adaptive layout: persistent station sidebar on tablets (≥ 600 dp), bottom-sheet picker on phones
 - Automatic song & artist detection from stream metadata
 - Album artwork fetched via iTunes Search API
-- AirPlay support
-- Lock screen / Control Centre integration
-- Favourites — save and search songs you loved
+- (iOS) AirPlay support
+- (iOS) Lock screen / Control Centre integration
+- Favourites — save, export, import and search songs you loved
 - Multilingual UI: Lëtzebuergesch · Français · Deutsch · English
-- Offline-capable: stations cached locally, updated silently from remote
+- (iOS) Offline-capable: stations cached locally, updated silently from remote
+- (Android) Background playback via `MediaSessionService`
+- (Android) HTTP streams supported (network security config included)
 
-### Tech stack
+## Tech stack
+
+### iOS
 
 | Layer | Technology |
 |---|---|
@@ -42,60 +45,29 @@ letzlisten/
 | Album art | iTunes Search API |
 | Station logos | Google Favicon · Facebook Graph API |
 
-### Requirements
-
-- iOS 16+
-- Xcode 15+
-
-### Opening the project
-
-```
-open ios/Radio.xcodeproj
-```
-
----
-
-## Android _(under testing)_
-
-### Features
-
-- Stream curated Luxembourg radio stations
-- Adaptive layout: persistent station sidebar on tablets (≥ 600 dp), bottom-sheet picker on phones
-- Background playback via `MediaSessionService`
-- Same `stations.json` source as iOS — stays in sync automatically
-- HTTP streams supported (network security config included)
-
-### Tech stack
+### Android
 
 | Layer | Technology |
 |---|---|
 | UI | Jetpack Compose · Material 3 |
 | Audio | ExoPlayer (Media3) |
 | State | ViewModel · StateFlow |
-| Networking | kotlinx.serialization + URLSession |
+| Networking | kotlinx.serialization |
 | Images | Coil |
 
-### Requirements
+## Requirements
 
-- Android 8.0+ (API 26)
-- Android Studio Hedgehog or later
+**iOS** — iOS 16+ · Xcode 15+
 
-### Opening the project
+```
+open ios/Radio.xcodeproj
+```
+
+**Android** — Android 8.0+ (API 26) · Android Studio Hedgehog or later
 
 1. Open **Android Studio**
 2. `File → Open` → select the `android/` folder
 3. Let Gradle sync and download dependencies
-
----
-
-## Station list
-
-Stations are driven by `stations.json` at the repository root. Both apps
-ship a bundled copy in their respective asset folders and refresh silently
-from the remote GitHub URL on each launch.
-
-To enable or disable a station, edit the `isEnabled` field in `stations.json`
-and push — both apps will pick up the change on next launch.
 
 ---
 
@@ -114,7 +86,18 @@ HTTPS / Icecast streams.
 
 ## Changelog
 
-### Version 2.0 — 2026-03-01
+### Version 1.2 — développement en cours
+
+#### iOS
+
+- **Favourites & Radio menus** — replaced native `List` with `ScrollView` + custom cards to match the Settings visual style; per-row trash button replaces swipe-to-delete
+- **iPad panels** — favourites panel and station sidebar rows now share the same card style as Settings
+- **Settings** — "Clear all" button visible but disabled (greyed out) when no favourites, consistent with Export button
+- **Top buttons** — Settings and Done buttons repositioned to the right; station selector button moved to centre
+
+---
+
+### Version 1.1 — 2026-03-01
 
 #### iOS
 
@@ -132,7 +115,6 @@ HTTPS / Icecast streams.
 - **Album artwork** — fetched from iTunes Search API, same logic as iOS
 - **Station logos** — bundled assets for known stations with Google Favicon / Facebook Graph API fallback cascade
 - **Favourites & share** — save tracks, share now-playing info in the same format as iOS
-- **Loading states** — spinner in the artwork box while the station list is being fetched; track-info area hidden until first play
 - **Multilingual UI** — Lëtzebuergesch · Français · Deutsch · English (Portuguese removed after review)
 - **No auto-play on startup** — stream starts only when the user taps Play
 - **HTTP streams** — network security config allows cleartext where required
