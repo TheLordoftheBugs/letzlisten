@@ -19,19 +19,37 @@
 
 ### Description complète (max 4000 caractères)
 
+Letz Listen — Luxembourg Radio
+
+Stream all your favourite Luxembourg radio stations, anywhere.
+
+FEATURES
+• All major Luxembourg stations in one place
+• Automatic song & artist detection
+• Live album artwork
+• Lock screen & Control Centre integration
+• AirPlay support
+• Save your favourite stations
+• Optimised for iPhone and iPad
+
+Available in French, Lëtzebuergesch, Deutsch, English and Portuguese.
+
+PRIVACY
+Letz Listen collects zero personal data. No account, no ads, no tracking.
 
 ---
 
 ## Mots-clés (max 100 caractères, séparés par des virgules)
 
+radio,luxembourg,live,stream,musik,music,lëtz
 
 ---
 
 ## Informations de contact
 
-- **URL du support** : https://letzlisten.app/support
-- **URL marketing** :
-- **Email de contact** :
+- **URL du support** : [https://letzlisten.app/support](https://thelordofthebugs.github.io/letzlisten/support.html)
+- **URL marketing** : /
+- **Email de contact** : 
 
 ---
 
