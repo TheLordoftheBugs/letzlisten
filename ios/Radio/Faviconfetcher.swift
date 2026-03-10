@@ -124,17 +124,9 @@ class FaviconFetcher {
             return []
         }
         
-        let scheme = url.scheme ?? "https"
-        let baseURL = "\(scheme)://\(host)"
-        
         // Try multiple favicon locations - BEST QUALITY FIRST
         return [
-            // "\(baseURL)/apple-touch-icon.png",  // 1. Apple touch icon (usually 180x180 or higher - BEST QUALITY)
-            "https://www.google.com/s2/favicons?domain=\(host)&sz=256"  // 2. Google favicon service high-res (256x256)
-            // "\(baseURL)/favicon.png",           // 3. PNG favicon (usually better than .ico)
-            // "\(baseURL)/favicon-192x192.png",   // 4. Android chrome icon (192x192)
-            // "\(baseURL)/favicon-96x96.png",     // 5. High-res favicon (96x96)
-            // "\(baseURL)/favicon.ico"            // 6. Standard favicon (often low quality, last resort)
+            "https://www.google.com/s2/favicons?domain=\(host)&sz=256"  // Google favicon service high-res (256x256)
         ]
     }
     

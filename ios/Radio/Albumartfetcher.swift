@@ -106,6 +106,15 @@ class AlbumArtFetcher {
 
 struct iTunesResponse: Codable {
     let results: [iTunesTrack]
+
+    nonisolated init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        results = try container.decode([iTunesTrack].self, forKey: .results)
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case results
+    }
 }
 
 struct iTunesTrack: Codable {
@@ -113,4 +122,16 @@ struct iTunesTrack: Codable {
     let trackName: String?
     let artworkUrl100: String?
     let artworkUrl60: String?
+
+    nonisolated init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        artistName = try container.decodeIfPresent(String.self, forKey: .artistName)
+        trackName = try container.decodeIfPresent(String.self, forKey: .trackName)
+        artworkUrl100 = try container.decodeIfPresent(String.self, forKey: .artworkUrl100)
+        artworkUrl60 = try container.decodeIfPresent(String.self, forKey: .artworkUrl60)
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case artistName, trackName, artworkUrl100, artworkUrl60
+    }
 }

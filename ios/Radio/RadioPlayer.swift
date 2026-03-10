@@ -20,6 +20,7 @@ class RadioPlayer: NSObject, ObservableObject {
     private var player: AVPlayer?
     private var timeObserver: Any?
     private var cachedStationLogo: UIImage?
+    private var metadataOutput: AVPlayerItemMetadataOutput?
 
     // UserDefaults key for last station
     private let lastStationKey = "LastPlayedStationID"
@@ -73,10 +74,11 @@ class RadioPlayer: NSObject, ObservableObject {
     
     private func loadStation(_ station: RadioStation) {
         // Remove observer from old player
-        if let player = player, let currentItem = player.currentItem {
+        if let player = player {
             player.removeObserver(self, forKeyPath: "timeControlStatus")
-            currentItem.removeObserver(self, forKeyPath: "timedMetadata")
         }
+        metadataOutput?.setDelegate(nil, queue: nil)
+        metadataOutput = nil
 
         // Create new player with station URL
         // Send Icy-MetaData: 1 so Shoutcast/Icecast servers include ICY stream metadata.
@@ -92,8 +94,11 @@ class RadioPlayer: NSObject, ObservableObject {
         // Observe new player status
         player?.addObserver(self, forKeyPath: "timeControlStatus", options: [.new, .old], context: nil)
 
-        // Observe metadata changes
-        playerItem.addObserver(self, forKeyPath: "timedMetadata", options: [.new], context: nil)
+        // Observe metadata changes via AVPlayerItemMetadataOutput
+        let output = AVPlayerItemMetadataOutput(identifiers: nil)
+        output.setDelegate(self, queue: .main)
+        playerItem.add(output)
+        metadataOutput = output
 
         // Reset track info when switching stations
         currentTrack = TrackInfo(title: "Title", artist: "Artist")
@@ -127,27 +132,17 @@ class RadioPlayer: NSObject, ObservableObject {
                     }
                 }
             }
-        } else if keyPath == "timedMetadata" {
-            // Handle metadata updates
-            if let playerItem = object as? AVPlayerItem {
-                DispatchQueue.main.async {
-                    self.parseMetadata(from: playerItem)
-                }
-            }
         }
     }
     
-    private func parseMetadata(from playerItem: AVPlayerItem) {
-        // Get metadata from timed metadata
-        guard let metadata = playerItem.timedMetadata else { return }
-        
+    private func parseMetadata(from metadata: [AVMetadataItem]) {
         var newTitle: String?
         var newArtist: String?
-        
+
         for item in metadata {
             guard let commonKey = item.commonKey?.rawValue else { continue }
-            
-            if let value = item.value as? String {
+
+            if let value = item.stringValue {
                 switch commonKey {
                 case "title":
                     newTitle = value
@@ -182,7 +177,7 @@ class RadioPlayer: NSObject, ObservableObject {
     private func parseICYMetadata(from metadata: [AVMetadataItem]) {
         for item in metadata {
             if let key = item.commonKey?.rawValue, key == "title" || key == "name" {
-                if let value = item.value as? String {
+                if let value = item.stringValue {
                     // ICY metadata often comes as "Artist - Title"
                     let components = value.split(separator: "-", maxSplits: 1).map { $0.trimmingCharacters(in: .whitespaces) }
                     
@@ -433,11 +428,20 @@ class RadioPlayer: NSObject, ObservableObject {
     }
     
     deinit {
-        if let player = player, let currentItem = player.currentItem {
+        if let player = player {
             player.removeObserver(self, forKeyPath: "timeControlStatus")
-            currentItem.removeObserver(self, forKeyPath: "timedMetadata")
         }
+        metadataOutput?.setDelegate(nil, queue: nil)
         NotificationCenter.default.removeObserver(self)
+    }
+}
+
+// MARK: - AVPlayerItemMetadataOutputPushDelegate
+
+extension RadioPlayer: AVPlayerItemMetadataOutputPushDelegate {
+    func metadataOutput(_ output: AVPlayerItemMetadataOutput, didOutputTimedMetadataGroups groups: [AVTimedMetadataGroup], from track: AVPlayerItemTrack?) {
+        let items = groups.flatMap { $0.items }
+        parseMetadata(from: items)
     }
 }
 

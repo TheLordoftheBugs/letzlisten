@@ -207,7 +207,7 @@ struct ContentView: View {
         .onAppear {
             loadStationLogo()
         }
-        .onChange(of: audioPlayer.currentStation.id) { _ in
+        .onChange(of: audioPlayer.currentStation.id) {
             loadStationLogo()
         }
     }
@@ -611,10 +611,10 @@ struct iPadSplitLayout: View {
         }
         .animation(.easeInOut(duration: 0.3), value: showFavoritesPanel)
         .animation(.easeInOut(duration: 0.3), value: showStationPanel)
-        .onChange(of: showStationPanel) { newValue in
+        .onChange(of: showStationPanel) { _, newValue in
             if newValue { withAnimation(.easeInOut(duration: 0.3)) { showFavoritesPanel = false } }
         }
-        .onChange(of: showFavoritesPanel) { newValue in
+        .onChange(of: showFavoritesPanel) { _, newValue in
             if newValue { withAnimation(.easeInOut(duration: 0.3)) { showStationPanel = false } }
         }
     }
