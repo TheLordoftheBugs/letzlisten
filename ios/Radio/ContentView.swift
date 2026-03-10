@@ -16,17 +16,11 @@ struct ContentView: View {
     @State private var showingShareSheet = false
     @State private var showStationSelector = false
     @State private var showSettings = false
-    @State private var showFavoritesPanel = false   // iPad: left panel
-    @State private var showStationPanel = false     // iPad: right panel
     @State private var stationLogo: UIImage?
     // Detect orientation
     @Environment(\.verticalSizeClass) var verticalSizeClass
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
-    var isIPad: Bool {
-        UIDevice.current.userInterfaceIdiom == .pad
-    }
-
     var isLandscape: Bool {
         verticalSizeClass == .compact
     }
@@ -44,16 +38,7 @@ struct ContentView: View {
             )
             .ignoresSafeArea()
             
-            if isIPad {
-                // iPad layout: split panels (favorites left, station right)
-                iPadSplitLayout(
-                    audioPlayer: audioPlayer,
-                    favoritesManager: favoritesManager,
-                    stationLogo: stationLogo,
-                    showFavoritesPanel: $showFavoritesPanel,
-                    showStationPanel: $showStationPanel
-                )
-            } else if isLandscape {
+            if isLandscape {
                 // iPhone landscape layout
                 LandscapeLayout(
                     audioPlayer: audioPlayer,
@@ -76,17 +61,11 @@ struct ContentView: View {
 
             HStack(spacing: 0) {
                 // Favorites - LEFT
-                Button(action: {
-                    if isIPad {
-                        withAnimation(.easeInOut(duration: 0.3)) { showFavoritesPanel.toggle() }
-                    } else {
-                        showFavorites = true
-                    }
-                }) {
+                Button(action: { showFavorites = true }) {
                     ZStack {
                         Circle()
-                            .fill(Color.white.opacity(isIPad && showFavoritesPanel ? 0.25 : 0.15))
-                        Image(systemName: isIPad && showFavoritesPanel ? "heart.fill" : "heart")
+                            .fill(Color.white.opacity(0.15))
+                        Image(systemName: "heart")
                             .font(.system(size: iconSize, weight: .semibold))
                             .foregroundColor(.white.opacity(0.9))
                     }
@@ -97,16 +76,10 @@ struct ContentView: View {
                 Spacer()
 
                 // Station selector - CENTER
-                Button(action: {
-                    if isIPad {
-                        withAnimation(.easeInOut(duration: 0.3)) { showStationPanel.toggle() }
-                    } else {
-                        showStationSelector = true
-                    }
-                }) {
+                Button(action: { showStationSelector = true }) {
                     ZStack {
                         Circle()
-                            .fill(Color.white.opacity(isIPad && showStationPanel ? 0.25 : 0.15))
+                            .fill(Color.white.opacity(0.15))
                         Image(systemName: "antenna.radiowaves.left.and.right")
                             .font(.system(size: iconSize, weight: .semibold))
                             .foregroundColor(.white.opacity(0.9))
@@ -565,216 +538,6 @@ struct LanguagePickerView: View {
         }
         .presentationDetents([.medium])
         .presentationDragIndicator(.visible)
-    }
-}
-
-// MARK: - iPad Layout
-
-struct iPadSplitLayout: View {
-    @ObservedObject var audioPlayer: RadioPlayer
-    @ObservedObject var favoritesManager: FavoritesManager
-    let stationLogo: UIImage?
-    @Binding var showFavoritesPanel: Bool
-    @Binding var showStationPanel: Bool
-
-    var body: some View {
-        HStack(spacing: 0) {
-            // Left panel: Favorites (slides in from left)
-            if showFavoritesPanel {
-                iPadFavoritesPanel()
-                    .frame(width: 320)
-                    .transition(.move(edge: .leading))
-
-                Rectangle()
-                    .fill(Color.white.opacity(0.1))
-                    .frame(width: 1)
-            }
-
-            // Center: iPhone-style portrait layout
-            PortraitLayout(
-                audioPlayer: audioPlayer,
-                favoritesManager: favoritesManager,
-                stationLogo: stationLogo
-            )
-            .frame(maxWidth: .infinity)
-
-            // Right panel: Station selector (slides in from right)
-            if showStationPanel {
-                Rectangle()
-                    .fill(Color.white.opacity(0.1))
-                    .frame(width: 1)
-
-                iPadStationSidebar(audioPlayer: audioPlayer)
-                    .frame(width: 320)
-                    .transition(.move(edge: .trailing))
-            }
-        }
-        .animation(.easeInOut(duration: 0.3), value: showFavoritesPanel)
-        .animation(.easeInOut(duration: 0.3), value: showStationPanel)
-        .onChange(of: showStationPanel) { _, newValue in
-            if newValue { withAnimation(.easeInOut(duration: 0.3)) { showFavoritesPanel = false } }
-        }
-        .onChange(of: showFavoritesPanel) { _, newValue in
-            if newValue { withAnimation(.easeInOut(duration: 0.3)) { showStationPanel = false } }
-        }
-    }
-}
-
-struct iPadFavoritesPanel: View {
-    @EnvironmentObject var favoritesManager: FavoritesManager
-    @EnvironmentObject var languageManager: LanguageManager
-
-    var body: some View {
-        VStack(spacing: 0) {
-            HStack {
-                Spacer()
-            }
-            .padding(.horizontal, 16)
-            .padding(.top, 16)
-            .padding(.bottom, 48)
-
-            Rectangle()
-                .fill(Color.white.opacity(0.1))
-                .frame(height: 1)
-
-            if favoritesManager.favorites.isEmpty {
-                Spacer()
-                VStack(spacing: 16) {
-                    Image(systemName: "heart.slash")
-                        .font(.system(size: 48))
-                        .foregroundColor(.white.opacity(0.4))
-
-                    Text(languageManager.noFavoritesYet)
-                        .font(.title3)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-
-                    Text(languageManager.noFavoritesHint)
-                        .font(.body)
-                        .foregroundColor(.white.opacity(0.7))
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 20)
-                }
-                Spacer()
-            } else {
-                ScrollView {
-                    LazyVStack(spacing: 8) {
-                        ForEach(favoritesManager.favorites) { favorite in
-                            FavoriteRowView(favorite: favorite) {
-                                favoritesManager.removeFavorite(favorite)
-                            }
-                        }
-                    }
-                    .padding(.horizontal, 12)
-                    .padding(.top, 12)
-                    .padding(.bottom, 20)
-                }
-            }
-        }
-        .background(Color(red: 0.08, green: 0.08, blue: 0.12).opacity(0.95))
-    }
-}
-
-struct iPadStationSidebar: View {
-    @ObservedObject var audioPlayer: RadioPlayer
-    @EnvironmentObject var languageManager: LanguageManager
-    @ObservedObject private var stationLoader = RadioStationLoader.shared
-
-    private var sortedStations: [RadioStation] {
-        RadioStation.stations
-            .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
-    }
-
-    var body: some View {
-        VStack(spacing: 0) {
-            Text(languageManager.radio)
-                .font(.system(size: 18, weight: .bold))
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 16)
-                .padding(.top, 16)
-                .padding(.bottom, 48)
-
-            Rectangle()
-                .fill(Color.white.opacity(0.1))
-                .frame(height: 1)
-
-            ScrollView {
-                LazyVStack(spacing: 8) {
-                    ForEach(sortedStations) { station in
-                        iPadStationRow(
-                            station: station,
-                            isSelected: station.id == audioPlayer.currentStation.id
-                        ) {
-                            audioPlayer.switchStation(station)
-                        }
-                    }
-                }
-                .padding(.vertical, 12)
-                .padding(.horizontal, 8)
-            }
-        }
-        .background(Color(red: 0.08, green: 0.08, blue: 0.12).opacity(0.95))
-    }
-}
-
-struct iPadStationRow: View {
-    let station: RadioStation
-    let isSelected: Bool
-    let onTap: () -> Void
-    @State private var logo: UIImage?
-
-    var body: some View {
-        Button(action: station.enabled ? onTap : {}) {
-            HStack(spacing: 12) {
-                Group {
-                    if let logo = logo {
-                        Image(uiImage: logo)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                    } else {
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.white.opacity(station.enabled ? 0.1 : 0.05))
-                            .overlay(
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: .white.opacity(0.5)))
-                                    .scaleEffect(0.7)
-                            )
-                    }
-                }
-                .frame(width: 44, height: 44)
-                .cornerRadius(8)
-                .opacity(station.enabled ? 1.0 : 0.3)
-
-                Text(station.name)
-                    .font(.system(size: 16, weight: isSelected && station.enabled ? .semibold : .regular))
-                    .foregroundColor(.white.opacity(station.enabled ? 1.0 : 0.4))
-                    .lineLimit(1)
-
-                Spacer()
-
-                if !station.enabled {
-                    Image(systemName: "lock.fill")
-                        .font(.system(size: 14))
-                        .foregroundColor(.white.opacity(0.3))
-                } else if isSelected {
-                    Image(systemName: "checkmark")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(.blue)
-                }
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 10)
-            .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(isSelected && station.enabled ? Color.blue.opacity(0.2) : Color.white.opacity(0.05))
-            )
-        }
-        .onAppear {
-            FaviconFetcher.shared.loadLogo(for: station) { image in
-                logo = image
-            }
-        }
     }
 }
 
