@@ -30,9 +30,6 @@
 - **No auto-play on startup** — stream starts only when the user taps Play
 - **HTTP streams** — network security config allows cleartext where required
 
-### Shared
-- **stations.json v1.5** — Country Radio disabled; Crazy Poisons Radio retained as the sole active station
-
 ---
 
 ## Version 1.0 — 2026-02-28
