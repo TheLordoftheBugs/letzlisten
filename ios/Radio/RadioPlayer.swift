@@ -8,7 +8,6 @@
 import Foundation
 import AVFoundation
 import MediaPlayer
-import MediaToolbox
 import Combine
 
 class RadioPlayer: NSObject, ObservableObject {
@@ -22,11 +21,6 @@ class RadioPlayer: NSObject, ObservableObject {
     private var timeObserver: Any?
     private var cachedStationLogo: UIImage?
 
-    // ShazamKit — used as fallback when no ICY metadata is available.
-    // Stored as Any? to avoid @available constraints on the property itself.
-    private var shazamMatcher: Any?
-    private var shazamDebounceTimer: Timer?
-    
     // UserDefaults key for last station
     private let lastStationKey = "LastPlayedStationID"
     
@@ -78,10 +72,6 @@ class RadioPlayer: NSObject, ObservableObject {
     }
     
     private func loadStation(_ station: RadioStation) {
-        // Stop any pending Shazam recognition from the previous station
-        stopShazam()
-        shazamMatcher = nil
-
         // Remove observer from old player
         if let player = player, let currentItem = player.currentItem {
             player.removeObserver(self, forKeyPath: "timeControlStatus")
@@ -105,11 +95,6 @@ class RadioPlayer: NSObject, ObservableObject {
         // Observe metadata changes
         playerItem.addObserver(self, forKeyPath: "timedMetadata", options: [.new], context: nil)
 
-        // Install audio tap for ShazamKit (iOS 15+)
-        if #available(iOS 15, *) {
-            setupShazamTap(for: playerItem)
-        }
-
         // Reset track info when switching stations
         currentTrack = TrackInfo(title: "Title", artist: "Artist")
         currentArtwork = nil
@@ -124,111 +109,6 @@ class RadioPlayer: NSObject, ObservableObject {
         updateNowPlayingInfo()
     }
 
-    // MARK: - ShazamKit tap setup
-
-    @available(iOS 15.0, *)
-    private func setupShazamTap(for playerItem: AVPlayerItem) {
-        let matcher = ShazamMatcher()
-        matcher.onMatch = { [weak self] title, artist in
-            self?.updateTrackInfo(title: title, artist: artist)
-        }
-        shazamMatcher = matcher
-
-        // Load audio tracks asynchronously (they may not be ready yet at setup time)
-        playerItem.asset.loadValuesAsynchronously(forKeys: ["tracks"]) { [weak self, weak playerItem] in
-            guard self != nil, let playerItem = playerItem,
-                  let audioTrack = playerItem.asset.tracks(withMediaType: .audio).first else { return }
-
-            let tapContext = ShazamTapContext(matcher: matcher)
-            let retainedCtx = Unmanaged.passRetained(tapContext)
-
-            // C-compatible callbacks — no captures allowed; context is passed via clientInfo.
-            let tapInit: MTAudioProcessingTapInitCallback = { tap, clientInfo, tapStorageOut in
-                tapStorageOut.pointee = clientInfo
-            }
-            let tapFinalize: MTAudioProcessingTapFinalizeCallback = { tap in
-                let storage = MTAudioProcessingTapGetStorage(tap)
-                Unmanaged<ShazamTapContext>.fromOpaque(storage).release()
-            }
-            let tapPrepare: MTAudioProcessingTapPrepareCallback = { tap, _, processingFormat in
-                let storage = MTAudioProcessingTapGetStorage(tap)
-                let ctx = Unmanaged<ShazamTapContext>.fromOpaque(storage).takeUnretainedValue()
-                ctx.format = AVAudioFormat(streamDescription: processingFormat)
-            }
-            let tapProcess: MTAudioProcessingTapProcessCallback = { tap, numberFrames, _, bufferListInOut, numberFramesOut, flagsOut in
-                MTAudioProcessingTapGetSourceAudio(tap, numberFrames, bufferListInOut, flagsOut, nil, numberFramesOut)
-                let storage = MTAudioProcessingTapGetStorage(tap)
-                let ctx = Unmanaged<ShazamTapContext>.fromOpaque(storage).takeUnretainedValue()
-                guard let format = ctx.format,
-                      let matcher = ctx.matcher,
-                      matcher.isRunning else { return }
-                let frameCount = AVAudioFrameCount(numberFramesOut.pointee)
-                guard frameCount > 0,
-                      let pcmBuffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: frameCount) else { return }
-                pcmBuffer.frameLength = frameCount
-                let srcPtr = UnsafeMutableAudioBufferListPointer(bufferListInOut)
-                let dstPtr = UnsafeMutableAudioBufferListPointer(pcmBuffer.mutableAudioBufferList)
-                for i in 0..<min(srcPtr.count, dstPtr.count) {
-                    if let src = srcPtr[i].mData, let dst = dstPtr[i].mData {
-                        memcpy(dst, src, Int(srcPtr[i].mDataByteSize))
-                    }
-                }
-                matcher.match(buffer: pcmBuffer)
-            }
-            var callbacks = MTAudioProcessingTapCallbacks(
-                version: kMTAudioProcessingTapCallbacksVersion_0,
-                clientInfo: retainedCtx.toOpaque(),
-                init: tapInit,
-                finalize: tapFinalize,
-                prepare: tapPrepare,
-                unprepare: nil,
-                process: tapProcess
-            )
-
-            var tap: MTAudioProcessingTap?
-            let status = MTAudioProcessingTapCreate(
-                kCFAllocatorDefault, &callbacks,
-                kMTAudioProcessingTapCreationFlag_PreEffects, &tap
-            )
-            guard status == noErr, let tap = tap else { return }
-
-            let inputParams = AVMutableAudioMixInputParameters(track: audioTrack)
-            inputParams.audioTapProcessor = tap
-
-            let audioMix = AVMutableAudioMix()
-            audioMix.inputParameters = [inputParams]
-
-            DispatchQueue.main.async {
-                playerItem.audioMix = audioMix
-            }
-        }
-    }
-
-    // MARK: - Shazam start / stop helpers
-
-    /// Starts ShazamKit recognition after a short debounce, only when needed.
-    private func startShazamIfNeeded() {
-        guard #available(iOS 15, *) else { return }
-        guard isPlaying, currentTrack.isUnknown else { return }
-        guard (shazamMatcher as? ShazamMatcher)?.isRunning != true else { return }
-
-        shazamDebounceTimer?.invalidate()
-        // Wait 5 s before starting: short gaps between tracks shouldn't trigger Shazam.
-        shazamDebounceTimer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: false) { [weak self] _ in
-            guard let self = self, self.isPlaying, self.currentTrack.isUnknown else { return }
-            (self.shazamMatcher as? ShazamMatcher)?.start()
-        }
-    }
-
-    /// Cancels any pending or active Shazam recognition.
-    private func stopShazam() {
-        shazamDebounceTimer?.invalidate()
-        shazamDebounceTimer = nil
-        if #available(iOS 15, *) {
-            (shazamMatcher as? ShazamMatcher)?.stop()
-        }
-    }
-    
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         if keyPath == "timeControlStatus" {
             DispatchQueue.main.async {
@@ -237,12 +117,9 @@ class RadioPlayer: NSObject, ObservableObject {
                     case .playing:
                         self.isPlaying = true
                         self.isLoading = false
-                        // Player is now actually streaming — start Shazam if needed.
-                        self.startShazamIfNeeded()
                     case .paused:
                         self.isPlaying = false
                         self.isLoading = false
-                        self.stopShazam()
                     case .waitingToPlayAtSpecifiedRate:
                         self.isLoading = true
                     @unknown default:
@@ -333,9 +210,6 @@ class RadioPlayer: NSObject, ObservableObject {
             currentTrack = TrackInfo(title: newTitle, artist: newArtist)
 
             if newTitle != "Title" || newArtist != "Artist" {
-                // Valid metadata (from stream or Shazam) — stop any Shazam recognition.
-                stopShazam()
-
                 // First update with no artwork
                 currentArtwork = nil
                 updateNowPlayingInfo()
@@ -346,10 +220,8 @@ class RadioPlayer: NSObject, ObservableObject {
                     self?.updateNowPlayingInfo()
                 }
             } else {
-                // No metadata — reset artwork and try Shazam if playing.
                 currentArtwork = nil
                 updateNowPlayingInfo()
-                startShazamIfNeeded()
             }
         }
     }
@@ -411,16 +283,12 @@ class RadioPlayer: NSObject, ObservableObject {
         isPlaying = true
         player?.play()
         updateNowPlayingInfo()
-
-        // Resume Shazam if we still have no metadata
-        startShazamIfNeeded()
     }
 
     func stop() {
         player?.pause()
         isPlaying = false
         isLoading = false
-        stopShazam()
         updateNowPlayingInfo()
     }
     
