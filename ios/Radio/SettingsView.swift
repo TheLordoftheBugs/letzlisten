@@ -138,7 +138,7 @@ struct SettingsView: View {
                                 HStack {
                                     Text(languageManager.clearAll)
                                         .font(.system(size: 17, weight: .medium))
-                                        .foregroundColor(favoritesManager.favorites.isEmpty ? .red.opacity(0.3) : .red)
+                                        .foregroundColor(favoritesManager.favorites.isEmpty ? .red.opacity(0.4) : .red)
                                     Spacer()
                                 }
                                 .padding(.vertical, 13)
