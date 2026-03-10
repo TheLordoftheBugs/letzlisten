@@ -19,6 +19,8 @@ struct SettingsView: View {
     @State private var exportFeedback: String? = nil
     @State private var importFeedback: String? = nil
     @State private var showConfirmClearAll = false
+    @State private var showExportSheet = false
+    @State private var exportURL: URL? = nil
 
     private var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—"
@@ -96,8 +98,11 @@ struct SettingsView: View {
 
                         VStack(spacing: 0) {
                             // Export
-                            if let url = makeExportFile(), !favoritesManager.favorites.isEmpty {
-                                ShareLink(item: url) {
+                            if !favoritesManager.favorites.isEmpty {
+                                Button(action: {
+                                    exportURL = makeExportFile()
+                                    showExportSheet = true
+                                }) {
                                     HStack {
                                         Text(languageManager.exportFavorites)
                                             .font(.system(size: 17, weight: .medium))
@@ -109,13 +114,6 @@ struct SettingsView: View {
                                     .padding(.vertical, 13)
                                     .padding(.horizontal, 16)
                                 }
-                                .simultaneousGesture(TapGesture().onEnded {
-                                    let count = favoritesManager.favorites.count
-                                    exportFeedback = languageManager.exportSuccess(count: count)
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                                        exportFeedback = nil
-                                    }
-                                })
                             } else {
                                 HStack {
                                     Text(languageManager.exportFavorites)
@@ -249,6 +247,17 @@ struct SettingsView: View {
                 allowsMultipleSelection: false
             ) { result in
                 handleImport(result: result)
+            }
+            .sheet(isPresented: $showExportSheet, onDismiss: {
+                let count = favoritesManager.favorites.count
+                exportFeedback = languageManager.exportSuccess(count: count)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                    exportFeedback = nil
+                }
+            }) {
+                if let url = exportURL {
+                    ShareSheet(items: [url])
+                }
             }
         }
         .presentationDetents([.large])
