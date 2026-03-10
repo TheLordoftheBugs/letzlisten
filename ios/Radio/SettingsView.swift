@@ -19,6 +19,7 @@ struct SettingsView: View {
     @State private var exportedURL: URL? = nil
     @State private var showFileImporter = false
     @State private var importFeedback: String? = nil
+    @State private var showConfirmClearAll = false
 
     private var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—"
@@ -128,6 +129,23 @@ struct SettingsView: View {
                                 .padding(.horizontal, 16)
                             }
 
+                            Divider()
+                                .background(Color.white.opacity(0.1))
+                                .padding(.horizontal, 16)
+
+                            // Tout supprimer
+                            Button(action: { showConfirmClearAll = true }) {
+                                HStack {
+                                    Text(languageManager.clearAll)
+                                        .font(.system(size: 17, weight: .medium))
+                                        .foregroundColor(favoritesManager.favorites.isEmpty ? .red.opacity(0.3) : .red)
+                                    Spacer()
+                                }
+                                .padding(.vertical, 13)
+                                .padding(.horizontal, 16)
+                            }
+                            .disabled(favoritesManager.favorites.isEmpty)
+
                             // Feedback import
                             if let feedback = importFeedback {
                                 Divider()
@@ -186,6 +204,12 @@ struct SettingsView: View {
             }
             .toolbarBackground(.visible, for: .navigationBar)
             .toolbarBackground(Color(red: 0.08, green: 0.08, blue: 0.12), for: .navigationBar)
+            .alert(languageManager.confirmClearAll, isPresented: $showConfirmClearAll) {
+                Button(languageManager.clearAll, role: .destructive) {
+                    favoritesManager.clearAll()
+                }
+                Button(languageManager.cancel, role: .cancel) {}
+            }
             .sheet(isPresented: $showExportSheet) {
                 if let url = exportedURL {
                     ActivityView(activityItems: [url])
