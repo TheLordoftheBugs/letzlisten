@@ -45,17 +45,18 @@ struct FavoritesView: View {
                             .padding(.horizontal, 40)
                     }
                 } else {
-                    // List of favorites
-                    List {
-                        ForEach(favoritesManager.favorites) { favorite in
-                            FavoriteRowView(favorite: favorite)
-                                .listRowBackground(Color.clear)
-                                .listRowSeparator(.hidden)
+                    ScrollView {
+                        LazyVStack(spacing: 8) {
+                            ForEach(favoritesManager.favorites) { favorite in
+                                FavoriteRowView(favorite: favorite) {
+                                    favoritesManager.removeFavorite(favorite)
+                                }
+                            }
                         }
-                        .onDelete(perform: favoritesManager.removeFavorite)
+                        .padding(.horizontal, 20)
+                        .padding(.top, 12)
+                        .padding(.bottom, 20)
                     }
-                    .listStyle(.plain)
-                    .scrollContentBackground(.hidden)
                 }
             }
             .navigationTitle(languageManager.favorites)
@@ -67,7 +68,6 @@ struct FavoritesView: View {
                     }
                     .foregroundColor(.blue)
                 }
-
             }
             .toolbarBackground(.visible, for: .navigationBar)
             .toolbarBackground(Color(red: 0.08, green: 0.08, blue: 0.12), for: .navigationBar)
@@ -77,52 +77,67 @@ struct FavoritesView: View {
 
 struct FavoriteRowView: View {
     let favorite: Favorite
-    
+    let onDelete: () -> Void
+
     var body: some View {
-        Button(action: {
-            searchOnWeb(artist: favorite.artist, title: favorite.title)
-        }) {
-            VStack(alignment: .leading, spacing: 12) {
-                // Title and Artist (clickable)
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(favorite.title)
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(.white)
-                    
-                    Text(favorite.artist)
-                        .font(.system(size: 15))
-                        .foregroundColor(.white.opacity(0.7))
+        HStack(spacing: 0) {
+            Button(action: {
+                searchOnWeb(artist: favorite.artist, title: favorite.title)
+            }) {
+                VStack(alignment: .leading, spacing: 12) {
+                    // Title and Artist
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(favorite.title)
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(.white)
+
+                        Text(favorite.artist)
+                            .font(.system(size: 15))
+                            .foregroundColor(.white.opacity(0.7))
+                    }
+
+                    // Station info
+                    HStack(spacing: 6) {
+                        Image(systemName: "antenna.radiowaves.left.and.right")
+                            .font(.system(size: 12))
+                        Text(favorite.stationName)
+                            .font(.system(size: 13, weight: .medium))
+                    }
+                    .foregroundColor(.blue.opacity(0.8))
+
+                    // Timestamp
+                    HStack {
+                        Image(systemName: "clock")
+                            .font(.system(size: 12))
+                        Text(favorite.formattedDate)
+                            .font(.system(size: 13))
+                    }
+                    .foregroundColor(.white.opacity(0.5))
                 }
-                
-                // Station info
-                HStack(spacing: 6) {
-                    Image(systemName: "antenna.radiowaves.left.and.right")
-                        .font(.system(size: 12))
-                    Text(favorite.stationName)
-                        .font(.system(size: 13, weight: .medium))
-                }
-                .foregroundColor(.blue.opacity(0.8))
-                
-                // Timestamp
-                HStack {
-                    Image(systemName: "clock")
-                        .font(.system(size: 12))
-                    Text(favorite.formattedDate)
-                        .font(.system(size: 13))
-                }
-                .foregroundColor(.white.opacity(0.5))
+                .padding(.vertical, 12)
+                .padding(.leading, 16)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(.vertical, 8)
+            .buttonStyle(PlainButtonStyle())
+
+            Button(action: onDelete) {
+                Image(systemName: "trash")
+                    .font(.system(size: 16))
+                    .foregroundColor(.red.opacity(0.7))
+                    .padding(.horizontal, 16)
+                    .frame(maxHeight: .infinity)
+            }
         }
-        .buttonStyle(PlainButtonStyle())
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white.opacity(0.06))
+        )
     }
-    
+
     // MARK: - Actions
-    
+
     private func searchOnWeb(artist: String, title: String) {
         let query = "\(artist) \(title)".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-        
-        // Open Google search for the song
         if let searchURL = URL(string: "https://www.google.com/search?q=\(query)") {
             UIApplication.shared.open(searchURL)
         }

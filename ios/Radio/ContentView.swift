@@ -657,16 +657,18 @@ struct iPadFavoritesPanel: View {
                 }
                 Spacer()
             } else {
-                List {
-                    ForEach(favoritesManager.favorites) { favorite in
-                        FavoriteRowView(favorite: favorite)
-                            .listRowBackground(Color.clear)
-                            .listRowSeparator(.hidden)
+                ScrollView {
+                    LazyVStack(spacing: 8) {
+                        ForEach(favoritesManager.favorites) { favorite in
+                            FavoriteRowView(favorite: favorite) {
+                                favoritesManager.removeFavorite(favorite)
+                            }
+                        }
                     }
-                    .onDelete(perform: favoritesManager.removeFavorite)
+                    .padding(.horizontal, 12)
+                    .padding(.top, 12)
+                    .padding(.bottom, 20)
                 }
-                .listStyle(.plain)
-                .scrollContentBackground(.hidden)
             }
         }
         .background(Color(red: 0.08, green: 0.08, blue: 0.12).opacity(0.95))
@@ -765,7 +767,7 @@ struct iPadStationRow: View {
             .padding(.vertical, 10)
             .background(
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(isSelected && station.enabled ? Color.blue.opacity(0.2) : Color.clear)
+                    .fill(isSelected && station.enabled ? Color.blue.opacity(0.2) : Color.white.opacity(0.05))
             )
         }
         .onAppear {
