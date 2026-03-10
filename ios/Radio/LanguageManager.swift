@@ -284,6 +284,16 @@ class LanguageManager: ObservableObject {
         }
     }
 
+    func exportSuccess(count: Int) -> String {
+        switch currentLanguage {
+        case .luxembourgish: return "✓ \(count) Favorit\(count == 1 ? "" : "en") exportéiert"
+        case .german:        return "✓ \(count) Favorit\(count == 1 ? "" : "en") exportiert"
+        case .english:       return "✓ \(count) favourite\(count == 1 ? "" : "s") exported"
+        case .french:        return "✓ \(count) favori\(count == 1 ? "" : "s") exporté\(count == 1 ? "" : "s")"
+        case .portuguese:    return "✓ \(count) favorito\(count == 1 ? "" : "s") exportado\(count == 1 ? "" : "s")"
+        }
+    }
+
     func shareMessage(artist: String, title: String, station: String, url: String?) -> String {
         let base: String
         switch currentLanguage {

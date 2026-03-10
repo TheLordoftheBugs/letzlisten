@@ -16,6 +16,7 @@ struct SettingsView: View {
     @AppStorage("continuousPlayback") private var continuousPlayback = true
 
     @State private var showFileImporter = false
+    @State private var exportFeedback: String? = nil
     @State private var importFeedback: String? = nil
     @State private var showConfirmClearAll = false
 
@@ -108,6 +109,13 @@ struct SettingsView: View {
                                     .padding(.vertical, 13)
                                     .padding(.horizontal, 16)
                                 }
+                                .simultaneousGesture(TapGesture().onEnded {
+                                    let count = favoritesManager.favorites.count
+                                    exportFeedback = languageManager.exportSuccess(count: count)
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                                        exportFeedback = nil
+                                    }
+                                })
                             } else {
                                 HStack {
                                     Text(languageManager.exportFavorites)
@@ -119,6 +127,20 @@ struct SettingsView: View {
                                 }
                                 .padding(.vertical, 13)
                                 .padding(.horizontal, 16)
+                            }
+
+                            // Feedback export
+                            if let feedback = exportFeedback {
+                                Divider()
+                                    .background(Color.white.opacity(0.1))
+                                    .padding(.horizontal, 16)
+
+                                Text(feedback)
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.white.opacity(0.7))
+                                    .padding(.vertical, 10)
+                                    .padding(.horizontal, 16)
+                                    .transition(.opacity)
                             }
 
                             Divider()
@@ -175,6 +197,7 @@ struct SettingsView: View {
                                 .fill(Color.white.opacity(0.06))
                         )
                         .animation(.easeInOut(duration: 0.2), value: importFeedback)
+                        .animation(.easeInOut(duration: 0.2), value: exportFeedback)
 
                         // MARK: About — version + build
                         sectionHeader(languageManager.about)
