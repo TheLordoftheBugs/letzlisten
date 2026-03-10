@@ -3,11 +3,11 @@
 ## Informations générales
 
 - **Nom de l'app** : LetzListen
-- **Sous-titre** : (max 30 caractères)
+- **Sous-titre** : Luxembourg Radio, Live
 - **Catégorie principale** : Musique
-- **Catégorie secondaire** :
-- **SKU** :
-- **Bundle ID** :
+- **Catégorie secondaire** : /
+- **SKU** : ###
+- **Bundle ID** : ###
 - **Prix** : Gratuit
 
 ---
@@ -49,20 +49,12 @@ radio,luxembourg,live,stream,musik,music,lëtz
 
 - **URL du support** : [https://letzlisten.app/support](https://thelordofthebugs.github.io/letzlisten/support.html)
 - **URL marketing** : /
-- **Email de contact** : 
+- **Email de contact** : florentin.arno@gmail.com
 
 ---
 
 ## Classification de contenu
 
-- **Âge minimum** :
-- **Contenu** :
+- **Âge minimum** : 4+
+- **Contenu** : /
 
----
-
-## Localisation
-
-| Langue | Nom | Sous-titre | Mots-clés |
-|--------|-----|------------|-----------|
-| FR     |     |            |           |
-| EN     |     |            |           |
