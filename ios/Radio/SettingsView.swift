@@ -161,6 +161,20 @@ struct SettingsView: View {
                                 .padding(.horizontal, 16)
                             }
 
+                            // Feedback import
+                            if let feedback = importFeedback {
+                                Divider()
+                                    .background(Color.white.opacity(0.1))
+                                    .padding(.horizontal, 16)
+
+                                Text(feedback)
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.white.opacity(0.7))
+                                    .padding(.vertical, 10)
+                                    .padding(.horizontal, 16)
+                                    .transition(.opacity)
+                            }
+
                             Divider()
                                 .background(Color.white.opacity(0.1))
                                 .padding(.horizontal, 16)
@@ -177,20 +191,6 @@ struct SettingsView: View {
                                 .padding(.horizontal, 16)
                             }
                             .disabled(favoritesManager.favorites.isEmpty)
-
-                            // Feedback import
-                            if let feedback = importFeedback {
-                                Divider()
-                                    .background(Color.white.opacity(0.1))
-                                    .padding(.horizontal, 16)
-
-                                Text(feedback)
-                                    .font(.system(size: 14))
-                                    .foregroundColor(.white.opacity(0.7))
-                                    .padding(.vertical, 10)
-                                    .padding(.horizontal, 16)
-                                    .transition(.opacity)
-                            }
                         }
                         .background(
                             RoundedRectangle(cornerRadius: 12)
