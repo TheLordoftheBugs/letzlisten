@@ -135,14 +135,14 @@ class RadioPlayer: NSObject, ObservableObject {
         }
     }
     
-    private func parseMetadata(from metadata: [AVMetadataItem]) {
+    private func parseMetadata(from metadata: [AVMetadataItem]) async {
         var newTitle: String?
         var newArtist: String?
 
         for item in metadata {
             guard let commonKey = item.commonKey?.rawValue else { continue }
 
-            if let value = item.stringValue {
+            if let value = (try? await item.load(.stringValue)) ?? nil {
                 switch commonKey {
                 case "title":
                     newTitle = value
@@ -170,14 +170,14 @@ class RadioPlayer: NSObject, ObservableObject {
             }
         } else {
             // No standard keys — fall back to raw ICY metadata parsing.
-            parseICYMetadata(from: metadata)
+            await parseICYMetadata(from: metadata)
         }
     }
-    
-    private func parseICYMetadata(from metadata: [AVMetadataItem]) {
+
+    private func parseICYMetadata(from metadata: [AVMetadataItem]) async {
         for item in metadata {
             if let key = item.commonKey?.rawValue, key == "title" || key == "name" {
-                if let value = item.stringValue {
+                if let value = (try? await item.load(.stringValue)) ?? nil {
                     // ICY metadata often comes as "Artist - Title"
                     let components = value.split(separator: "-", maxSplits: 1).map { $0.trimmingCharacters(in: .whitespaces) }
                     
@@ -441,7 +441,9 @@ class RadioPlayer: NSObject, ObservableObject {
 extension RadioPlayer: AVPlayerItemMetadataOutputPushDelegate {
     func metadataOutput(_ output: AVPlayerItemMetadataOutput, didOutputTimedMetadataGroups groups: [AVTimedMetadataGroup], from track: AVPlayerItemTrack?) {
         let items = groups.flatMap { $0.items }
-        parseMetadata(from: items)
+        Task { @MainActor in
+            await self.parseMetadata(from: items)
+        }
     }
 }
 
