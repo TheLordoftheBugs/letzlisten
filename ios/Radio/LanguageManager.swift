@@ -242,36 +242,6 @@ class LanguageManager: ObservableObject {
         }
     }
 
-    var stationsListVersion: String {
-        switch currentLanguage {
-        case .luxembourgish: return "Radiolëscht"
-        case .german:        return "Senderliste"
-        case .english:       return "Stations list"
-        case .french:        return "Liste des stations"
-        case .portuguese:    return "Lista de estações"
-        }
-    }
-
-    var stationsUpdated: String {
-        switch currentLanguage {
-        case .luxembourgish: return "✓ Statiounen aktualiséiert"
-        case .german:        return "✓ Sender aktualisiert"
-        case .english:       return "✓ Stations updated"
-        case .french:        return "✓ Stations mises à jour"
-        case .portuguese:    return "✓ Estações atualizadas"
-        }
-    }
-
-    var stationsUpdateFailed: String {
-        switch currentLanguage {
-        case .luxembourgish: return "⚠ Aktualiséierung fehlgeschloen"
-        case .german:        return "⚠ Aktualisierung fehlgeschlagen"
-        case .english:       return "⚠ Update failed"
-        case .french:        return "⚠ Échec de la mise à jour"
-        case .portuguese:    return "⚠ Falha na atualização"
-        }
-    }
-
     func shareMessage(artist: String, title: String, station: String, url: String?) -> String {
         let base: String
         switch currentLanguage {
