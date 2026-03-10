@@ -2,6 +2,10 @@
 ios/
 android/
 
+# Except store metadata
+!store/ios/
+!store/android/
+
 # macOS
 .DS_Store
 .AppleDouble
