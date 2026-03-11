@@ -36,8 +36,12 @@ fun MainScreen(viewModel: RadioViewModel) {
     val currentLanguage by languageManager.currentLanguage.collectAsStateWithLifecycle()
 
     val appVersion = remember {
-        try { context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "—" }
-        catch (_: Exception) { "—" }
+        try {
+            val info = context.packageManager.getPackageInfo(context.packageName, 0)
+            val name = info.versionName ?: "—"
+            val code = info.longVersionCode
+            "$name (Build $code)"
+        } catch (_: Exception) { "—" }
     }
 
     var showStationPicker by remember { mutableStateOf(false) }
