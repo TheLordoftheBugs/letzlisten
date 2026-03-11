@@ -4,11 +4,18 @@ import android.content.Context
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -32,7 +39,7 @@ import kotlinx.coroutines.delay
 fun SettingsSheet(
     languageManager: LanguageManager,
     currentLanguage: AppLanguage,
-    hasFavorites: Boolean,
+    favoritesCount: Int,
     continuousPlayback: Boolean,
     appVersion: String,
     onSetLanguage: (AppLanguage) -> Unit,
@@ -41,10 +48,18 @@ fun SettingsSheet(
     onImportBytes: (ByteArray) -> Int,
     onClearAll: () -> Unit
 ) {
+    val hasFavorites = favoritesCount > 0
     val context = LocalContext.current
     var showConfirmClear by remember { mutableStateOf(false) }
+    var exportFeedback by remember { mutableStateOf<String?>(null) }
     var importFeedback by remember { mutableStateOf<String?>(null) }
 
+    LaunchedEffect(exportFeedback) {
+        if (exportFeedback != null) {
+            delay(3000)
+            exportFeedback = null
+        }
+    }
     LaunchedEffect(importFeedback) {
         if (importFeedback != null) {
             delay(3000)
@@ -102,7 +117,7 @@ fun SettingsSheet(
         SettingsSectionLabel(languageManager.settings.uppercase())
 
         SettingsCard {
-            // Language row
+            // Langue
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
@@ -129,17 +144,14 @@ fun SettingsSheet(
                         expanded = expanded,
                         onDismissRequest = { expanded = false }
                     ) {
-                        val sorted = AppLanguage.values()
+                        AppLanguage.values()
                             .sortedWith(compareBy({ it != AppLanguage.LB }, { it.displayName }))
-                        sorted.forEach { lang ->
-                            DropdownMenuItem(
-                                text = { Text("${lang.flag}  ${lang.displayName}") },
-                                onClick = {
-                                    onSetLanguage(lang)
-                                    expanded = false
-                                }
-                            )
-                        }
+                            .forEach { lang ->
+                                DropdownMenuItem(
+                                    text = { Text("${lang.flag}  ${lang.displayName}") },
+                                    onClick = { onSetLanguage(lang); expanded = false }
+                                )
+                            }
                     }
                 }
             }
@@ -149,7 +161,7 @@ fun SettingsSheet(
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
 
-            // Continuous playback toggle
+            // Lecture continue
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
@@ -187,22 +199,50 @@ fun SettingsSheet(
         SettingsSectionLabel(languageManager.favorites.uppercase())
 
         SettingsCard {
-            // Export
-            TextButton(
-                onClick = { shareExportFile(context, exportData) },
-                enabled = hasFavorites,
-                modifier = Modifier.fillMaxWidth()
+            // Export — visible mais désactivé si pas de favoris (comme iOS)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .then(
+                        if (hasFavorites) Modifier.settingsRowClickable {
+                            exportAndShare(context, exportData)
+                            exportFeedback = languageManager.exportSuccess(favoritesCount)
+                        } else Modifier
+                    )
+                    .padding(horizontal = 16.dp, vertical = 13.dp)
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                Text(
+                    text = languageManager.exportFavorites,
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = if (hasFavorites) TextPrimary else TextPrimary.copy(alpha = 0.3f),
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    imageVector = Icons.Default.Upload,
+                    contentDescription = null,
+                    tint = if (hasFavorites) AccentBlue else AccentBlue.copy(alpha = 0.3f),
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+
+            // Feedback export
+            AnimatedVisibility(
+                visible = exportFeedback != null,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                Column {
+                    HorizontalDivider(
+                        color = Color.White.copy(alpha = 0.1f),
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
                     Text(
-                        text = languageManager.exportFavorites,
-                        fontSize = 17.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = if (hasFavorites) TextPrimary else TextPrimary.copy(alpha = 0.3f)
+                        text = exportFeedback ?: "",
+                        fontSize = 14.sp,
+                        color = TextSecondary.copy(alpha = 0.7f),
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)
                     )
                 }
             }
@@ -213,36 +253,46 @@ fun SettingsSheet(
             )
 
             // Import
-            TextButton(
-                onClick = { importLauncher.launch(arrayOf("application/json", "*/*")) },
-                modifier = Modifier.fillMaxWidth()
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .settingsRowClickable { importLauncher.launch(arrayOf("application/json", "*/*")) }
+                    .padding(horizontal = 16.dp, vertical = 13.dp)
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = languageManager.importFavorites,
-                        fontSize = 17.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = TextPrimary
-                    )
-                }
+                Text(
+                    text = languageManager.importFavorites,
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = TextPrimary,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    imageVector = Icons.Default.Download,
+                    contentDescription = null,
+                    tint = AccentBlue,
+                    modifier = Modifier.size(20.dp)
+                )
             }
 
-            // Import feedback
-            if (importFeedback != null) {
-                HorizontalDivider(
-                    color = Color.White.copy(alpha = 0.1f),
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
-                Text(
-                    text = importFeedback!!,
-                    fontSize = 14.sp,
-                    color = TextSecondary,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)
-                )
+            // Feedback import
+            AnimatedVisibility(
+                visible = importFeedback != null,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                Column {
+                    HorizontalDivider(
+                        color = Color.White.copy(alpha = 0.1f),
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                    Text(
+                        text = importFeedback ?: "",
+                        fontSize = 14.sp,
+                        color = TextSecondary.copy(alpha = 0.7f),
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)
+                    )
+                }
             }
 
             HorizontalDivider(
@@ -250,23 +300,22 @@ fun SettingsSheet(
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
 
-            // Clear all
-            TextButton(
-                onClick = { showConfirmClear = true },
-                enabled = hasFavorites,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = languageManager.clearAll,
-                        fontSize = 17.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = if (hasFavorites) AccentRed else AccentRed.copy(alpha = 0.4f)
+            // Tout supprimer
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .then(
+                        if (hasFavorites) Modifier.settingsRowClickable { showConfirmClear = true } else Modifier
                     )
-                }
+                    .padding(horizontal = 16.dp, vertical = 13.dp)
+            ) {
+                Text(
+                    text = languageManager.clearAll,
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = if (hasFavorites) AccentRed else AccentRed.copy(alpha = 0.4f)
+                )
             }
         }
 
@@ -292,12 +341,16 @@ fun SettingsSheet(
                 Text(
                     text = appVersion,
                     fontSize = 17.sp,
-                    color = TextSecondary
+                    color = TextSecondary.copy(alpha = 0.5f)
                 )
             }
         }
     }
 }
+
+// Extension pour rendre une Row cliquable
+private fun Modifier.settingsRowClickable(onClick: () -> Unit): Modifier =
+    this.clickable(onClick = onClick)
 
 @Composable
 private fun SettingsSectionLabel(text: String) {
@@ -323,15 +376,11 @@ private fun SettingsCard(content: @Composable ColumnScope.() -> Unit) {
     )
 }
 
-private fun shareExportFile(context: Context, exportData: () -> ByteArray?) {
+private fun exportAndShare(context: Context, exportData: () -> ByteArray?) {
     val bytes = exportData() ?: return
     val file = File(context.cacheDir, "favoris-letzlisten.json")
     file.writeBytes(bytes)
-    val uri = FileProvider.getUriForFile(
-        context,
-        "${context.packageName}.provider",
-        file
-    )
+    val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
     val intent = Intent(Intent.ACTION_SEND).apply {
         type = "application/json"
         putExtra(Intent.EXTRA_STREAM, uri)

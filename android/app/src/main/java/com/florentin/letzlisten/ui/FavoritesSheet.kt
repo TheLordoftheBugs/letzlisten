@@ -1,5 +1,8 @@
 package com.florentin.letzlisten.ui
 
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -10,13 +13,11 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Radio
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -25,6 +26,7 @@ import com.florentin.letzlisten.data.Favorite
 import com.florentin.letzlisten.ui.theme.AccentRed
 import com.florentin.letzlisten.ui.theme.TextPrimary
 import com.florentin.letzlisten.ui.theme.TextSecondary
+import java.net.URLEncoder
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -33,36 +35,10 @@ import java.util.Locale
 fun FavoritesSheet(
     favorites: List<Favorite>,
     favoritesLabel: String,
-    clearAllLabel: String,
     noFavoritesLabel: String,
     noFavoritesHintLabel: String,
-    confirmClearAllLabel: String,
-    cancelLabel: String,
-    onRemove: (String) -> Unit,
-    onClearAll: () -> Unit
+    onRemove: (String) -> Unit
 ) {
-    var showConfirmDialog by remember { mutableStateOf(false) }
-
-    if (showConfirmDialog) {
-        AlertDialog(
-            onDismissRequest = { showConfirmDialog = false },
-            text = { Text(confirmClearAllLabel, color = TextPrimary) },
-            confirmButton = {
-                TextButton(onClick = {
-                    showConfirmDialog = false
-                    onClearAll()
-                }) {
-                    Text(clearAllLabel, color = AccentRed)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showConfirmDialog = false }) {
-                    Text(cancelLabel, color = TextSecondary)
-                }
-            }
-        )
-    }
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -85,14 +61,8 @@ fun FavoritesSheet(
                 text = favoritesLabel,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = TextPrimary,
-                modifier = Modifier.weight(1f)
+                color = TextPrimary
             )
-            if (favorites.isNotEmpty()) {
-                TextButton(onClick = { showConfirmDialog = true }) {
-                    Text(clearAllLabel, color = AccentRed, fontSize = 14.sp)
-                }
-            }
         }
 
         HorizontalDivider(color = Color.White.copy(alpha = 0.1f))
@@ -135,16 +105,26 @@ fun FavoritesSheet(
 
 @Composable
 private fun FavoriteRow(fav: Favorite, onRemove: () -> Unit) {
+    val context = LocalContext.current
     val dateStr = remember(fav.timestamp) {
         SimpleDateFormat("dd/MM HH:mm", Locale.getDefault()).format(Date(fav.timestamp))
     }
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 16.dp, end = 4.dp, top = 10.dp, bottom = 10.dp)
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Column(modifier = Modifier.weight(1f)) {
+        // Zone cliquable — ouvre une recherche Google (comme iOS searchOnWeb)
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .clickable {
+                    val query = URLEncoder.encode("${fav.artist} ${fav.title}", "UTF-8")
+                    context.startActivity(
+                        Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/search?q=$query"))
+                    )
+                }
+                .padding(start = 16.dp, top = 12.dp, bottom = 12.dp, end = 4.dp)
+        ) {
             Text(
                 text = fav.title,
                 fontSize = 15.sp,

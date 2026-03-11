@@ -147,13 +147,9 @@ fun MainScreen(viewModel: RadioViewModel) {
                 FavoritesSheet(
                     favorites = favorites,
                     favoritesLabel = languageManager.favorites,
-                    clearAllLabel = languageManager.clearAll,
                     noFavoritesLabel = languageManager.noFavoritesYet,
                     noFavoritesHintLabel = languageManager.noFavoritesHint,
-                    confirmClearAllLabel = languageManager.confirmClearAll,
-                    cancelLabel = languageManager.cancel,
-                    onRemove = { viewModel.removeFavorite(it) },
-                    onClearAll = { viewModel.clearAllFavorites() }
+                    onRemove = { viewModel.removeFavorite(it) }
                 )
             }
         }
@@ -186,7 +182,7 @@ fun MainScreen(viewModel: RadioViewModel) {
                 SettingsSheet(
                     languageManager = languageManager,
                     currentLanguage = currentLanguage,
-                    hasFavorites = favorites.isNotEmpty(),
+                    favoritesCount = favorites.size,
                     continuousPlayback = continuousPlayback,
                     appVersion = appVersion,
                     onSetLanguage = { languageManager.setLanguage(it) },
