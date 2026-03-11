@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.WifiTethering
 import androidx.compose.material3.*
@@ -41,32 +40,38 @@ fun FavoritesSheet(
     favoritesLabel: String,
     noFavoritesLabel: String,
     noFavoritesHintLabel: String,
+    doneLabel: String,
+    onDismiss: () -> Unit,
     onRemove: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight(0.85f)
+            .fillMaxHeight()
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
+        // Header iOS-style : titre centré + bouton "Terminé" à droite
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 8.dp)
+                .padding(horizontal = 8.dp, vertical = 4.dp)
         ) {
-            Icon(
-                imageVector = Icons.Default.Favorite,
-                contentDescription = null,
-                tint = AccentRed,
-                modifier = Modifier.size(22.dp)
-            )
-            Spacer(Modifier.width(8.dp))
             Text(
                 text = favoritesLabel,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = TextPrimary
+                fontSize = 17.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = TextPrimary,
+                modifier = Modifier.align(Alignment.Center)
             )
+            TextButton(
+                onClick = onDismiss,
+                modifier = Modifier.align(Alignment.CenterEnd)
+            ) {
+                Text(
+                    text = doneLabel,
+                    color = AccentBlue,
+                    fontSize = 17.sp
+                )
+            }
         }
 
         HorizontalDivider(color = Color.White.copy(alpha = 0.1f))

@@ -114,6 +114,8 @@ fun MainScreen(viewModel: RadioViewModel) {
                         stations = stations,
                         currentStation = currentStation,
                         chooseYourRadioLabel = languageManager.chooseYourRadio,
+                        doneLabel = languageManager.done,
+                        onDismiss = { showStationPicker = false },
                         onStationSelected = {
                             viewModel.switchStation(it)
                             showStationPicker = false
@@ -135,12 +137,14 @@ fun MainScreen(viewModel: RadioViewModel) {
                     favoritesLabel = languageManager.favorites,
                     noFavoritesLabel = languageManager.noFavoritesYet,
                     noFavoritesHintLabel = languageManager.noFavoritesHint,
+                    doneLabel = languageManager.done,
+                    onDismiss = { showFavorites = false },
                     onRemove = { viewModel.removeFavorite(it) }
                 )
             }
         }
 
-        // Settings sheet
+        // Settings sheet — fillMaxHeight pour s'afficher en plein écran comme iOS .large detent
         if (showSettings) {
             ModalBottomSheet(
                 onDismissRequest = { showSettings = false },
@@ -157,7 +161,8 @@ fun MainScreen(viewModel: RadioViewModel) {
                     onSetContinuousPlayback = { viewModel.setContinuousPlayback(it) },
                     exportData = { viewModel.exportFavorites() },
                     onImportBytes = { viewModel.importFavorites(it) },
-                    onClearAll = { viewModel.clearAllFavorites() }
+                    onClearAll = { viewModel.clearAllFavorites() },
+                    onDismiss = { showSettings = false }
                 )
             }
         }

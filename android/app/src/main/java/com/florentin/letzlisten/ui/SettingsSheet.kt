@@ -46,7 +46,8 @@ fun SettingsSheet(
     onSetContinuousPlayback: (Boolean) -> Unit,
     exportData: () -> ByteArray?,
     onImportBytes: (ByteArray) -> Int,
-    onClearAll: () -> Unit
+    onClearAll: () -> Unit,
+    onDismiss: () -> Unit
 ) {
     val hasFavorites = favoritesCount > 0
     val context = LocalContext.current
@@ -99,8 +100,36 @@ fun SettingsSheet(
         )
     }
 
+    // Header iOS-style : titre centré + bouton "Terminé" à droite
+    Column(modifier = Modifier.fillMaxHeight()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 4.dp)
+        ) {
+            Text(
+                text = languageManager.settings,
+                fontSize = 17.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = TextPrimary,
+                modifier = Modifier.align(Alignment.Center)
+            )
+            TextButton(
+                onClick = onDismiss,
+                modifier = Modifier.align(Alignment.CenterEnd)
+            ) {
+                Text(
+                    text = languageManager.done,
+                    color = AccentBlue,
+                    fontSize = 17.sp
+                )
+            }
+        }
+        HorizontalDivider(color = Color.White.copy(alpha = 0.1f))
+
     Column(
         modifier = Modifier
+            .weight(1f)
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp)
             .padding(top = 20.dp)
@@ -338,7 +367,8 @@ fun SettingsSheet(
                 )
             }
         }
-    }
+    } // fin Column scrollable
+    } // fin Column fillMaxHeight
 }
 
 // Extension pour rendre une Row cliquable

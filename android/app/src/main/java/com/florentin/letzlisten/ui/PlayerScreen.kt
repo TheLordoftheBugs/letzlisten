@@ -72,11 +72,14 @@ fun PlayerScreen(
         // Compact = téléphone en mode paysage (hauteur insuffisante pour le layout portrait)
         val isCompact = maxHeight < 500.dp
         val canShare = isPlaying && hasStartedPlaying && !currentTrack.isUnknown
-        val btnSize = if (isCompact) 52.dp else 64.dp
-        val iconSize = if (isCompact) 22.dp else 28.dp
+        // Tailles calquées sur iOS : btnSize = cercles haut + côtés bas, playSize = bouton Play
+        val btnSize = if (isCompact) 53.dp else 60.dp
+        val playSize = if (isCompact) 62.dp else 77.dp
+        val iconSize = if (isCompact) 24.dp else 26.dp
+        val playIconSize = if (isCompact) 26.dp else 34.dp
         val barVerticalPadding = if (isCompact) 10.dp else 16.dp
         // Hauteur estimée de la barre du bas : bouton + padding × 2 + divider
-        val bottomBarClearance = btnSize + barVerticalPadding * 2 + 2.dp
+        val bottomBarClearance = playSize + barVerticalPadding * 2 + 2.dp
 
         if (isCompact) {
             // Layout paysage : artwork à gauche, infos à droite
@@ -222,7 +225,7 @@ fun PlayerScreen(
                 .align(Alignment.TopStart)
                 .statusBarsPadding()
                 .padding(top = 16.dp, start = 20.dp)
-                .size(44.dp)
+                .size(btnSize)
                 .clip(CircleShape)
                 .background(Color.White.copy(alpha = 0.15f))
                 .clickable(onClick = onOpenFavorites)
@@ -231,7 +234,7 @@ fun PlayerScreen(
                 imageVector = Icons.Default.FavoriteBorder,
                 contentDescription = "Mes favoris",
                 tint = Color.White.copy(alpha = 0.9f),
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(iconSize)
             )
         }
 
@@ -242,7 +245,7 @@ fun PlayerScreen(
                 .align(Alignment.TopCenter)
                 .statusBarsPadding()
                 .padding(top = 16.dp)
-                .size(44.dp)
+                .size(btnSize)
                 .clip(CircleShape)
                 .background(Color.White.copy(alpha = 0.15f))
                 .clickable(onClick = onOpenStationPicker)
@@ -251,7 +254,7 @@ fun PlayerScreen(
                 imageVector = Icons.Default.Radio,
                 contentDescription = "Changer de station",
                 tint = Color.White.copy(alpha = 0.9f),
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(iconSize)
             )
         }
 
@@ -263,7 +266,7 @@ fun PlayerScreen(
                 .statusBarsPadding()
                 .navigationBarsPadding()
                 .padding(top = 16.dp, end = 20.dp)
-                .size(44.dp)
+                .size(btnSize)
                 .clip(CircleShape)
                 .background(Color.White.copy(alpha = 0.15f))
                 .clickable(onClick = onOpenSettings)
@@ -272,7 +275,7 @@ fun PlayerScreen(
                 imageVector = Icons.Default.Settings,
                 contentDescription = "Paramètres",
                 tint = Color.White.copy(alpha = 0.9f),
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(iconSize)
             )
         }
 
@@ -291,12 +294,12 @@ fun PlayerScreen(
                     .navigationBarsPadding()
                     .padding(horizontal = 24.dp, vertical = barVerticalPadding)
             ) {
-                // Play/Stop — centré
+                // Play/Stop — centré, plus grand que les boutons côtés (comme iOS playSize)
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .align(Alignment.Center)
-                        .size(btnSize)
+                        .size(playSize)
                         .shadow(8.dp, CircleShape)
                         .clip(CircleShape)
                         .background(if (isPlaying) AccentRed else AccentBlue)
@@ -305,7 +308,7 @@ fun PlayerScreen(
                     if (isLoading) {
                         CircularProgressIndicator(
                             color = Color.White,
-                            modifier = Modifier.size(iconSize),
+                            modifier = Modifier.size(playIconSize),
                             strokeWidth = 3.dp
                         )
                     } else {
@@ -313,7 +316,7 @@ fun PlayerScreen(
                             imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                             contentDescription = if (isPlaying) "Pause" else "Lecture",
                             tint = Color.White,
-                            modifier = Modifier.size(iconSize)
+                            modifier = Modifier.size(playIconSize)
                         )
                     }
                 }
@@ -325,7 +328,7 @@ fun PlayerScreen(
                         .size(btnSize)
                 )
 
-                // Share — coin droit (Circle comme iOS)
+                // Share — coin droit (Circle comme iOS, même taille que boutons du haut)
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier

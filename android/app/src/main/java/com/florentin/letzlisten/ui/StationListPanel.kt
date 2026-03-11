@@ -8,9 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,19 +29,49 @@ fun StationListPanel(
     currentStation: RadioStation?,
     chooseYourRadioLabel: String,
     onStationSelected: (RadioStation) -> Unit,
+    doneLabel: String? = null,
+    onDismiss: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
             .background(SurfaceDark)
     ) {
-        Text(
-            text = chooseYourRadioLabel,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = TextPrimary,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 20.dp)
-        )
+        if (doneLabel != null && onDismiss != null) {
+            // Header iOS-style (sheet mobile) : titre centré + bouton "Terminé" à droite
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 4.dp)
+            ) {
+                Text(
+                    text = chooseYourRadioLabel,
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = TextPrimary,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+                TextButton(
+                    onClick = onDismiss,
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                ) {
+                    Text(
+                        text = doneLabel,
+                        color = AccentBlue,
+                        fontSize = 17.sp
+                    )
+                }
+            }
+        } else {
+            // Sidebar tablette : titre simple à gauche
+            Text(
+                text = chooseYourRadioLabel,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = TextPrimary,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 20.dp)
+            )
+        }
 
         HorizontalDivider(color = Color.White.copy(alpha = 0.1f))
 
