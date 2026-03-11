@@ -1,8 +1,24 @@
 {
   "version": "1.9",
-  "last_updated": "2026-03-08 00:00",
+  "last_updated": "2026-03-11 00:00",
   "stations":
   [
+    {
+      "id": "crazy_poisons",
+      "name": "Crazy Poisons Radio",
+      "streamURL": "http://server4.streamserver24.com:26607/stream/1/",
+      "logoImageName": "CrazyPoisonsLogo",
+      "websiteURL": "https://crazypoisonsradio.biz/",
+      "isEnabled": true
+    },
+    {
+      "id": "fce_continuo",
+      "name": "FCE Continuo",
+      "streamURL": "https://listen.radioking.com/radio/551009/stream/610262",
+      "logoImageName": "FCELogo",
+      "websiteURL": "https://fce-lu.com/fce-continuo",
+      "isEnabled": true
+    },
     {
       "id": "rgl",
       "name": "Radio Gutt Laun",
