@@ -51,14 +51,12 @@ fun PlayerScreen(
     hasStartedPlaying: Boolean,
     isLoading: Boolean,
     isFavorited: Boolean,
-    languageFlag: String,
     albumArtUrl: String? = null,
     artworkSize: Int = 220,
     onTogglePlayback: () -> Unit,
     onToggleFavorite: () -> Unit,
     onOpenStationPicker: () -> Unit,
     onOpenFavorites: () -> Unit,
-    onOpenLanguagePicker: () -> Unit,
     onOpenSettings: () -> Unit,
     onShare: () -> Unit,
     modifier: Modifier = Modifier
@@ -237,33 +235,13 @@ fun PlayerScreen(
             )
         }
 
-        // Top CENTER: Language picker (flag in capsule, like iOS)
-        // only(Top) : exclut l'inset latéral (découpe caméra) qui décalerait la capsule.
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .windowInsetsPadding(WindowInsets.statusBars.only(WindowInsetsSides.Top))
-                .padding(top = 20.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(50))
-                    .background(Color.White.copy(alpha = 0.15f))
-                    .clickable(onClick = onOpenLanguagePicker)
-                    .padding(horizontal = 12.dp, vertical = 6.dp)
-            ) {
-                Text(text = languageFlag, fontSize = 20.sp)
-            }
-        }
-
-        // Top RIGHT: Station selector (antenna like iOS)
+        // Top CENTER: Station selector (antenna, like iOS)
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .align(Alignment.TopEnd)
+                .align(Alignment.TopCenter)
                 .statusBarsPadding()
-                .navigationBarsPadding()   // décale vers la gauche quand la nav-bar est à droite (paysage)
-                .padding(top = 16.dp, end = 20.dp)
+                .padding(top = 16.dp)
                 .size(44.dp)
                 .clip(CircleShape)
                 .background(Color.White.copy(alpha = 0.15f))
@@ -272,6 +250,27 @@ fun PlayerScreen(
             Icon(
                 imageVector = Icons.Default.Radio,
                 contentDescription = "Changer de station",
+                tint = Color.White.copy(alpha = 0.9f),
+                modifier = Modifier.size(20.dp)
+            )
+        }
+
+        // Top RIGHT: Settings (like iOS gearshape, top right)
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .statusBarsPadding()
+                .navigationBarsPadding()
+                .padding(top = 16.dp, end = 20.dp)
+                .size(44.dp)
+                .clip(CircleShape)
+                .background(Color.White.copy(alpha = 0.15f))
+                .clickable(onClick = onOpenSettings)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Settings,
+                contentDescription = "Paramètres",
                 tint = Color.White.copy(alpha = 0.9f),
                 modifier = Modifier.size(20.dp)
             )
@@ -319,31 +318,20 @@ fun PlayerScreen(
                     }
                 }
 
-                // Settings — coin gauche
-                Box(
-                    contentAlignment = Alignment.Center,
+                // AirPlay slot — spacer symétrique (AirPlay = iOS uniquement)
+                Spacer(
                     modifier = Modifier
                         .align(Alignment.CenterStart)
                         .size(btnSize)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color.White.copy(alpha = 0.15f))
-                        .clickable(onClick = onOpenSettings)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Settings,
-                        contentDescription = "Paramètres",
-                        tint = Color.White.copy(alpha = 0.9f),
-                        modifier = Modifier.size(iconSize)
-                    )
-                }
+                )
 
-                // Share — coin droit
+                // Share — coin droit (Circle comme iOS)
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
                         .size(btnSize)
-                        .clip(RoundedCornerShape(12.dp))
+                        .clip(CircleShape)
                         .background(Color.White.copy(alpha = if (canShare) 0.15f else 0.05f))
                         .clickable(enabled = canShare, onClick = onShare)
                 ) {

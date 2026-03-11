@@ -4,26 +4,17 @@ import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.florentin.letzlisten.data.RadioStation
-import com.florentin.letzlisten.player.AppLanguage
 import com.florentin.letzlisten.player.LanguageManager
 import com.florentin.letzlisten.player.RadioViewModel
 import com.florentin.letzlisten.player.TrackInfo
-import com.florentin.letzlisten.ui.theme.AccentBlue
 import com.florentin.letzlisten.ui.theme.SurfaceDark
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -51,7 +42,6 @@ fun MainScreen(viewModel: RadioViewModel) {
 
     var showStationPicker by remember { mutableStateOf(false) }
     var showFavorites by remember { mutableStateOf(false) }
-    var showLanguagePicker by remember { mutableStateOf(false) }
     var showSettings by remember { mutableStateOf(false) }
 
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
@@ -83,14 +73,12 @@ fun MainScreen(viewModel: RadioViewModel) {
                     hasStartedPlaying = hasStartedPlaying,
                     isLoading = isLoading,
                     isFavorited = isFavorited,
-                    languageFlag = currentLanguage.flag,
                     albumArtUrl = albumArtUrl,
                     artworkSize = 280,
                     onTogglePlayback = { viewModel.togglePlayback() },
                     onToggleFavorite = { viewModel.toggleFavorite() },
                     onOpenStationPicker = {}, // sidebar always visible on tablet
                     onOpenFavorites = { showFavorites = true },
-                    onOpenLanguagePicker = { showLanguagePicker = true },
                     onOpenSettings = { showSettings = true },
                     onShare = { if (viewModel.isPlaying.value) shareTrack(context, currentTrack, currentStation, languageManager) },
                     modifier = Modifier
@@ -106,13 +94,11 @@ fun MainScreen(viewModel: RadioViewModel) {
                 hasStartedPlaying = hasStartedPlaying,
                 isLoading = isLoading,
                 isFavorited = isFavorited,
-                languageFlag = currentLanguage.flag,
                 albumArtUrl = albumArtUrl,
                 onTogglePlayback = { viewModel.togglePlayback() },
                 onToggleFavorite = { viewModel.toggleFavorite() },
                 onOpenStationPicker = { showStationPicker = true },
                 onOpenFavorites = { showFavorites = true },
-                onOpenLanguagePicker = { showLanguagePicker = true },
                 onOpenSettings = { showSettings = true },
                 onShare = { if (viewModel.isPlaying.value) shareTrack(context, currentTrack, currentStation, languageManager) },
                 modifier = Modifier.fillMaxSize()
@@ -154,24 +140,6 @@ fun MainScreen(viewModel: RadioViewModel) {
             }
         }
 
-        // Language picker sheet (like iOS LanguagePickerView)
-        if (showLanguagePicker) {
-            ModalBottomSheet(
-                onDismissRequest = { showLanguagePicker = false },
-                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false),
-                containerColor = SurfaceDark
-            ) {
-                LanguagePickerSheet(
-                    title = languageManager.selectLanguage,
-                    currentLanguage = currentLanguage,
-                    onSelectLanguage = {
-                        languageManager.setLanguage(it)
-                        showLanguagePicker = false
-                    }
-                )
-            }
-        }
-
         // Settings sheet
         if (showSettings) {
             ModalBottomSheet(
@@ -191,63 +159,6 @@ fun MainScreen(viewModel: RadioViewModel) {
                     onImportBytes = { viewModel.importFavorites(it) },
                     onClearAll = { viewModel.clearAllFavorites() }
                 )
-            }
-        }
-    }
-}
-
-@Composable
-private fun LanguagePickerSheet(
-    title: String,
-    currentLanguage: AppLanguage,
-    onSelectLanguage: (AppLanguage) -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp)
-            .padding(bottom = 32.dp)
-    ) {
-        Text(
-            text = title,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = androidx.compose.ui.graphics.Color.White,
-            modifier = Modifier.padding(vertical = 12.dp)
-        )
-        val sortedLanguages = AppLanguage.values()
-            .sortedWith(compareBy({ it != AppLanguage.LB }, { it.displayName }))
-        sortedLanguages.forEach { language ->
-            Surface(
-                onClick = { onSelectLanguage(language) },
-                color = if (language == currentLanguage) AccentBlue.copy(alpha = 0.2f) else Color.White.copy(alpha = 0.05f),
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(vertical = 14.dp, horizontal = 20.dp)
-                ) {
-                    Text(text = language.flag, fontSize = 28.sp)
-                    Spacer(Modifier.width(16.dp))
-                    Text(
-                        text = language.displayName,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color.White
-                    )
-                    Spacer(Modifier.weight(1f))
-                    if (language == currentLanguage) {
-                        Icon(
-                            imageVector = Icons.Default.Check,
-                            contentDescription = null,
-                            tint = AccentBlue,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
-                }
             }
         }
     }
