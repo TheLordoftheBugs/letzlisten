@@ -149,11 +149,11 @@ class LanguageManager(context: Context) {
     }
 
     val exportFavorites: String get() = when (_currentLanguage.value) {
-        AppLanguage.LB -> "Deelen"
-        AppLanguage.FR -> "Partager"
-        AppLanguage.DE -> "Teilen"
-        AppLanguage.EN -> "Share"
-        AppLanguage.PT -> "Partilhar"
+        AppLanguage.LB -> "Exportéieren"
+        AppLanguage.FR -> "Exporter"
+        AppLanguage.DE -> "Exportieren"
+        AppLanguage.EN -> "Export"
+        AppLanguage.PT -> "Exportar"
     }
 
     val saveToDevice: String get() = when (_currentLanguage.value) {
