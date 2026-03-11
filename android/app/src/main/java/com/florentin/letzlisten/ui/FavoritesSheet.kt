@@ -42,11 +42,11 @@ fun FavoritesSheet(
     noFavoritesHintLabel: String,
     doneLabel: String,
     onDismiss: () -> Unit,
-    onRemove: (String) -> Unit
+    onRemove: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = modifier.fillMaxWidth()
     ) {
         // Header iOS-style : titre centré + bouton "Terminé" à droite
         Box(
@@ -78,9 +78,7 @@ fun FavoritesSheet(
         if (favorites.isEmpty()) {
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 48.dp)
+                modifier = Modifier.fillMaxSize()
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(

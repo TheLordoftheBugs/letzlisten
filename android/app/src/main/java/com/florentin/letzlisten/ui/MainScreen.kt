@@ -139,7 +139,8 @@ fun MainScreen(viewModel: RadioViewModel) {
                     noFavoritesHintLabel = languageManager.noFavoritesHint,
                     doneLabel = languageManager.done,
                     onDismiss = { showFavorites = false },
-                    onRemove = { viewModel.removeFavorite(it) }
+                    onRemove = { viewModel.removeFavorite(it) },
+                    modifier = Modifier.fillMaxHeight(0.85f)
                 )
             }
         }
