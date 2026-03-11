@@ -43,6 +43,31 @@ class FavoritesManager(context: Context) {
         prefs.edit().remove("data").apply()
     }
 
+    fun exportData(): ByteArray? {
+        return try { json.encodeToString(_favorites.value).toByteArray(Charsets.UTF_8) } catch (_: Exception) { null }
+    }
+
+    // Returns count of newly imported favorites, or -1 on parse error.
+    fun importFavorites(data: ByteArray): Int {
+        val imported = try {
+            json.decodeFromString<List<Favorite>>(String(data, Charsets.UTF_8))
+        } catch (_: Exception) { return -1 }
+        var count = 0
+        val current = _favorites.value.toMutableList()
+        for (fav in imported) {
+            if (current.none { it.title == fav.title && it.artist == fav.artist }) {
+                current.add(fav)
+                count++
+            }
+        }
+        if (count > 0) {
+            val sorted = current.sortedByDescending { it.timestamp }
+            _favorites.value = sorted
+            persist(sorted)
+        }
+        return count
+    }
+
     fun isFavorited(title: String, artist: String) =
         _favorites.value.any { it.title == title && it.artist == artist }
 

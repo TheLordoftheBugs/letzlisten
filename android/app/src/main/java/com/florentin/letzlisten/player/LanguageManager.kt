@@ -92,6 +92,102 @@ class LanguageManager(context: Context) {
         AppLanguage.PT -> "Eliminar todos os favoritos?"
     }
 
+    val done: String get() = when (_currentLanguage.value) {
+        AppLanguage.LB -> "Fäerdeg"
+        AppLanguage.FR -> "Terminé"
+        AppLanguage.DE -> "Fertig"
+        AppLanguage.EN -> "Done"
+        AppLanguage.PT -> "Concluído"
+    }
+
+    val settings: String get() = when (_currentLanguage.value) {
+        AppLanguage.LB -> "Astellungen"
+        AppLanguage.FR -> "Paramètres"
+        AppLanguage.DE -> "Einstellungen"
+        AppLanguage.EN -> "Settings"
+        AppLanguage.PT -> "Definições"
+    }
+
+    val language: String get() = when (_currentLanguage.value) {
+        AppLanguage.LB -> "Sprooch"
+        AppLanguage.FR -> "Langue"
+        AppLanguage.DE -> "Sprache"
+        AppLanguage.EN -> "Language"
+        AppLanguage.PT -> "Idioma"
+    }
+
+    val about: String get() = when (_currentLanguage.value) {
+        AppLanguage.LB -> "Iwwert"
+        AppLanguage.FR -> "À propos"
+        AppLanguage.DE -> "Über"
+        AppLanguage.EN -> "About"
+        AppLanguage.PT -> "Sobre"
+    }
+
+    val version: String get() = when (_currentLanguage.value) {
+        AppLanguage.LB -> "Versioun"
+        AppLanguage.FR -> "Version"
+        AppLanguage.DE -> "Version"
+        AppLanguage.EN -> "Version"
+        AppLanguage.PT -> "Versão"
+    }
+
+    val continuousPlayback: String get() = when (_currentLanguage.value) {
+        AppLanguage.LB -> "Duerchgehend nolauschteren"
+        AppLanguage.FR -> "Lecture continue"
+        AppLanguage.DE -> "Durchgehende Wiedergabe"
+        AppLanguage.EN -> "Continuous Playback"
+        AppLanguage.PT -> "Reprodução contínua"
+    }
+
+    val continuousPlaybackHint: String get() = when (_currentLanguage.value) {
+        AppLanguage.LB -> "Lues weider wann d'Radio gewiesselt gëtt"
+        AppLanguage.FR -> "Continuer la lecture lors du changement de station"
+        AppLanguage.DE -> "Wiedergabe beim Stationswechsel fortsetzen"
+        AppLanguage.EN -> "Keep playing when switching stations"
+        AppLanguage.PT -> "Manter reprodução ao trocar de estação"
+    }
+
+    val exportFavorites: String get() = when (_currentLanguage.value) {
+        AppLanguage.LB -> "Exportéieren"
+        AppLanguage.FR -> "Exporter"
+        AppLanguage.DE -> "Exportieren"
+        AppLanguage.EN -> "Export"
+        AppLanguage.PT -> "Exportar"
+    }
+
+    val importFavorites: String get() = when (_currentLanguage.value) {
+        AppLanguage.LB -> "Importéieren"
+        AppLanguage.FR -> "Importer"
+        AppLanguage.DE -> "Importieren"
+        AppLanguage.EN -> "Import"
+        AppLanguage.PT -> "Importar"
+    }
+
+    val importFailed: String get() = when (_currentLanguage.value) {
+        AppLanguage.LB -> "⚠ Fichier net valabel"
+        AppLanguage.FR -> "⚠ Fichier invalide"
+        AppLanguage.DE -> "⚠ Ungültige Datei"
+        AppLanguage.EN -> "⚠ Invalid file"
+        AppLanguage.PT -> "⚠ Arquivo inválido"
+    }
+
+    fun importSuccess(count: Int): String = when (_currentLanguage.value) {
+        AppLanguage.LB -> "✓ $count Favorit${if (count == 1) "" else "en"} importéiert"
+        AppLanguage.FR -> "✓ $count favori${if (count == 1) "" else "s"} importé${if (count == 1) "" else "s"}"
+        AppLanguage.DE -> "✓ $count Favorit${if (count == 1) "" else "en"} importiert"
+        AppLanguage.EN -> "✓ $count favourite${if (count == 1) "" else "s"} imported"
+        AppLanguage.PT -> "✓ $count favorito${if (count == 1) "" else "s"} importado${if (count == 1) "" else "s"}"
+    }
+
+    fun exportSuccess(count: Int): String = when (_currentLanguage.value) {
+        AppLanguage.LB -> "✓ $count Favorit${if (count == 1) "" else "en"} exportéiert"
+        AppLanguage.FR -> "✓ $count favori${if (count == 1) "" else "s"} exporté${if (count == 1) "" else "s"}"
+        AppLanguage.DE -> "✓ $count Favorit${if (count == 1) "" else "en"} exportiert"
+        AppLanguage.EN -> "✓ $count favourite${if (count == 1) "" else "s"} exported"
+        AppLanguage.PT -> "✓ $count favorito${if (count == 1) "" else "s"} exportado${if (count == 1) "" else "s"}"
+    }
+
     fun shareMessage(artist: String, title: String, station: String, url: String?): String {
         val base = when (_currentLanguage.value) {
             AppLanguage.LB -> "Moien, ech lauschteren elo op $artist - $title op $station."

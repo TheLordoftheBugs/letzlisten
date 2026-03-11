@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Radio
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -58,6 +59,7 @@ fun PlayerScreen(
     onOpenStationPicker: () -> Unit,
     onOpenFavorites: () -> Unit,
     onOpenLanguagePicker: () -> Unit,
+    onOpenSettings: () -> Unit,
     onShare: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -315,6 +317,24 @@ fun PlayerScreen(
                             modifier = Modifier.size(iconSize)
                         )
                     }
+                }
+
+                // Settings — coin gauche
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .size(btnSize)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color.White.copy(alpha = 0.15f))
+                        .clickable(onClick = onOpenSettings)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Settings,
+                        contentDescription = "Paramètres",
+                        tint = Color.White.copy(alpha = 0.9f),
+                        modifier = Modifier.size(iconSize)
+                    )
                 }
 
                 // Share — coin droit

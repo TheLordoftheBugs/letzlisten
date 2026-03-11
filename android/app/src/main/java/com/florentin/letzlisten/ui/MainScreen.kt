@@ -38,14 +38,21 @@ fun MainScreen(viewModel: RadioViewModel) {
     val favorites by viewModel.favorites.collectAsStateWithLifecycle()
     val isFavorited by viewModel.isFavorited.collectAsStateWithLifecycle()
     val albumArtUrl by viewModel.albumArtUrl.collectAsStateWithLifecycle()
+    val continuousPlayback by viewModel.continuousPlayback.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
     val languageManager = remember { LanguageManager(context) }
     val currentLanguage by languageManager.currentLanguage.collectAsStateWithLifecycle()
 
+    val appVersion = remember {
+        try { context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "—" }
+        catch (_: Exception) { "—" }
+    }
+
     var showStationPicker by remember { mutableStateOf(false) }
     var showFavorites by remember { mutableStateOf(false) }
     var showLanguagePicker by remember { mutableStateOf(false) }
+    var showSettings by remember { mutableStateOf(false) }
 
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         // Un téléphone en paysage a une largeur >= 600dp mais une hauteur ~360dp.
@@ -84,6 +91,7 @@ fun MainScreen(viewModel: RadioViewModel) {
                     onOpenStationPicker = {}, // sidebar always visible on tablet
                     onOpenFavorites = { showFavorites = true },
                     onOpenLanguagePicker = { showLanguagePicker = true },
+                    onOpenSettings = { showSettings = true },
                     onShare = { if (viewModel.isPlaying.value) shareTrack(context, currentTrack, currentStation, languageManager) },
                     modifier = Modifier
                         .weight(1f)
@@ -105,6 +113,7 @@ fun MainScreen(viewModel: RadioViewModel) {
                 onOpenStationPicker = { showStationPicker = true },
                 onOpenFavorites = { showFavorites = true },
                 onOpenLanguagePicker = { showLanguagePicker = true },
+                onOpenSettings = { showSettings = true },
                 onShare = { if (viewModel.isPlaying.value) shareTrack(context, currentTrack, currentStation, languageManager) },
                 modifier = Modifier.fillMaxSize()
             )
@@ -163,6 +172,28 @@ fun MainScreen(viewModel: RadioViewModel) {
                         languageManager.setLanguage(it)
                         showLanguagePicker = false
                     }
+                )
+            }
+        }
+
+        // Settings sheet
+        if (showSettings) {
+            ModalBottomSheet(
+                onDismissRequest = { showSettings = false },
+                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+                containerColor = SurfaceDark
+            ) {
+                SettingsSheet(
+                    languageManager = languageManager,
+                    currentLanguage = currentLanguage,
+                    hasFavorites = favorites.isNotEmpty(),
+                    continuousPlayback = continuousPlayback,
+                    appVersion = appVersion,
+                    onSetLanguage = { languageManager.setLanguage(it) },
+                    onSetContinuousPlayback = { viewModel.setContinuousPlayback(it) },
+                    exportData = { viewModel.exportFavorites() },
+                    onImportBytes = { viewModel.importFavorites(it) },
+                    onClearAll = { viewModel.clearAllFavorites() }
                 )
             }
         }

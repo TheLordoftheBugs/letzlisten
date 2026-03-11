@@ -75,6 +75,18 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
     private val itunesCache = mutableMapOf<String, String?>()
     private val prefs = application.getSharedPreferences("radio_prefs", android.content.Context.MODE_PRIVATE)
 
+    private val _continuousPlayback = MutableStateFlow(prefs.getBoolean("continuous_playback", true))
+    val continuousPlayback: StateFlow<Boolean> = _continuousPlayback.asStateFlow()
+
+    fun setContinuousPlayback(value: Boolean) {
+        _continuousPlayback.value = value
+        prefs.edit().putBoolean("continuous_playback", value).apply()
+    }
+
+    fun exportFavorites(): ByteArray? = favoritesManager.exportData()
+
+    fun importFavorites(data: ByteArray): Int = favoritesManager.importFavorites(data)
+
     val favorites = favoritesManager.favorites
 
     val isFavorited: StateFlow<Boolean> = combine(favoritesManager.favorites, _currentTrack) { favs, track ->
@@ -219,6 +231,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
 
     fun switchStation(station: RadioStation) {
         prefs.edit().putString("last_station_id", station.id).apply()
+        val autoPlay = _continuousPlayback.value
         _isPlaying.value = false
         _currentStation.value = station
         _currentTrack.value = TrackInfo()
@@ -228,9 +241,10 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         RadioService.icyArtworkUri.value = null
         mediaController?.run {
             stop()
-            playWhenReady = false
+            playWhenReady = autoPlay
             setMediaItem(buildMediaItem(station))
             prepare()
+            if (autoPlay) play()
         }
     }
 
