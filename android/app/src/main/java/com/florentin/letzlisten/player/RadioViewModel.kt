@@ -151,8 +151,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
 
         _currentTrack.value = newTrack
         _albumArtUrl.value = null
-        // Reset notification artwork to station logo while album art is being fetched.
-        RadioService.icyArtworkUri.value = _currentStation.value?.let { stationArtworkUri(it) }
+        RadioService.icyArtworkUri.value = null
         fetchAlbumArt(filteredArtist, filteredTitle)
     }
 
@@ -169,7 +168,6 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         val metadata = MediaMetadata.Builder()
             .setTitle(station.name)
             .setArtist(station.name)
-            .setArtworkUri(stationArtworkUri(station))
             .build()
         return MediaItem.Builder()
             .setUri(station.streamUrl)
