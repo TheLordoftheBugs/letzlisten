@@ -9,7 +9,14 @@ A native radio app for Luxembourg, available on **iOS** and **Android** _(Androi
 
 ```
 letzlisten/
-└── docs/          # Privacy policy & support pages
+├── docs/                        # Privacy policy & support pages
+├── metadata.md                  # App Store metadata (iOS)
+└── store/
+    ├── android/
+    │   ├── metadata.md          # Play Store metadata
+    │   └── screenshots/         # Android screenshots
+    └── ios/
+        └── screenshots/         # iOS screenshots
 ```
 
 ## About the app
