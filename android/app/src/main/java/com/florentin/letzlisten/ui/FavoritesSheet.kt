@@ -47,7 +47,7 @@ fun FavoritesSheet(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight()
+            .fillMaxHeight(0.65f)
     ) {
         // Header iOS-style : titre centré + bouton "Terminé" à droite
         Box(
