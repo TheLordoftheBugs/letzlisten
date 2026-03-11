@@ -10,22 +10,6 @@
       "logoImageName": "CrazyPoisonsLogo",
       "websiteURL": "https://crazypoisonsradio.biz/",
       "isEnabled": true
-    },
-    {
-      "id": "fce_continuo",
-      "name": "FCE Continuo",
-      "streamURL": "https://listen.radioking.com/radio/551009/stream/610262",
-      "logoImageName": "FCELogo",
-      "websiteURL": "https://fce-lu.com/fce-continuo",
-      "isEnabled": true
-    },
-    {
-      "id": "rgl",
-      "name": "Radio Gutt Laun",
-      "streamURL": "https://streams.radio.co/sa631ff66a/listen",
-      "logoImageName": "RGLLogo",
-      "websiteURL": "https://www.rgl.lu",
-      "isEnabled": true
     }
   ]
 }
