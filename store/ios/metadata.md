@@ -2,9 +2,9 @@
 
 ## Informations générales
 
-- **Nom de l'app** : LetzListen
+- **Nom de l'app** : Letz Listen
 - **Sous-titre** : Luxembourg Radio, Live
-- **Catégorie principale** : Musique
+- **Catégorie principale** : Musique // Music & Audio
 - **Catégorie secondaire** : /
 - **SKU** : ###
 - **Bundle ID** : ###
@@ -15,33 +15,31 @@
 ## Description
 
 ### Description courte (pour la recherche)
-
+ 
+ // Stream Luxembourg radio live
 
 ### Description complète (max 4000 caractères)
 
-Letz Listen — Luxembourg Radio
+Lëtz Listen is your home for Luxembourg radio — stream your favourite stations live, with real-time song and artist info displayed right on your screen and lock screen.
 
-Stream all your favourite Luxembourg radio stations, anywhere.
+The app is just getting started. More stations are being added regularly 
 
 FEATURES
-• All major Luxembourg stations in one place
-• Automatic song & artist detection
-• Live album artwork
-• Lock screen & Control Centre integration
-• AirPlay support
-• Save your favourite stations
-• Optimised for iPhone and iPad
+• Live streaming of Luxembourg radio stations
+• Real-time song & artist detection from stream metadata
+• Album artwork fetched automatically
+• Lock screen integration
+• Background playback — keep listening while you use other apps
 
 Available in French, Lëtzebuergesch, Deutsch, English and Portuguese.
 
-PRIVACY
-Letz Listen collects zero personal data. No account, no ads, no tracking.
+Simple, fast, and focused. No account, no subscription, no ads — just your radio.
 
 ---
 
 ## Mots-clés (max 100 caractères, séparés par des virgules)
 
-radio,luxembourg,live,stream,musik,music,lëtz
+radio,luxembourg,live,stream,musik,music,lëtz // Music & audio, Radio
 
 ---
 
@@ -55,6 +53,6 @@ radio,luxembourg,live,stream,musik,music,lëtz
 
 ## Classification de contenu
 
-- **Âge minimum** : 4+
+- **Âge minimum** : 4+ // 0+
 - **Contenu** : /
 
