@@ -72,7 +72,7 @@ fun SettingsSheet(
         val bytes = pendingSaveBytes ?: return@rememberLauncherForActivityResult
         try {
             context.contentResolver.openOutputStream(uri)?.use { it.write(bytes) }
-            saveFeedback = "✓"
+            saveFeedback = languageManager.exportSuccess(favoritesCount)
         } catch (_: Exception) {
             saveFeedback = "⚠ Échec de l'enregistrement"
         } finally {
