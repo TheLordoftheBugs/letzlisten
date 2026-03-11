@@ -9,19 +9,17 @@ A native radio app for Luxembourg, available on **iOS** and **Android** _(Androi
 
 ```
 letzlisten/
-└── docs/          # Privacy policy & support pages
+├── docs/                        # Privacy policy & support pages
+├── metadata.md                  # App Store metadata (iOS)
+└── store/
+    ├── android/
+    │   ├── metadata.md          # Play Store metadata
+    │   └── screenshots/         # Android screenshots
+    └── ios/
+        └── screenshots/         # iOS screenshots
 ```
 
 ## About the app
-
-### Features
-
-- Stream curated Luxembourg radio stations
-- Automatic song & artist detection from stream metadata
-- Album artwork fetched via iTunes Search API
-- Lock screen / Control Centre integration
-- Favourites — save and search songs you loved
-- Multilingual UI: Lëtzebuergesch · Français · Deutsch · English · Português
 
 ### Platforms
 
