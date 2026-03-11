@@ -47,7 +47,6 @@ fun FavoritesSheet(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight(0.65f)
     ) {
         // Header iOS-style : titre centré + bouton "Terminé" à droite
         Box(
@@ -79,7 +78,9 @@ fun FavoritesSheet(
         if (favorites.isEmpty()) {
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 48.dp)
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(
