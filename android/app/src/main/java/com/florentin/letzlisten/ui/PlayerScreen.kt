@@ -81,31 +81,38 @@ fun PlayerScreen(
         val bottomBarClearance = playSize + barVerticalPadding * 2 + 2.dp
 
         if (isCompact) {
-            // Layout paysage : artwork à gauche, infos à droite
+            // Layout paysage : artwork centré dans la moitié gauche (entre Favoris et Radio),
+            // infos centrées dans la moitié droite (entre Radio et Paramètres) — miroir iOS.
             val artworkSizeCompact = (maxHeight.value * 0.42f).toInt().coerceIn(80, 150)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterHorizontally),
+                horizontalArrangement = Arrangement.Start,
                 modifier = Modifier
                     .fillMaxSize()
                     .statusBarsPadding()
                     .padding(top = 52.dp)        // dégager les boutons du haut
                     .navigationBarsPadding()
                     .padding(bottom = bottomBarClearance)
-                    .padding(horizontal = 24.dp)
             ) {
-                StationArtwork(
-                    station = currentStation,
-                    albumArtUrl = albumArtUrl,
-                    hasStartedPlaying = hasStartedPlaying,
-                    isTrackKnown = !currentTrack.isUnknown,
-                    size = artworkSizeCompact,
-                    onClick = websiteUrl?.let { url -> { uriHandler.openUri(url) } }
-                )
+                // Moitié gauche — artwork centré (iOS : Group { ArtworkView }.frame(maxWidth: .infinity))
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.weight(1f).fillMaxHeight()
+                ) {
+                    StationArtwork(
+                        station = currentStation,
+                        albumArtUrl = albumArtUrl,
+                        hasStartedPlaying = hasStartedPlaying,
+                        isTrackKnown = !currentTrack.isUnknown,
+                        size = artworkSizeCompact,
+                        onClick = websiteUrl?.let { url -> { uriHandler.openUri(url) } }
+                    )
+                }
+                // Moitié droite — infos centrées (iOS : VStack.frame(maxWidth: .infinity))
                 Column(
                     verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f).fillMaxHeight()
                 ) {
                     Text(
                         text = currentStation?.name ?: "",
