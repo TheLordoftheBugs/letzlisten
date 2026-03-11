@@ -1,7 +1,5 @@
 package com.florentin.letzlisten.ui
 
-import android.content.Context
-import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -16,7 +14,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.SaveAlt
-import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,14 +23,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.FileProvider
 import com.florentin.letzlisten.player.AppLanguage
 import com.florentin.letzlisten.player.LanguageManager
 import com.florentin.letzlisten.ui.theme.AccentBlue
 import com.florentin.letzlisten.ui.theme.AccentRed
 import com.florentin.letzlisten.ui.theme.TextPrimary
 import com.florentin.letzlisten.ui.theme.TextSecondary
-import java.io.File
 import kotlinx.coroutines.delay
 
 @Composable
@@ -53,17 +48,10 @@ fun SettingsSheet(
     val hasFavorites = favoritesCount > 0
     val context = LocalContext.current
     var showConfirmClear by remember { mutableStateOf(false) }
-    var exportFeedback by remember { mutableStateOf<String?>(null) }
     var importFeedback by remember { mutableStateOf<String?>(null) }
     var saveFeedback by remember { mutableStateOf<String?>(null) }
     var pendingSaveBytes by remember { mutableStateOf<ByteArray?>(null) }
 
-    LaunchedEffect(exportFeedback) {
-        if (exportFeedback != null) {
-            delay(3000)
-            exportFeedback = null
-        }
-    }
     LaunchedEffect(importFeedback) {
         if (importFeedback != null) {
             delay(3000)
@@ -84,7 +72,7 @@ fun SettingsSheet(
         val bytes = pendingSaveBytes ?: return@rememberLauncherForActivityResult
         try {
             context.contentResolver.openOutputStream(uri)?.use { it.write(bytes) }
-            saveFeedback = languageManager.saveSuccess(favoritesCount)
+            saveFeedback = "✓"
         } catch (_: Exception) {
             saveFeedback = "⚠ Échec de l'enregistrement"
         } finally {
@@ -245,60 +233,7 @@ fun SettingsSheet(
         SettingsSectionLabel(languageManager.favorites.uppercase())
 
         SettingsCard {
-            // Export — visible mais désactivé si pas de favoris (comme iOS)
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .then(
-                        if (hasFavorites) Modifier.settingsRowClickable {
-                            val exported = exportAndShare(context, exportData)
-                            if (exported) exportFeedback = languageManager.exportSuccess(favoritesCount)
-                        } else Modifier
-                    )
-                    .padding(horizontal = 16.dp, vertical = 13.dp)
-            ) {
-                Text(
-                    text = languageManager.exportFavorites,
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = if (hasFavorites) TextPrimary else TextPrimary.copy(alpha = 0.3f),
-                    modifier = Modifier.weight(1f)
-                )
-                Icon(
-                    imageVector = Icons.Default.Upload,
-                    contentDescription = null,
-                    tint = if (hasFavorites) AccentBlue else AccentBlue.copy(alpha = 0.3f),
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-
-            // Feedback export
-            AnimatedVisibility(
-                visible = exportFeedback != null,
-                enter = fadeIn(),
-                exit = fadeOut()
-            ) {
-                Column {
-                    HorizontalDivider(
-                        color = Color.White.copy(alpha = 0.1f),
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-                    Text(
-                        text = exportFeedback ?: "",
-                        fontSize = 14.sp,
-                        color = TextSecondary.copy(alpha = 0.7f),
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)
-                    )
-                }
-            }
-
-            HorizontalDivider(
-                color = Color.White.copy(alpha = 0.1f),
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
-
-            // Enregistrer sur l'appareil
+            // Export — sauvegarde locale via file picker
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
@@ -315,7 +250,7 @@ fun SettingsSheet(
                     .padding(horizontal = 16.dp, vertical = 13.dp)
             ) {
                 Text(
-                    text = languageManager.saveToDevice,
+                    text = languageManager.exportFavorites,
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Medium,
                     color = if (hasFavorites) TextPrimary else TextPrimary.copy(alpha = 0.3f),
@@ -480,20 +415,3 @@ private fun SettingsCard(content: @Composable ColumnScope.() -> Unit) {
     )
 }
 
-private fun exportAndShare(context: Context, exportData: () -> ByteArray?): Boolean {
-    val bytes = exportData() ?: return false
-    return try {
-        val file = File(context.cacheDir, "favoris-letzlisten.json")
-        file.writeBytes(bytes)
-        val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
-        val intent = Intent(Intent.ACTION_SEND).apply {
-            type = "application/json"
-            putExtra(Intent.EXTRA_STREAM, uri)
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        }
-        context.startActivity(Intent.createChooser(intent, null))
-        true
-    } catch (_: Exception) {
-        false
-    }
-}
