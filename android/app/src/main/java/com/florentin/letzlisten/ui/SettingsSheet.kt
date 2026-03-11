@@ -48,8 +48,7 @@ fun SettingsSheet(
     exportData: () -> ByteArray?,
     onImportBytes: (ByteArray) -> Int,
     onClearAll: () -> Unit,
-    onDismiss: () -> Unit,
-    onUnlockSecret: () -> Unit = {}
+    onDismiss: () -> Unit
 ) {
     val hasFavorites = favoritesCount > 0
     val context = LocalContext.current
@@ -58,9 +57,6 @@ fun SettingsSheet(
     var importFeedback by remember { mutableStateOf<String?>(null) }
     var saveFeedback by remember { mutableStateOf<String?>(null) }
     var pendingSaveBytes by remember { mutableStateOf<ByteArray?>(null) }
-    var secretTapCount by remember { mutableStateOf(0) }
-    var secretUnlocked by remember { mutableStateOf(false) }
-    var secretFeedback by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(exportFeedback) {
         if (exportFeedback != null) {
@@ -78,12 +74,6 @@ fun SettingsSheet(
         if (saveFeedback != null) {
             delay(3000)
             saveFeedback = null
-        }
-    }
-    LaunchedEffect(secretFeedback) {
-        if (secretFeedback != null) {
-            delay(3000)
-            secretFeedback = null
         }
     }
 
@@ -440,16 +430,6 @@ fun SettingsSheet(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable {
-                        if (!secretUnlocked) {
-                            secretTapCount++
-                            if (secretTapCount >= 5) {
-                                secretUnlocked = true
-                                secretFeedback = "🔓 Mode secret activé"
-                                onUnlockSecret()
-                            }
-                        }
-                    }
                     .padding(horizontal = 16.dp, vertical = 13.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
@@ -468,16 +448,6 @@ fun SettingsSheet(
             }
         }
 
-        AnimatedVisibility(visible = secretFeedback != null, enter = fadeIn(), exit = fadeOut()) {
-            Text(
-                text = secretFeedback ?: "",
-                fontSize = 13.sp,
-                color = AccentBlue,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp, start = 4.dp)
-            )
-        }
     } // fin Column scrollable
     } // fin Column fillMaxHeight
 }

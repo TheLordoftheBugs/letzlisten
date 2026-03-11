@@ -275,32 +275,6 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
 
     fun clearAllFavorites() = favoritesManager.clearAll()
 
-    fun unlockSecretStations() {
-        val secretStations = listOf(
-            RadioStation(
-                id = "fce_continuo",
-                name = "FCE Continuo",
-                streamUrl = "https://listen.radioking.com/radio/551009/stream/610262",
-                logoImageName = "FCELogo",
-                websiteUrl = "https://fce-lu.com/fce-continuo",
-                isEnabled = true
-            ),
-            RadioStation(
-                id = "crazy_poisons",
-                name = "Crazy Poisons Radio",
-                streamUrl = "http://server4.streamserver24.com:26607/stream/1/",
-                logoImageName = "CrazyPoisonsLogo",
-                websiteUrl = "https://crazypoisonsradio.biz/",
-                isEnabled = true
-            )
-        )
-        val current = _stations.value
-        val toAdd = secretStations.filter { secret -> current.none { it.id == secret.id } }
-        if (toAdd.isNotEmpty()) {
-            _stations.value = (current + toAdd).sortedBy { it.name }
-        }
-    }
-
     override fun onCleared() {
         super.onCleared()
         mediaController?.removeListener(playerListener)

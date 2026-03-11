@@ -162,8 +162,7 @@ fun MainScreen(viewModel: RadioViewModel) {
                     exportData = { viewModel.exportFavorites() },
                     onImportBytes = { viewModel.importFavorites(it) },
                     onClearAll = { viewModel.clearAllFavorites() },
-                    onDismiss = { showSettings = false },
-                    onUnlockSecret = { viewModel.unlockSecretStations() }
+                    onDismiss = { showSettings = false }
                 )
             }
         }
