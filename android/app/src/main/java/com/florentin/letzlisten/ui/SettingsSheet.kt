@@ -238,8 +238,8 @@ fun SettingsSheet(
                     .fillMaxWidth()
                     .then(
                         if (hasFavorites) Modifier.settingsRowClickable {
-                            exportAndShare(context, exportData)
-                            exportFeedback = languageManager.exportSuccess(favoritesCount)
+                            val exported = exportAndShare(context, exportData)
+                            if (exported) exportFeedback = languageManager.exportSuccess(favoritesCount)
                         } else Modifier
                     )
                     .padding(horizontal = 16.dp, vertical = 13.dp)
@@ -430,15 +430,20 @@ private fun SettingsCard(content: @Composable ColumnScope.() -> Unit) {
     )
 }
 
-private fun exportAndShare(context: Context, exportData: () -> ByteArray?) {
-    val bytes = exportData() ?: return
-    val file = File(context.cacheDir, "favoris-letzlisten.json")
-    file.writeBytes(bytes)
-    val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
-    val intent = Intent(Intent.ACTION_SEND).apply {
-        type = "application/json"
-        putExtra(Intent.EXTRA_STREAM, uri)
-        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+private fun exportAndShare(context: Context, exportData: () -> ByteArray?): Boolean {
+    val bytes = exportData() ?: return false
+    return try {
+        val file = File(context.cacheDir, "favoris-letzlisten.json")
+        file.writeBytes(bytes)
+        val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "application/json"
+            putExtra(Intent.EXTRA_STREAM, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        context.startActivity(Intent.createChooser(intent, null))
+        true
+    } catch (_: Exception) {
+        false
     }
-    context.startActivity(Intent.createChooser(intent, null))
 }
