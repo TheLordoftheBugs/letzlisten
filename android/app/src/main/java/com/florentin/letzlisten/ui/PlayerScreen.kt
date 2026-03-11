@@ -39,7 +39,6 @@ import com.florentin.letzlisten.ui.theme.AccentBlue
 import com.florentin.letzlisten.ui.theme.AccentRed
 import com.florentin.letzlisten.ui.theme.BackgroundBottom
 import com.florentin.letzlisten.ui.theme.BackgroundTop
-import com.florentin.letzlisten.ui.theme.SurfaceDark
 import com.florentin.letzlisten.ui.theme.TextPrimary
 import com.florentin.letzlisten.ui.theme.TextSecondary
 
@@ -280,20 +279,13 @@ fun PlayerScreen(
         }
 
         // Bottom control bar — Play centré, Share en bas à droite
-        Column(
+        Box(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(horizontal = 24.dp, vertical = barVerticalPadding)
         ) {
-            HorizontalDivider(color = Color.White.copy(alpha = 0.12f))
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(SurfaceDark)
-                    .navigationBarsPadding()
-                    .padding(horizontal = 24.dp, vertical = barVerticalPadding)
-            ) {
                 // Play/Stop — centré, plus grand que les boutons côtés (comme iOS playSize)
                 Box(
                     contentAlignment = Alignment.Center,
@@ -345,7 +337,6 @@ fun PlayerScreen(
                         modifier = Modifier.size(iconSize)
                     )
                 }
-            }
         }
     }
 }
