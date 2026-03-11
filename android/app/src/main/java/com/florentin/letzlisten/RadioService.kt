@@ -8,11 +8,17 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.extractor.metadata.icy.IcyInfo
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 
 class RadioService : MediaSessionService() {
 
     private var mediaSession: MediaSession? = null
+    private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     companion object {
         /** Raw ICY StreamTitle, updated on every ICY frame. Consumed by RadioViewModel. */
@@ -58,6 +64,22 @@ class RadioService : MediaSessionService() {
             }
         })
 
+        // When the ViewModel pushes a new artwork URI (station logo reset or iTunes album art),
+        // patch it into the current MediaItem so the notification updates.
+        serviceScope.launch {
+            icyArtworkUri.collect { uri ->
+                uri ?: return@collect
+                val currentItem = player.currentMediaItem ?: return@collect
+                val updatedMeta = currentItem.mediaMetadata.buildUpon()
+                    .setArtworkUri(uri)
+                    .build()
+                player.replaceMediaItem(
+                    player.currentMediaItemIndex,
+                    currentItem.buildUpon().setMediaMetadata(updatedMeta).build()
+                )
+            }
+        }
+
         mediaSession = MediaSession.Builder(this, player).build()
     }
 
@@ -76,6 +98,7 @@ class RadioService : MediaSessionService() {
     }
 
     override fun onDestroy() {
+        serviceScope.cancel()
         mediaSession?.run {
             player.release()
             release()
