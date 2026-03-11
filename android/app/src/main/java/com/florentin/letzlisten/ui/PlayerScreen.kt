@@ -103,12 +103,13 @@ fun PlayerScreen(
                     onClick = websiteUrl?.let { url -> { uriHandler.openUri(url) } }
                 )
                 Column(
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.weight(1f)
                 ) {
                     Text(
                         text = currentStation?.name ?: "",
-                        fontSize = 22.sp,
+                        fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = TextPrimary,
                         maxLines = 1,
@@ -118,23 +119,26 @@ fun PlayerScreen(
                         else Modifier
                     )
                     if (hasStartedPlaying && !currentTrack.isUnknown) {
-                        Spacer(Modifier.height(4.dp))
-                        Text(
-                            text = currentTrack.title,
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = TextPrimary,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Text(
-                            text = currentTrack.artist,
-                            fontSize = 13.sp,
-                            color = TextSecondary,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Spacer(Modifier.height(4.dp))
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = currentTrack.title,
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = TextPrimary,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Text(
+                                text = currentTrack.artist,
+                                fontSize = 13.sp,
+                                color = TextSecondary,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
                         IconButton(onClick = onToggleFavorite) {
                             Icon(
                                 imageVector = if (isFavorited) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
