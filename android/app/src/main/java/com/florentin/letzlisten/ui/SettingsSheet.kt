@@ -47,13 +47,17 @@ fun SettingsSheet(
     exportData: () -> ByteArray?,
     onImportBytes: (ByteArray) -> Int,
     onClearAll: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onUnlockSecret: () -> Unit = {}
 ) {
     val hasFavorites = favoritesCount > 0
     val context = LocalContext.current
     var showConfirmClear by remember { mutableStateOf(false) }
     var exportFeedback by remember { mutableStateOf<String?>(null) }
     var importFeedback by remember { mutableStateOf<String?>(null) }
+    var secretTapCount by remember { mutableStateOf(0) }
+    var secretUnlocked by remember { mutableStateOf(false) }
+    var secretFeedback by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(exportFeedback) {
         if (exportFeedback != null) {
@@ -65,6 +69,12 @@ fun SettingsSheet(
         if (importFeedback != null) {
             delay(3000)
             importFeedback = null
+        }
+    }
+    LaunchedEffect(secretFeedback) {
+        if (secretFeedback != null) {
+            delay(3000)
+            secretFeedback = null
         }
     }
 
@@ -101,7 +111,7 @@ fun SettingsSheet(
     }
 
     // Header iOS-style : titre centré + bouton "Terminé" à droite
-    Column(modifier = Modifier.fillMaxHeight()) {
+    Column(modifier = Modifier.fillMaxHeight(0.85f)) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -350,6 +360,16 @@ fun SettingsSheet(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .clickable {
+                        if (!secretUnlocked) {
+                            secretTapCount++
+                            if (secretTapCount >= 5) {
+                                secretUnlocked = true
+                                secretFeedback = "🔓 Mode secret activé"
+                                onUnlockSecret()
+                            }
+                        }
+                    }
                     .padding(horizontal = 16.dp, vertical = 13.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
@@ -366,6 +386,17 @@ fun SettingsSheet(
                     color = TextSecondary.copy(alpha = 0.5f)
                 )
             }
+        }
+
+        AnimatedVisibility(visible = secretFeedback != null, enter = fadeIn(), exit = fadeOut()) {
+            Text(
+                text = secretFeedback ?: "",
+                fontSize = 13.sp,
+                color = AccentBlue,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp, start = 4.dp)
+            )
         }
     } // fin Column scrollable
     } // fin Column fillMaxHeight
