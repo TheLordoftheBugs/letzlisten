@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.SaveAlt
 import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -55,6 +56,8 @@ fun SettingsSheet(
     var showConfirmClear by remember { mutableStateOf(false) }
     var exportFeedback by remember { mutableStateOf<String?>(null) }
     var importFeedback by remember { mutableStateOf<String?>(null) }
+    var saveFeedback by remember { mutableStateOf<String?>(null) }
+    var pendingSaveBytes by remember { mutableStateOf<ByteArray?>(null) }
     var secretTapCount by remember { mutableStateOf(0) }
     var secretUnlocked by remember { mutableStateOf(false) }
     var secretFeedback by remember { mutableStateOf<String?>(null) }
@@ -71,10 +74,31 @@ fun SettingsSheet(
             importFeedback = null
         }
     }
+    LaunchedEffect(saveFeedback) {
+        if (saveFeedback != null) {
+            delay(3000)
+            saveFeedback = null
+        }
+    }
     LaunchedEffect(secretFeedback) {
         if (secretFeedback != null) {
             delay(3000)
             secretFeedback = null
+        }
+    }
+
+    val saveLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        uri ?: return@rememberLauncherForActivityResult
+        val bytes = pendingSaveBytes ?: return@rememberLauncherForActivityResult
+        try {
+            context.contentResolver.openOutputStream(uri)?.use { it.write(bytes) }
+            saveFeedback = languageManager.saveSuccess(favoritesCount)
+        } catch (_: Exception) {
+            saveFeedback = "⚠ Échec de l'enregistrement"
+        } finally {
+            pendingSaveBytes = null
         }
     }
 
@@ -272,6 +296,62 @@ fun SettingsSheet(
                     )
                     Text(
                         text = exportFeedback ?: "",
+                        fontSize = 14.sp,
+                        color = TextSecondary.copy(alpha = 0.7f),
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)
+                    )
+                }
+            }
+
+            HorizontalDivider(
+                color = Color.White.copy(alpha = 0.1f),
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+
+            // Enregistrer sur l'appareil
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .then(
+                        if (hasFavorites) Modifier.settingsRowClickable {
+                            val bytes = exportData()
+                            if (bytes != null) {
+                                pendingSaveBytes = bytes
+                                saveLauncher.launch("favoris-letzlisten.json")
+                            }
+                        } else Modifier
+                    )
+                    .padding(horizontal = 16.dp, vertical = 13.dp)
+            ) {
+                Text(
+                    text = languageManager.saveToDevice,
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = if (hasFavorites) TextPrimary else TextPrimary.copy(alpha = 0.3f),
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    imageVector = Icons.Default.SaveAlt,
+                    contentDescription = null,
+                    tint = if (hasFavorites) AccentBlue else AccentBlue.copy(alpha = 0.3f),
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+
+            // Feedback save
+            AnimatedVisibility(
+                visible = saveFeedback != null,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                Column {
+                    HorizontalDivider(
+                        color = Color.White.copy(alpha = 0.1f),
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                    Text(
+                        text = saveFeedback ?: "",
                         fontSize = 14.sp,
                         color = TextSecondary.copy(alpha = 0.7f),
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)

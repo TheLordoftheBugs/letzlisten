@@ -149,11 +149,27 @@ class LanguageManager(context: Context) {
     }
 
     val exportFavorites: String get() = when (_currentLanguage.value) {
-        AppLanguage.LB -> "Exportéieren"
-        AppLanguage.FR -> "Exporter"
-        AppLanguage.DE -> "Exportieren"
-        AppLanguage.EN -> "Export"
-        AppLanguage.PT -> "Exportar"
+        AppLanguage.LB -> "Deelen"
+        AppLanguage.FR -> "Partager"
+        AppLanguage.DE -> "Teilen"
+        AppLanguage.EN -> "Share"
+        AppLanguage.PT -> "Partilhar"
+    }
+
+    val saveToDevice: String get() = when (_currentLanguage.value) {
+        AppLanguage.LB -> "Späicheren"
+        AppLanguage.FR -> "Enregistrer sur l'appareil"
+        AppLanguage.DE -> "Auf dem Gerät speichern"
+        AppLanguage.EN -> "Save to device"
+        AppLanguage.PT -> "Guardar no dispositivo"
+    }
+
+    fun saveSuccess(count: Int): String = when (_currentLanguage.value) {
+        AppLanguage.LB -> "✓ $count Favorit${if (count == 1) "" else "en"} gespäichert"
+        AppLanguage.FR -> "✓ $count favori${if (count == 1) "" else "s"} enregistré${if (count == 1) "" else "s"}"
+        AppLanguage.DE -> "✓ $count Favorit${if (count == 1) "" else "en"} gespeichert"
+        AppLanguage.EN -> "✓ $count favourite${if (count == 1) "" else "s"} saved"
+        AppLanguage.PT -> "✓ $count favorito${if (count == 1) "" else "s"} guardado${if (count == 1) "" else "s"}"
     }
 
     val importFavorites: String get() = when (_currentLanguage.value) {
