@@ -2,15 +2,17 @@ package com.florentin.letzlisten.ui
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.Radio
+import androidx.compose.material.icons.filled.WifiTethering
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -19,10 +21,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.florentin.letzlisten.data.Favorite
+import com.florentin.letzlisten.ui.theme.AccentBlue
 import com.florentin.letzlisten.ui.theme.AccentRed
 import com.florentin.letzlisten.ui.theme.TextPrimary
 import com.florentin.letzlisten.ui.theme.TextSecondary
@@ -77,26 +81,33 @@ fun FavoritesSheet(
                         imageVector = Icons.Default.FavoriteBorder,
                         contentDescription = null,
                         tint = TextSecondary,
-                        modifier = Modifier.size(56.dp)
+                        modifier = Modifier.size(60.dp)
                     )
                     Spacer(Modifier.height(16.dp))
-                    Text(noFavoritesLabel, fontSize = 17.sp, color = TextSecondary)
+                    Text(
+                        noFavoritesLabel,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = TextPrimary,
+                        textAlign = TextAlign.Center
+                    )
                     Spacer(Modifier.height(6.dp))
                     Text(
                         text = noFavoritesHintLabel,
-                        fontSize = 13.sp,
-                        color = TextSecondary.copy(alpha = 0.6f)
+                        fontSize = 15.sp,
+                        color = TextSecondary.copy(alpha = 0.7f),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 40.dp)
                     )
                 }
             }
         } else {
-            LazyColumn(contentPadding = PaddingValues(vertical = 8.dp)) {
+            LazyColumn(
+                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                 items(favorites, key = { it.id }) { fav ->
                     FavoriteRow(fav = fav, onRemove = { onRemove(fav.id) })
-                    HorizontalDivider(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        color = Color.White.copy(alpha = 0.06f)
-                    )
                 }
             }
         }
@@ -109,11 +120,17 @@ private fun FavoriteRow(fav: Favorite, onRemove: () -> Unit) {
     val dateStr = remember(fav.timestamp) {
         SimpleDateFormat("dd/MM HH:mm", Locale.getDefault()).format(Date(fav.timestamp))
     }
+    // Card arrondie individuelle — comme iOS FavoriteRowView
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = Color.White.copy(alpha = 0.06f),
+                shape = RoundedCornerShape(12.dp)
+            )
     ) {
-        // Zone cliquable — ouvre une recherche Google (comme iOS searchOnWeb)
+        // Zone cliquable → recherche Google (comme iOS searchOnWeb)
         Column(
             modifier = Modifier
                 .weight(1f)
@@ -123,46 +140,60 @@ private fun FavoriteRow(fav: Favorite, onRemove: () -> Unit) {
                         Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/search?q=$query"))
                     )
                 }
-                .padding(start = 16.dp, top = 12.dp, bottom = 12.dp, end = 4.dp)
+                .padding(start = 16.dp, top = 12.dp, bottom = 12.dp, end = 8.dp)
         ) {
             Text(
                 text = fav.title,
-                fontSize = 15.sp,
+                fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = TextPrimary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
+            Spacer(Modifier.height(4.dp))
             Text(
                 text = fav.artist,
-                fontSize = 13.sp,
-                color = TextSecondary,
+                fontSize = 15.sp,
+                color = TextPrimary.copy(alpha = 0.7f),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(top = 4.dp)
-            ) {
+            Spacer(Modifier.height(12.dp))
+            // Station — en bleu comme iOS
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    imageVector = Icons.Default.Radio,
+                    imageVector = Icons.Default.WifiTethering,
                     contentDescription = null,
-                    tint = TextSecondary.copy(alpha = 0.6f),
-                    modifier = Modifier.size(11.dp)
+                    tint = AccentBlue.copy(alpha = 0.8f),
+                    modifier = Modifier.size(12.dp)
                 )
-                Spacer(Modifier.width(4.dp))
+                Spacer(Modifier.width(6.dp))
                 Text(
-                    text = "${fav.stationName}  ·  $dateStr",
-                    fontSize = 11.sp,
-                    color = TextSecondary.copy(alpha = 0.6f)
+                    text = fav.stationName,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = AccentBlue.copy(alpha = 0.8f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
+            Spacer(Modifier.height(4.dp))
+            // Date — séparée comme iOS
+            Text(
+                text = dateStr,
+                fontSize = 13.sp,
+                color = TextPrimary.copy(alpha = 0.5f)
+            )
         }
-        IconButton(onClick = onRemove) {
+        // Bouton suppression — corbeille rouge comme iOS
+        IconButton(
+            onClick = onRemove,
+            modifier = Modifier.padding(horizontal = 4.dp)
+        ) {
             Icon(
-                imageVector = Icons.Default.Close,
+                imageVector = Icons.Default.Delete,
                 contentDescription = "Supprimer",
-                tint = TextSecondary.copy(alpha = 0.5f),
+                tint = AccentRed.copy(alpha = 0.7f),
                 modifier = Modifier.size(18.dp)
             )
         }

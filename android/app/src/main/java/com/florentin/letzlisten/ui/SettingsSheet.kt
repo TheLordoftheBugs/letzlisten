@@ -103,16 +103,9 @@ fun SettingsSheet(
         modifier = Modifier
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp)
+            .padding(top = 20.dp)
             .padding(bottom = 40.dp)
     ) {
-        Text(
-            text = languageManager.settings,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = TextPrimary,
-            modifier = Modifier.padding(vertical = 12.dp)
-        )
-
         // ── Section Paramètres ──────────────────────────────────────
         SettingsSectionLabel(languageManager.settings.uppercase())
 
