@@ -1,6 +1,5 @@
 package com.florentin.letzlisten.ui
 
-import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -24,7 +23,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.FileProvider
 import com.florentin.letzlisten.player.AppLanguage
 import com.florentin.letzlisten.player.LanguageManager
 import com.florentin.letzlisten.ui.theme.AccentBlue
@@ -32,7 +30,6 @@ import com.florentin.letzlisten.ui.theme.AccentRed
 import com.florentin.letzlisten.ui.theme.TextPrimary
 import com.florentin.letzlisten.ui.theme.TextSecondary
 import kotlinx.coroutines.delay
-import java.io.File
 
 @Composable
 fun SettingsSheet(
@@ -53,6 +50,7 @@ fun SettingsSheet(
     var showConfirmClear by remember { mutableStateOf(false) }
     var importFeedback by remember { mutableStateOf<String?>(null) }
     var saveFeedback by remember { mutableStateOf<String?>(null) }
+    var pendingSaveBytes by remember { mutableStateOf<ByteArray?>(null) }
 
     LaunchedEffect(importFeedback) {
         if (importFeedback != null) {
@@ -67,17 +65,19 @@ fun SettingsSheet(
         }
     }
 
-    fun shareExport(bytes: ByteArray) {
-        val file = File(context.cacheDir, "favoris-letzlisten.json")
-        file.writeBytes(bytes)
-        val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
-        val intent = Intent(Intent.ACTION_SEND).apply {
-            type = "application/json"
-            putExtra(Intent.EXTRA_STREAM, uri)
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    val saveLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        uri ?: return@rememberLauncherForActivityResult
+        val bytes = pendingSaveBytes ?: return@rememberLauncherForActivityResult
+        try {
+            context.contentResolver.openOutputStream(uri)?.use { it.write(bytes) }
+            saveFeedback = languageManager.exportSuccess(favoritesCount)
+        } catch (_: Exception) {
+            saveFeedback = "⚠ Échec de l'enregistrement"
+        } finally {
+            pendingSaveBytes = null
         }
-        context.startActivity(Intent.createChooser(intent, null))
-        saveFeedback = languageManager.exportSuccess(favoritesCount)
     }
 
     val importLauncher = rememberLauncherForActivityResult(
@@ -241,7 +241,10 @@ fun SettingsSheet(
                     .then(
                         if (hasFavorites) Modifier.settingsRowClickable {
                             val bytes = exportData()
-                            if (bytes != null) shareExport(bytes)
+                            if (bytes != null) {
+                                pendingSaveBytes = bytes
+                                saveLauncher.launch("favoris-letzlisten.json")
+                            }
                         } else Modifier
                     )
                     .padding(horizontal = 16.dp, vertical = 13.dp)
