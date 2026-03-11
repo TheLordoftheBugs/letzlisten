@@ -13,7 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.IosShare
+import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -257,7 +257,7 @@ fun SettingsSheet(
                     modifier = Modifier.weight(1f)
                 )
                 Icon(
-                    imageVector = Icons.Default.IosShare,
+                    imageVector = Icons.Default.Upload,
                     contentDescription = null,
                     tint = if (hasFavorites) AccentBlue else AccentBlue.copy(alpha = 0.3f),
                     modifier = Modifier.size(20.dp)
