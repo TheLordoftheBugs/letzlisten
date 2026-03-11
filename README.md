@@ -14,15 +14,6 @@ letzlisten/
 
 ## About the app
 
-### Features
-
-- Stream curated Luxembourg radio stations
-- Automatic song & artist detection from stream metadata
-- Album artwork fetched via iTunes Search API
-- Lock screen / Control Centre integration
-- Favourites — save and search songs you loved
-- Multilingual UI: Lëtzebuergesch · Français · Deutsch · English · Português
-
 ### Platforms
 
 | Platform | Status |
