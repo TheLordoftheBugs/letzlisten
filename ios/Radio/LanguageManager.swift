@@ -312,6 +312,46 @@ class LanguageManager: ObservableObject {
         return base
     }
 
+    var appearance: String {
+        switch currentLanguage {
+        case .luxembourgish: return "Erscheinungsbild"
+        case .german:        return "Erscheinungsbild"
+        case .english:       return "Appearance"
+        case .french:        return "Apparence"
+        case .portuguese:    return "Aparência"
+        }
+    }
+
+    var appearanceLight: String {
+        switch currentLanguage {
+        case .luxembourgish: return "Clair"
+        case .german:        return "Hell"
+        case .english:       return "Light"
+        case .french:        return "Clair"
+        case .portuguese:    return "Claro"
+        }
+    }
+
+    var appearanceDark: String {
+        switch currentLanguage {
+        case .luxembourgish: return "Donkel"
+        case .german:        return "Dunkel"
+        case .english:       return "Dark"
+        case .french:        return "Sombre"
+        case .portuguese:    return "Escuro"
+        }
+    }
+
+    var appearanceDevice: String {
+        switch currentLanguage {
+        case .luxembourgish: return "Apparat"
+        case .german:        return "Gerät"
+        case .english:       return "Device"
+        case .french:        return "Appareil"
+        case .portuguese:    return "Dispositivo"
+        }
+    }
+
     func shareStationMessage(station: String, url: String?) -> String {
         let base: String
         switch currentLanguage {

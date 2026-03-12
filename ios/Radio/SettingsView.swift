@@ -14,6 +14,7 @@ struct SettingsView: View {
     @Environment(\.dismiss) var dismiss
 
     @AppStorage("continuousPlayback") private var continuousPlayback = true
+    @AppStorage("AppearanceMode") private var appearanceMode: String = "system"
 
     @State private var showFileImporter = false
     @State private var exportFeedback: String? = nil
@@ -85,6 +86,29 @@ struct SettingsView: View {
                                 }
                             }
                             .tint(.blue)
+                            .padding(.vertical, 13)
+                            .padding(.horizontal, 16)
+
+                            Divider()
+                                .background(Color.white.opacity(0.1))
+                                .padding(.horizontal, 16)
+
+                            // Apparence
+                            HStack {
+                                Text(languageManager.appearance)
+                                    .font(.system(size: 17, weight: .medium))
+                                    .foregroundColor(.white)
+                                    .lineLimit(1)
+                                Spacer(minLength: 8)
+                                Picker("", selection: $appearanceMode) {
+                                    Text(languageManager.appearanceLight).tag("light")
+                                    Text(languageManager.appearanceDark).tag("dark")
+                                    Text(languageManager.appearanceDevice).tag("system")
+                                }
+                                .pickerStyle(.menu)
+                                .accentColor(.blue)
+                                .fixedSize()
+                            }
                             .padding(.vertical, 13)
                             .padding(.horizontal, 16)
                         }
