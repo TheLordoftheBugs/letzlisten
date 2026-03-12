@@ -1,6 +1,6 @@
 {
-  "version": "1.9",
-  "last_updated": "2026-03-11 00:00",
+  "version": "2.0",
+  "last_updated": "2026-03-12 00:00",
   "stations":
   [
     {
@@ -25,6 +25,14 @@
       "streamURL": "https://streams.radio.co/sa631ff66a/listen",
       "logoImageName": "RGLLogo",
       "websiteURL": "https://www.rgl.lu",
+      "isEnabled": true
+    },
+    {
+      "id": "generation_dance",
+      "name": "Generation Dance",
+      "streamURL": "https://radio.gen.dance/listen/gdr/mobile",
+      "logoImageName": "GenerationDanceLogo",
+      "websiteURL": "https://generation.dance/fr/",
       "isEnabled": true
     }
   ]
