@@ -1,6 +1,14 @@
 # Changelog
 
-## Version 1.2 — développement en cours
+## Version 1.3 — incoming
+
+### iOS
+- **Favourites & Radio menus** — replaced native List with ScrollView + custom cards to match the Settings visual style; per-row trash button replaces swipe-to-delete
+- **iPad panels** — favourites panel and station sidebar rows now share the same card style as Settings
+- **Settings** — "Clear all" button visible but disabled (greyed out) when no favourites, consistent with Export button
+- **Top buttons** — Settings and Done buttons repositioned to the right; station selector button moved to centre
+
+## Version 1.2 — 2026-03-14
 
 ### iOS
 - **Favourites & Radio menus** — replaced native List with ScrollView + custom cards to match the Settings visual style; per-row trash button replaces swipe-to-delete
