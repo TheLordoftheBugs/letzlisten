@@ -25,7 +25,7 @@ letzlisten/
 
 | Platform | Status |
 |---|---|
-| iOS 16+ | Available on the App Store |
+| iOS 26+ | Available on the App Store |
 | Android 8.0+ | Under testing |
 
 ## Download
