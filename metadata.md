@@ -31,7 +31,7 @@ FEATURES
 • Lock screen integration
 • Background playback — keep listening while you use other apps
 
-Available in French, Lëtzebuergesch, Deutsch, English and Portuguese.
+Available in French, Lëtzebuergesch, Deutsch, English and Portuguese & much more.
 
 Simple, fast, and focused. No account, no subscription, no ads — just your radio.
 
