@@ -3,10 +3,16 @@
 ## Version 1.3 — incoming
 
 ### iOS
-- **Favourites & Radio menus** — replaced native List with ScrollView + custom cards to match the Settings visual style; per-row trash button replaces swipe-to-delete
-- **iPad panels** — favourites panel and station sidebar rows now share the same card style as Settings
-- **Settings** — "Clear all" button visible but disabled (greyed out) when no favourites, consistent with Export button
-- **Top buttons** — Settings and Done buttons repositioned to the right; station selector button moved to centre
+
+- **Generation Dance ** — new station added with HD stream option; dedicated theme.
+- **Per-station theme** — theme can be automatically linked to the selected station via a new toggle in Settings
+- **Advanced panel** — floating side panel showing real-time stream info and an event log; visible tab to open it
+- **SD / HD** — stream quality selector available from the advanced panel, also visible in landscape mode even when no track is playing
+
+### Android *(waiting google approval)*
+- **iOS feature parity** — theme system, advanced mode, custom stations and 9 languages ported from iOS
+- **Station logos** — full favicon → bundled assets cascade aligned with iOS
+- **Bug fixes** — logo cropping, delete button, theme switching, playback resume
 
 ## Version 1.2 — 2026-03-14
 
