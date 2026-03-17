@@ -4,7 +4,7 @@
 
 ### iOS
 
-- **Generation Dance ** — new station added with HD stream option; dedicated theme.
+- **Generation Dance** — new station added with HD stream option; dedicated theme.
 - **Per-station theme** — theme can be automatically linked to the selected station via a new toggle in Settings
 - **Advanced panel** — floating side panel showing real-time stream info and an event log; visible tab to open it
 - **SD / HD** — stream quality selector available from the advanced panel, also visible in landscape mode even when no track is playing
