@@ -1,6 +1,13 @@
 # Changelog
 
-## Version 1.3 — incoming
+## Version 1.4 — incoming
+
+### iOS
+
+- **OS** — Now compatible with iOS 16 and later.
+- **UI Improvements** — Moving UI parts & adjusting behaviour
+  
+## Version 1.3 — 2026-03-18
 
 ### iOS
 
